@@ -146,6 +146,16 @@
                 if (!item) return;
                 this.switchTo(item.dataset.section, item);
             });
+
+            // Bottom tab bar click handler
+            const bottomNav = document.getElementById('mobile-bottom-nav');
+            if (bottomNav) {
+                bottomNav.addEventListener('click', (e) => {
+                    const tab = e.target.closest('.mob-tab');
+                    if (!tab) return;
+                    this.switchTo(tab.dataset.section);
+                });
+            }
         },
 
         switchTo(sectionId, clickedItem) {
@@ -162,6 +172,13 @@
             // Update nav items
             $$('.nav-item').forEach(n => n.classList.remove('active'));
             if (clickedItem) clickedItem.classList.add('active');
+            // Sync sidebar nav item active state even when triggered from bottom bar
+            const sidebarItem = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
+            if (sidebarItem) sidebarItem.classList.add('active');
+            // Sync bottom tab bar active state
+            $$('.mob-tab').forEach(t => t.classList.remove('active'));
+            const activeTab = document.querySelector(`.mob-tab[data-section="${sectionId}"]`);
+            if (activeTab) activeTab.classList.add('active');
 
             // Show skeleton loader during transition
             if (skeleton) skeleton.classList.add('visible');
@@ -241,6 +258,25 @@
             set(goals, activeGoals);
             set(notes, noteCount);
             set(refls, reflCount);
+
+            // Sync bottom tab bar badges
+            const mobGoals = document.getElementById('mob-badge-goals');
+            const mobNotes = document.getElementById('mob-badge-notes');
+            const mobRefls = document.getElementById('mob-badge-reflections');
+
+            const setMob = (el, count) => {
+                if (!el) return;
+                if (count > 0) {
+                    el.textContent = count > 99 ? '99+' : count;
+                    el.hidden = false;
+                } else {
+                    el.hidden = true;
+                }
+            };
+
+            setMob(mobGoals, activeGoals);
+            setMob(mobNotes, noteCount);
+            setMob(mobRefls, reflCount);
         },
 
         /**

@@ -1284,3 +1284,226 @@
         transition: none;
     }
 }
+
+/* =============================================
+   TABLET ICON-ONLY SIDEBAR (769px – 1023px)
+   ============================================= */
+@media (min-width: 769px) and (max-width: 1023px) {
+    .sidebar {
+        width: 72px;
+        padding: 20px 8px;
+        overflow: visible;
+    }
+
+    .logo-container {
+        justify-content: center;
+        padding: 8px;
+        gap: 0;
+    }
+
+    .logo-text {
+        display: none;
+    }
+
+    .logo-icon {
+        font-size: 24px;
+    }
+
+    /* Nav items — icon-only, centered */
+    .nav-item {
+        justify-content: center;
+        padding: 12px 8px;
+        position: relative;
+        border-radius: 14px;
+        min-height: 48px;
+    }
+
+    .nav-label {
+        display: none !important;
+    }
+
+    .nav-feature-tag {
+        display: none !important;
+    }
+
+    .nav-badge {
+        /* Show as small dot instead */
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        min-width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        padding: 0;
+        font-size: 0; /* hide number, just show dot */
+    }
+
+    .nav-badge.has-count {
+        background: var(--accent-color);
+        display: block;
+    }
+
+    .nav-icon-wrap {
+        margin: 0;
+    }
+
+    /* Tooltip on hover */
+    .nav-item[data-tooltip]:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        left: calc(100% + 12px);
+        top: 50%;
+        transform: translateY(-50%);
+        background: var(--glass-bg-elevated);
+        -webkit-backdrop-filter: var(--glass-blur-light);
+        backdrop-filter: var(--glass-blur-light);
+        border: 1px solid var(--glass-border);
+        color: var(--text-primary);
+        font-size: 12px;
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 8px;
+        white-space: nowrap;
+        box-shadow: var(--shadow-md);
+        pointer-events: none;
+        z-index: 9999;
+    }
+
+    .sidebar-footer {
+        display: none;
+    }
+
+    /* Main content gets more space */
+    .main-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    /* Sections container gets normal padding */
+    .sections-container {
+        padding: clamp(16px, 3vw, 28px);
+    }
+
+    /* Dashboard grid — 3 columns on tablet */
+    .dashboard-grid,
+    .stat-cards-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+    }
+
+    /* Resources — 2 cols on tablet */
+    .resources-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* =============================================
+   MOBILE BOTTOM TAB BAR — show on ≤768px
+   ============================================= */
+@media (max-width: 768px) {
+    /* Show the bottom nav */
+    .mobile-bottom-nav {
+        display: flex;
+    }
+
+    /* Content area needs bottom padding for tab bar */
+    .sections-container {
+        padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 8px) !important;
+    }
+
+    /* Header on mobile — reduce padding */
+    .header {
+        padding: 10px 14px;
+        gap: 10px;
+    }
+
+    /* Header: show toggle for sidebar (data export access) */
+    .sidebar-toggle {
+        flex-shrink: 0;
+    }
+
+    /* Compact header right side */
+    .header-right {
+        gap: 6px;
+    }
+
+    /* Search box — hide on very small screens, shown via a dedicated search section */
+    .search-box {
+        display: none;
+    }
+
+    /* Theme and lang toggle — compact */
+    .theme-toggle-btn,
+    .lang-toggle-btn {
+        padding: 7px 9px;
+        font-size: 14px;
+    }
+
+    /* Avatar compact */
+    .avatar {
+        width: 34px;
+        height: 34px;
+        font-size: 16px;
+    }
+
+    /* Page title fluid */
+    .page-title {
+        font-size: clamp(15px, 4vw, 20px);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* =============================================
+   IMPROVED MOBILE STAT CARD GRID
+   ============================================= */
+@media (max-width: 600px) {
+    .stat-cards-grid,
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .stat-card {
+        padding: 14px 12px;
+        gap: 10px;
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .stat-icon-wrap {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+
+    .stat-label {
+        font-size: 11px;
+    }
+
+    .stat-number {
+        font-size: clamp(18px, 5vw, 24px);
+    }
+}
+
+/* =============================================
+   TINY MOBILE BOTTOM TAB LABELS
+   ============================================= */
+@media (max-width: 360px) {
+    .mob-tab-label {
+        display: none;
+    }
+
+    .mob-tab {
+        padding: 8px 2px;
+        min-height: 50px;
+    }
+
+    .mob-tab.active::before {
+        width: 36px;
+        height: 26px;
+    }
+}
+

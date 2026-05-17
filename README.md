@@ -24,14 +24,14 @@ A personal **Professional Learning Network** dashboard for tracking goals, resou
 - 🌐 **i18n** — Norwegian (default) and English
 - ☁️ **Cloud sync** — Supabase auth (email/password) with real-time data sync
 - 💾 **Offline-first** — localStorage fallback when not signed in
-- 📱 **Fully responsive** — hamburger sidebar, touch-friendly inputs, 4-tier breakpoints (1024px tablet landscape, 900px tablet portrait, 768px, 480px, 360px tiny mobile) covering all new components
+- 📱 **Fully responsive** — **iOS-style mobile bottom tab bar** (fixed glass nav), **tablet icon-only sidebar** (72px with hover tooltips), fluid clamp() typography; 5 breakpoints: 1024px, 769–1023px (tablet), 768px (mobile), 600px, 360px
 - 🔑 **Forgot password** — send reset link via Supabase email
 - 👤 **Profile management** — avatar dropdown with display name editor, avatar color picker, and change password — all saved to Supabase user metadata
 - ⌨️ **Keyboard shortcuts panel** — press `?` to show all shortcuts; `Alt+1–6` for sections, `Ctrl+K` for search
 - ⏱️ **Focus session counter** — tracks completed 25-min pomodoro sessions, shown as a dashboard stat card
 - 🧭 **Onboarding tour** — 4-step welcome modal for new users (shown once)
 - 📲 **PWA** — installable as standalone app, offline caching via service worker
-- 🎨 **Professional Glassmorphism UI** — backdrop blur, gradient accents, delightful micro-animations
+- 🎨 **iOS-style Glassmorphism** — `blur(40px) saturate(200%)` glass tokens, vibrant radial-gradient body background, inner highlight (`inset 0 1px 0`) on every card, unified `--glass-*` variables across sidebar, header, cards, and modals
 - 🎯 **Focus mode** — 25-minute focus session timer
 - 📄 **PDF export** — generate a styled learning report
 - 📦 **Import / Export** — download or upload all data as JSON
