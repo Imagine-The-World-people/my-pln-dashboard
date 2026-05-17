@@ -393,8 +393,20 @@
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
                             <span data-i18n="syncActive">Synced</span>
                         </span>
-                        <div class="avatar" id="user-avatar">👤</div>
-                        <button class="signout-btn" id="signout-btn" data-i18n="signOut" hidden>Logg ut</button>
+                        <div class="avatar" id="user-avatar" role="button" aria-haspopup="true" aria-label="User menu" tabindex="0">👤</div>
+                        <!-- Avatar dropdown -->
+                        <div class="avatar-dropdown hidden" id="avatar-dropdown" role="menu">
+                            <div class="avatar-dropdown-email" id="avatar-dropdown-email"></div>
+                            <button class="avatar-dropdown-item" id="btn-open-profile">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+                                Edit Profile
+                            </button>
+                            <div class="avatar-dropdown-divider"></div>
+                            <button class="avatar-dropdown-item avatar-dropdown-item--danger" id="signout-btn" hidden>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                                <span data-i18n="signOut">Logg ut</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -1070,6 +1082,56 @@
 
     <!-- Notification Toast Container -->
     <div id="notification-container"></div>
+
+    <!-- Profile Modal -->
+    <div class="modal-overlay hidden" id="profile-modal-overlay">
+        <div class="modal-panel profile-modal" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
+            <div class="profile-modal-header">
+                <div class="profile-modal-avatar" id="profile-modal-avatar"></div>
+                <div class="profile-modal-title-group">
+                    <h2 id="profile-modal-title">My Profile</h2>
+                    <p class="profile-modal-email" id="profile-modal-email-display"></p>
+                </div>
+                <button class="profile-modal-close" id="btn-close-profile" aria-label="Close">&times;</button>
+            </div>
+            <div class="profile-modal-body">
+                <!-- Display Name -->
+                <div class="profile-field-group">
+                    <label class="profile-field-label" for="profile-display-name">Display Name</label>
+                    <div class="profile-field-row">
+                        <input class="profile-field-input" id="profile-display-name" type="text" placeholder="Your name" maxlength="40" autocomplete="name">
+                        <button class="profile-save-btn" id="btn-save-display-name">Save</button>
+                    </div>
+                </div>
+
+                <!-- Avatar color -->
+                <div class="profile-field-group">
+                    <label class="profile-field-label">Avatar Color</label>
+                    <div class="avatar-color-grid" id="avatar-color-grid">
+                        <button class="avatar-color-swatch" data-color="#7c8fff" style="background:#7c8fff" title="Indigo"></button>
+                        <button class="avatar-color-swatch" data-color="#a78bfa" style="background:#a78bfa" title="Purple"></button>
+                        <button class="avatar-color-swatch" data-color="#34d399" style="background:#34d399" title="Emerald"></button>
+                        <button class="avatar-color-swatch" data-color="#f59e0b" style="background:#f59e0b" title="Amber"></button>
+                        <button class="avatar-color-swatch" data-color="#f87171" style="background:#f87171" title="Red"></button>
+                        <button class="avatar-color-swatch" data-color="#06b6d4" style="background:#06b6d4" title="Cyan"></button>
+                        <button class="avatar-color-swatch" data-color="#ec4899" style="background:#ec4899" title="Pink"></button>
+                        <button class="avatar-color-swatch" data-color="#94a3b8" style="background:#94a3b8" title="Slate"></button>
+                    </div>
+                </div>
+
+                <div class="profile-divider"></div>
+
+                <!-- Change Password -->
+                <div class="profile-field-group">
+                    <label class="profile-field-label">Change Password</label>
+                    <input class="profile-field-input" id="profile-new-password" type="password" placeholder="New password (min 6 chars)" maxlength="128" autocomplete="new-password">
+                    <input class="profile-field-input" id="profile-confirm-password" type="password" placeholder="Confirm new password" maxlength="128" autocomplete="new-password" style="margin-top:8px">
+                    <div class="profile-pw-note" id="profile-pw-note"></div>
+                    <button class="profile-save-btn profile-save-btn--pw" id="btn-save-password">Update Password</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
     <script>

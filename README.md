@@ -17,7 +17,7 @@ A personal **Professional Learning Network** dashboard for tracking goals, resou
 | **Resources** | Add/search/filter resources, **star ratings (1–5)**, type badges (YouTube, Blog, Podcast), category system, topic-colored tags, combined filtering |
 | **Notes** | Rich note cards with **pin to top**, **search filter**, drawing canvas, file attachments, inline edit, timestamps |
 | **Reflections** | Timeline layout with expand/collapse, color-coded question blocks, relative timestamps |
-| **Insights** | Analytics dashboard — KPI cards, goal progress, **7-day activity bar chart**, **GitHub-style streak calendar**, top resource type, notes stats |
+| **Insights** | Analytics dashboard — **5 KPI cards** (goals, completed, notes, reflections, resources), **quick stats strip** (streak, best day, avg rating, overdue), goal progress bar, **goal category breakdown**, 7-day activity bar chart, GitHub-style streak calendar, top resource type, notes stats |
 
 ### General
 - 🌗 **Dark / Light theme** — sophisticated color palette; toggle with persistence
@@ -26,6 +26,7 @@ A personal **Professional Learning Network** dashboard for tracking goals, resou
 - 💾 **Offline-first** — localStorage fallback when not signed in
 - 📱 **Fully responsive** — hamburger sidebar, touch-friendly inputs, mobile-optimized layout
 - 🔑 **Forgot password** — send reset link via Supabase email
+- 👤 **Profile management** — avatar dropdown with display name editor, avatar color picker, and change password — all saved to Supabase user metadata
 - ⏱️ **Auto-logout** — 30-minute inactivity timer with 1-minute warning toast
 - 🧭 **Onboarding tour** — 4-step welcome modal for new users (shown once)
 - 📲 **PWA** — installable as standalone app, offline caching via service worker

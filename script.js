@@ -3326,22 +3326,19 @@ ${reflectionsHtml}
 
             // Start auto-logout only after sign-in (set up in _onSignedIn)
 
-
+            // Sign-out button is now inside the avatar dropdown — wired in ProfileModal
             $('#signout-btn')?.addEventListener('click', () => {
                 supabaseClient.auth.signOut()
-                    .then(() => notify('Logget ut', 'Du er n\u00e5 logget ut', 'info'));
+                    .then(() => notify('Logget ut', 'Du er nå logget ut', 'info'));
             });
+
+            ProfileModal.init();
         },
 
         _onSignedIn(user) {
             $('#login-overlay')?.classList.add('hidden');
 
-            const avatar = $('#user-avatar');
-            if (avatar) {
-                const initial = escapeHtml((user.email?.[0] || '\u{1F464}').toUpperCase());
-                avatar.innerHTML = initial;
-                avatar.title = user.email;
-            }
+            Auth._updateAvatarUI(user);
 
             const signoutBtn = $('#signout-btn');
             if (signoutBtn) signoutBtn.hidden = false;
@@ -3355,6 +3352,22 @@ ${reflectionsHtml}
             Onboarding.maybeShow();
         },
 
+        _updateAvatarUI(user) {
+            const meta = user.user_metadata || {};
+            const name = meta.display_name || user.email || '';
+            const initial = escapeHtml((name[0] || '👤').toUpperCase());
+            const color = meta.avatar_color || '#7c8fff';
+            const avatar = $('#user-avatar');
+            if (avatar) {
+                avatar.innerHTML = initial;
+                avatar.title = name;
+                avatar.style.background = color;
+            }
+            // also update dropdown email
+            const dropEmail = $('#avatar-dropdown-email');
+            if (dropEmail) dropEmail.textContent = user.email;
+        },
+
         _onSignedOut() {
             const input = $('#auth-password');
             if (input) input.value = '';
@@ -3363,9 +3376,14 @@ ${reflectionsHtml}
 
             $('#login-overlay')?.classList.remove('hidden');
             AutoLogout.stop();
+            ProfileModal.close();
 
             const avatar = $('#user-avatar');
-            if (avatar) { avatar.innerHTML = '\u{1F464}'; avatar.title = ''; }
+            if (avatar) {
+                avatar.innerHTML = '👤';
+                avatar.title = '';
+                avatar.style.background = '';
+            }
 
             const signoutBtn = $('#signout-btn');
             if (signoutBtn) signoutBtn.hidden = true;
@@ -3374,6 +3392,174 @@ ${reflectionsHtml}
             if (syncBadge) syncBadge.hidden = true;
 
             Store._onWrite = null;
+        }
+    };
+
+    // =========================================
+    // Profile Modal
+    // =========================================
+
+    const ProfileModal = {
+        _currentUser: null,
+
+        init() {
+            // Avatar click — toggle dropdown
+            const avatarEl = $('#user-avatar');
+            const dropdown = $('#avatar-dropdown');
+            if (avatarEl && dropdown) {
+                avatarEl.addEventListener('click', () => this._toggleDropdown());
+                avatarEl.addEventListener('keydown', e => {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this._toggleDropdown(); }
+                });
+                document.addEventListener('click', e => {
+                    if (!avatarEl.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                }, true);
+            }
+
+            // Open profile modal button
+            $('#btn-open-profile')?.addEventListener('click', () => {
+                dropdown?.classList.add('hidden');
+                this.open();
+            });
+
+            // Close profile modal
+            $('#btn-close-profile')?.addEventListener('click', () => this.close());
+            $('#profile-modal-overlay')?.addEventListener('click', e => {
+                if (e.target.id === 'profile-modal-overlay') this.close();
+            });
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') this.close();
+            });
+
+            // Save display name
+            $('#btn-save-display-name')?.addEventListener('click', () => this._saveDisplayName());
+
+            // Avatar color swatches
+            $('#avatar-color-grid')?.addEventListener('click', e => {
+                const swatch = e.target.closest('.avatar-color-swatch');
+                if (!swatch) return;
+                this._setAvatarColor(swatch.dataset.color);
+            });
+
+            // Save password
+            $('#btn-save-password')?.addEventListener('click', () => this._savePassword());
+        },
+
+        _toggleDropdown() {
+            $('#avatar-dropdown')?.classList.toggle('hidden');
+        },
+
+        async open() {
+            const overlay = $('#profile-modal-overlay');
+            if (!overlay) return;
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) return;
+            this._currentUser = user;
+            const meta = user.user_metadata || {};
+
+            // Populate fields
+            const nameInput = $('#profile-display-name');
+            if (nameInput) nameInput.value = meta.display_name || '';
+
+            const emailDisp = $('#profile-modal-email-display');
+            if (emailDisp) emailDisp.textContent = user.email;
+
+            // Populate avatar preview
+            const avatarPrev = $('#profile-modal-avatar');
+            const name = meta.display_name || user.email || '';
+            const color = meta.avatar_color || '#7c8fff';
+            if (avatarPrev) {
+                avatarPrev.textContent = (name[0] || '?').toUpperCase();
+                avatarPrev.style.background = color;
+            }
+
+            // Mark active color swatch
+            this._refreshSwatchActive(color);
+
+            // Clear password fields
+            ['#profile-new-password', '#profile-confirm-password'].forEach(sel => {
+                const el = $(sel); if (el) el.value = '';
+            });
+            const pwNote = $('#profile-pw-note');
+            if (pwNote) pwNote.textContent = '';
+
+            overlay.classList.remove('hidden');
+        },
+
+        close() {
+            $('#profile-modal-overlay')?.classList.add('hidden');
+        },
+
+        _refreshSwatchActive(color) {
+            $$('.avatar-color-swatch').forEach(s => {
+                s.classList.toggle('avatar-color-swatch--active', s.dataset.color === color);
+            });
+        },
+
+        async _saveDisplayName() {
+            const input = $('#profile-display-name');
+            const name = input?.value.trim();
+            const btn = $('#btn-save-display-name');
+            if (!name) { notify('Name required', 'Please enter a display name', 'error'); return; }
+            if (btn) btn.disabled = true;
+            const { data, error } = await supabaseClient.auth.updateUser({
+                data: { display_name: name }
+            });
+            if (btn) btn.disabled = false;
+            if (error) {
+                notify('Error', error.message, 'error');
+            } else {
+                this._currentUser = data.user;
+                Auth._updateAvatarUI(data.user);
+                const avatarPrev = $('#profile-modal-avatar');
+                if (avatarPrev) avatarPrev.textContent = (name[0] || '?').toUpperCase();
+                notify('Profile updated ✅', 'Display name saved', 'success');
+            }
+        },
+
+        async _setAvatarColor(color) {
+            this._refreshSwatchActive(color);
+            const avatarPrev = $('#profile-modal-avatar');
+            if (avatarPrev) avatarPrev.style.background = color;
+            const { data, error } = await supabaseClient.auth.updateUser({
+                data: { avatar_color: color }
+            });
+            if (error) {
+                notify('Error', error.message, 'error');
+            } else {
+                this._currentUser = data.user;
+                Auth._updateAvatarUI(data.user);
+            }
+        },
+
+        async _savePassword() {
+            const newPw = $('#profile-new-password')?.value;
+            const confirmPw = $('#profile-confirm-password')?.value;
+            const pwNote = $('#profile-pw-note');
+            if (!newPw || newPw.length < 6) {
+                if (pwNote) pwNote.textContent = '⚠️ Password must be at least 6 characters';
+                return;
+            }
+            if (newPw !== confirmPw) {
+                if (pwNote) pwNote.textContent = '⚠️ Passwords do not match';
+                return;
+            }
+            if (pwNote) pwNote.textContent = '';
+            const btn = $('#btn-save-password');
+            if (btn) btn.disabled = true;
+            const { error } = await supabaseClient.auth.updateUser({ password: newPw });
+            if (btn) btn.disabled = false;
+            if (error) {
+                notify('Error', error.message, 'error');
+                if (pwNote) pwNote.textContent = `⚠️ ${error.message}`;
+            } else {
+                ['#profile-new-password', '#profile-confirm-password'].forEach(sel => {
+                    const el = $(sel); if (el) el.value = '';
+                });
+                notify('Password updated ✅', 'Your password has been changed', 'success');
+            }
         }
     };
 
