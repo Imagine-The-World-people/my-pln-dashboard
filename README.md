@@ -20,17 +20,40 @@ A personal **Professional Learning Network** dashboard for tracking goals, resou
 | **Insights** | Analytics dashboard — KPI cards with spark bars, goal progress, top resource type, notes/drawings stats, deep dive metrics |
 
 ### General
-- 🌗 **Dark / Light theme** — toggle with persistence
+- 🌗 **Dark / Light theme** — sophisticated color palette with warm, creative tones; toggle with persistence
 - 🌐 **i18n** — Norwegian (default) and English
 - ☁️ **Cloud sync** — Supabase auth (email/password) with real-time data sync
 - 💾 **Offline-first** — localStorage fallback when not signed in
 - 📱 **Fully responsive** — hamburger sidebar, touch-friendly inputs, mobile-optimized layout
-- 🎨 **Glassmorphism UI** — backdrop blur, gradient accents, smooth animations, card hover effects
+- 🎨 **Professional Glassmorphism UI** — sophisticated backdrop blur, gradient accents, delightful micro-animations, smooth card transitions, elevated hover effects
+- ✨ **Refined Animations** — smooth entrance animations, playful interactions, bounce effects, polished state transitions
 - 🎯 **Focus mode** — 25-minute focus session timer with toast notification on completion
 - 📄 **PDF export** — generate a styled learning report with all goals, notes, reflections, and stats
 - 📦 **Import / Export** — download or upload all data as JSON
 - ♿ **Accessible** — focus-visible outlines, `prefers-reduced-motion` support, ARIA attributes
 - 🔔 **Toast notifications** — contextual feedback for all actions
+
+---
+
+## 🎨 Design System
+
+The dashboard features a **sophisticated, professional UI** with a focus on user delight:
+
+### Color Palette
+- **Warm & Creative**: Primary colors (`#6b7aff`, `#9d5bd2`, `#ff6b9d`) designed for inspiration
+- **High Contrast**: WCAG AA compliant text and interactive elements
+- **Adaptive**: Separate light mode with refined, professional appearance
+
+### Interactions
+- **Micro-animations**: Smooth state transitions, bounce effects, and entrance animations
+- **Delightful Hover States**: Cards lift, icons rotate and glow, buttons respond with polish
+- **Touch-Friendly**: Tap feedback on mobile, smooth scrolling, accessible button sizes
+
+### Components
+- **Glass-morphism Cards**: Sophisticated backdrop blur with subtle gradient overlays
+- **Animated Buttons**: Shine effect on hover, springy press feedback, smooth transitions
+- **Icon System**: Consistent SVG icons with smooth transformations
+- **Typography**: Clear hierarchy with weighted text, improved readability
 
 ---
 
