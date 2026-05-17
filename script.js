@@ -1,5 +1,5 @@
 // =============================================
-// PLN Dashboard – Main Application
+// Kompass – Main Application
 // =============================================
 
 (function PLNDashboard() {
@@ -2318,7 +2318,7 @@
                 navResources:       'Ressurser',
                 navNotes:           'Notater',
                 navReflection:      'Refleksjon',
-                dashWelcome:        'Velkommen til ditt PLN-dashboard',
+                dashWelcome:        'Velkommen til Kompass',
                 dashSubtitle:       'Følg med på ditt profesjonelle læringsnettverk og din utvikling',
                 quickOverview:      'Rask oversikt',
                 totalGoals:         'Totale mål',
@@ -2437,7 +2437,7 @@
                 navResources:       'Resources',
                 navNotes:           'Notes',
                 navReflection:      'Reflection',
-                dashWelcome:        'Welcome to Your PLN Dashboard',
+                dashWelcome:        'Welcome to Kompass',
                 dashSubtitle:       'Track your professional learning network and growth',
                 quickOverview:      'Quick Overview',
                 totalGoals:         'Total Goals',
@@ -2727,7 +2727,7 @@ ${notesHtml}
 <h2>💭 ${esc(t('navReflection'))}</h2>
 ${reflectionsHtml}
 
-<div class="footer">My PLN Dashboard · ${esc(date)}</div>
+<div class="footer">Kompass · ${esc(date)}</div>
 </body>
 </html>`;
 

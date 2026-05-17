@@ -1,4 +1,4 @@
-# 📚 My PLN Dashboard
+# 🧭 Kompass
 
 A personal **Professional Learning Network** dashboard for tracking goals, resources, notes, reflections, and learning analytics — built with vanilla HTML, CSS, and JavaScript.
 
