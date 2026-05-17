@@ -44,47 +44,97 @@
         <div class="login-bg-blob login-bg-blob--2"></div>
         <div class="login-bg-blob login-bg-blob--3"></div>
 
-        <div class="login-card">
-            <!-- Brand -->
-            <div class="login-brand">
-                <div class="login-logo-wrap">
-                    <span class="login-logo-icon">📚</span>
+        <div class="login-shell">
+
+            <!-- LEFT: Hero panel (desktop only) -->
+            <div class="login-hero">
+                <div class="login-hero-inner">
+                    <div class="login-hero-logo">📚</div>
+                    <h2 class="login-hero-title">My PLN Dashboard</h2>
+                    <p class="login-hero-tagline">Din personlige læringsplattform — organisert, vakker og alltid med deg.</p>
+                    <ul class="login-features">
+                        <li class="login-feature">
+                            <span class="login-feature-icon">🎯</span>
+                            <div>
+                                <strong>Sett læringsmål</strong>
+                                <span>Følg fremgangen og feir milepæler</span>
+                            </div>
+                        </li>
+                        <li class="login-feature">
+                            <span class="login-feature-icon">📝</span>
+                            <div>
+                                <strong>Ta smarte notater</strong>
+                                <span>Med tegning, vedlegg og tidslinje</span>
+                            </div>
+                        </li>
+                        <li class="login-feature">
+                            <span class="login-feature-icon">📊</span>
+                            <div>
+                                <strong>Se innsikt og statistikk</strong>
+                                <span>Visualiser læringsreisen din</span>
+                            </div>
+                        </li>
+                        <li class="login-feature">
+                            <span class="login-feature-icon">☁️</span>
+                            <div>
+                                <strong>Synkroniser overalt</strong>
+                                <span>Tilgjengelig på alle enheter, alltid</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="login-hero-badge">✦ Gratis å bruke</div>
                 </div>
-                <h1 class="login-title">My PLN Dashboard</h1>
-                <p class="login-subtitle" data-i18n="loginSubtitle">Din personlige læringslogg — sett mål, ta notater og følg fremgangen din</p>
             </div>
 
-            <!-- Auth form -->
-            <form class="auth-form" id="auth-form" novalidate>
-                <div class="auth-field">
-                    <label class="auth-label" for="auth-email">E-postadresse</label>
-                    <input type="email" id="auth-email" class="magic-link-input" placeholder="deg@eksempel.no" autocomplete="email" required />
-                </div>
-                <div class="auth-field">
-                    <label class="auth-label" for="auth-password">Passord</label>
-                    <input type="password" id="auth-password" class="magic-link-input" placeholder="Minst 6 tegn" autocomplete="current-password" aria-label="Password" required />
+            <!-- RIGHT: Auth form -->
+            <div class="login-card">
+                <!-- Brand (mobile only) -->
+                <div class="login-brand">
+                    <div class="login-logo-wrap">
+                        <span class="login-logo-icon">📚</span>
+                    </div>
+                    <h1 class="login-title">My PLN Dashboard</h1>
+                    <p class="login-subtitle">Din personlige læringslogg — sett mål, ta notater og følg fremgangen din</p>
                 </div>
 
-                <button type="button" class="btn-magic-link" id="btn-signin">
-                    <span class="btn-signin-icon">→</span>
-                    Logg inn
-                </button>
-            </form>
+                <div class="login-form-header">
+                    <h2 class="login-form-title">Velkommen tilbake</h2>
+                    <p class="login-form-subtitle">Logg inn for å fortsette læringsreisen din</p>
+                </div>
 
-            <!-- Divider -->
-            <div class="auth-divider">
-                <span>Ny bruker?</span>
+                <!-- Auth form -->
+                <form class="auth-form" id="auth-form" novalidate>
+                    <div class="auth-field">
+                        <label class="auth-label" for="auth-email">E-postadresse</label>
+                        <input type="email" id="auth-email" class="magic-link-input" placeholder="deg@eksempel.no" autocomplete="email" required />
+                    </div>
+                    <div class="auth-field">
+                        <label class="auth-label" for="auth-password">Passord</label>
+                        <input type="password" id="auth-password" class="magic-link-input" placeholder="Minst 6 tegn" autocomplete="current-password" aria-label="Password" required />
+                    </div>
+
+                    <button type="button" class="btn-magic-link" id="btn-signin">
+                        <span>Logg inn</span>
+                        <span class="btn-signin-icon">→</span>
+                    </button>
+                </form>
+
+                <!-- Divider -->
+                <div class="auth-divider">
+                    <span>Ny bruker?</span>
+                </div>
+
+                <!-- Register section -->
+                <div class="auth-register-section">
+                    <p class="auth-register-hint">Opprett en gratis konto og start læringsreisen din i dag.</p>
+                    <button type="button" class="btn-register" id="btn-register">
+                        ✦ Opprett gratis konto
+                    </button>
+                </div>
+
+                <p class="login-note" id="auth-note"></p>
             </div>
 
-            <!-- Register section -->
-            <div class="auth-register-section">
-                <p class="auth-register-hint">Opprett en gratis konto for å lagre og synkronisere læringen din på alle enheter.</p>
-                <button type="button" class="btn-register" id="btn-register">
-                    Opprett konto — det er gratis
-                </button>
-            </div>
-
-            <p class="login-note" id="auth-note"></p>
         </div>
     </div>
 

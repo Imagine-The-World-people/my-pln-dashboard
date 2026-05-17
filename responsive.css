@@ -7,6 +7,119 @@
     display: none;
 }
 
+/* =============================================
+   LOGIN: TABLET (≤ 860px) — collapse to single panel
+   ============================================= */
+@media (max-width: 860px) {
+    .login-shell {
+        grid-template-columns: 1fr;
+        max-width: 480px;
+        min-height: auto;
+        border-radius: 24px;
+    }
+
+    .login-hero {
+        display: none;
+    }
+
+    .login-card {
+        padding: 44px 40px;
+        border-radius: 24px;
+    }
+
+    /* Show mobile brand when hero is hidden */
+    .login-brand {
+        display: block;
+    }
+
+    .login-form-header {
+        display: none;
+    }
+}
+
+/* =============================================
+   LOGIN: MOBILE (≤ 520px) — tighter padding
+   ============================================= */
+@media (max-width: 520px) {
+    .login-overlay {
+        padding: 16px;
+        align-items: flex-start;
+        padding-top: clamp(20px, 8vw, 60px);
+    }
+
+    .login-shell {
+        max-width: 100%;
+        border-radius: 20px;
+    }
+
+    .login-card {
+        padding: 36px 28px;
+    }
+
+    .login-logo-wrap {
+        width: 56px;
+        height: 56px;
+    }
+
+    .login-logo-icon { font-size: 26px; }
+
+    .login-title { font-size: 20px; }
+
+    .magic-link-input {
+        padding: 14px 16px;
+        font-size: 16px; /* Prevent iOS zoom */
+    }
+
+    .btn-magic-link {
+        padding: 15px 20px;
+        font-size: 15px;
+    }
+
+    .btn-register {
+        padding: 13px 20px;
+        font-size: 14px;
+    }
+}
+
+/* =============================================
+   MEDIUM SCREENS (1024px) — tablet landscape
+   ============================================= */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .sidebar {
+        width: 220px;
+    }
+
+    .sections-container {
+        padding: 24px 20px;
+    }
+
+    .stat-cards-grid,
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .resources-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .login-shell {
+        max-width: 820px;
+    }
+
+    .login-hero {
+        padding: 40px 32px;
+    }
+
+    .login-card {
+        padding: 40px 36px;
+    }
+
+    .login-hero-title { font-size: 24px; }
+    .login-hero-tagline { font-size: 13px; }
+    .login-feature strong { font-size: 13px; }
+}
+
 /* TABLET AND SMALL SCREENS (768px and below) */
 @media (max-width: 768px) {
 
