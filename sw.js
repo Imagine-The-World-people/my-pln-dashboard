@@ -1,5 +1,6 @@
 /* Kompass Service Worker — cache-first for static assets */
-const CACHE = 'kompass-v1';
+/* Cache version: bump this string on every deploy to force cache refresh on all devices */
+const CACHE = 'kompass-v20260517-2';
 const STATIC = [
   '/',
   '/index.html',
@@ -30,14 +31,14 @@ self.addEventListener('fetch', e => {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
     return;
   }
-  // Cache-first for everything else
+  // Network-first for static assets — always get fresh code, fall back to cache offline
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request).then(res => {
+    fetch(e.request).then(res => {
       if (res.ok && e.request.method === 'GET') {
         const clone = res.clone();
         caches.open(CACHE).then(c => c.put(e.request, clone));
       }
       return res;
-    }))
+    }).catch(() => caches.match(e.request))
   );
 });
