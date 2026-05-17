@@ -1808,8 +1808,22 @@ html[data-theme="light"] .stat-card {
 .stat-card:hover {
     background: rgba(255, 255, 255, 0.09);
     border-color: var(--sc-border, rgba(124, 143, 255, 0.4));
-    transform: translateY(-6px) scale(1.02);
-    box-shadow: var(--shadow-md), 0 0 28px color-mix(in srgb, var(--sc-color, #98a8ff) 30%, transparent);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md), 0 0 24px rgba(124, 143, 255, 0.18);
+}
+
+/* Tap feedback for touch screens */
+@media (hover: none) {
+    .stat-card:hover {
+        transform: none;
+        box-shadow: var(--shadow-sm);
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.09);
+    }
+    .stat-card:active {
+        transform: scale(0.97);
+        transition: transform 0.1s ease;
+    }
 }
 
 html[data-theme="light"] .stat-card:hover {
@@ -7978,25 +7992,19 @@ html[data-theme="light"] .cat-breakdown-row:not(:last-child) {
    A: VISUAL POLISH
    ============================================= */
 
-/* --- Stat card number: gradient colour in dark mode too --- */
+/* --- Stat card number: tabular nums for clean count-up --- */
 .stat-number {
     font-variant-numeric: tabular-nums;
 }
 
-html:not([data-theme="light"]) .stat-number {
-    background: linear-gradient(135deg, #e0e8ff 0%, var(--sc-color, #a5b4fc) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-/* --- Goal item: accent glow on hover, green when completed --- */
+/* --- Goal item: accent glow on hover, green accent when completed --- */
 .goal-item:hover {
     box-shadow: var(--shadow-md), 0 0 16px rgba(124, 143, 255, 0.12);
 }
 
+/* Use inset shadow instead of border-left to avoid layout shift */
 .goal-item.completed {
-    border-left: 3px solid var(--success-color);
+    box-shadow: var(--shadow-sm), inset 3px 0 0 var(--success-color);
 }
 
 /* --- Note card left stripe per mood --- */
@@ -8006,43 +8014,49 @@ html:not([data-theme="light"]) .stat-number {
 .note-card[data-mood="sad"]::before      { background: linear-gradient(180deg, #94a3b8, #64748b); }
 .note-card[data-mood="anxious"]::before  { background: linear-gradient(180deg, #fb923c, #f97316); }
 
-/* --- Insight KPI card hover lift --- */
+/* --- Insight KPI card hover lift (pointer devices only) --- */
+@media (hover: hover) {
+    .insights-kpi:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: var(--shadow-md);
+        border-color: var(--border-color);
+    }
+
+    .quick-stat:hover {
+        transform: translateY(-2px);
+        background: var(--bg-card-hover);
+    }
+}
+
 .insights-kpi {
     transition: transform 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth), border-color 0.25s ease;
 }
-.insights-kpi:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: var(--shadow-md);
-    border-color: var(--border-color);
-}
 
-/* --- Quick stat card hover --- */
+/* --- Quick stat card --- */
 .quick-stat {
     transition: transform 0.22s var(--ease-smooth), background 0.22s ease;
     cursor: default;
 }
-.quick-stat:hover {
-    transform: translateY(-2px);
-    background: var(--bg-card-hover);
-}
 
-/* --- Smooth scrollbar with fade at edges --- */
-.sections-container {
-    --scroll-fade-size: 24px;
-    -webkit-mask-image: linear-gradient(
-        to bottom,
-        transparent 0,
-        black var(--scroll-fade-size),
-        black calc(100% - var(--scroll-fade-size)),
-        transparent 100%
-    );
-    mask-image: linear-gradient(
-        to bottom,
-        transparent 0,
-        black var(--scroll-fade-size),
-        black calc(100% - var(--scroll-fade-size)),
-        transparent 100%
-    );
+/* --- Scroll fade at edges (desktop only — see responsive.css for mobile override) --- */
+@media (min-width: 769px) {
+    .sections-container {
+        --scroll-fade-size: 20px;
+        -webkit-mask-image: linear-gradient(
+            to bottom,
+            transparent 0,
+            black var(--scroll-fade-size),
+            black calc(100% - var(--scroll-fade-size)),
+            transparent 100%
+        );
+        mask-image: linear-gradient(
+            to bottom,
+            transparent 0,
+            black var(--scroll-fade-size),
+            black calc(100% - var(--scroll-fade-size)),
+            transparent 100%
+        );
+    }
 }
 
 /* Slim scrollbar */
@@ -8119,10 +8133,12 @@ html:not([data-theme="light"]) .page-title {
     opacity: 1;
 }
 
-/* --- Enhanced resource card colour accent glow --- */
-.resource-card[data-category="development"]:hover  { box-shadow: 0 16px 40px rgba(99,102,241,0.2),  0 0 0 1px rgba(99,102,241,0.15); }
-.resource-card[data-category="driftsstotte"]:hover { box-shadow: 0 16px 40px rgba(245,158,11,0.18), 0 0 0 1px rgba(245,158,11,0.12); }
-.resource-card[data-category="brukerstotte"]:hover { box-shadow: 0 16px 40px rgba(16,185,129,0.18), 0 0 0 1px rgba(16,185,129,0.12); }
+/* --- Enhanced resource card colour accent glow (desktop only) --- */
+@media (hover: hover) {
+    .resource-card[data-category="development"]:hover  { box-shadow: 0 16px 40px rgba(99,102,241,0.2),  0 0 0 1px rgba(99,102,241,0.15); }
+    .resource-card[data-category="driftsstotte"]:hover { box-shadow: 0 16px 40px rgba(245,158,11,0.18), 0 0 0 1px rgba(245,158,11,0.12); }
+    .resource-card[data-category="brukerstotte"]:hover { box-shadow: 0 16px 40px rgba(16,185,129,0.18), 0 0 0 1px rgba(16,185,129,0.12); }
+}
 
 /* --- Auth form inputs glow on focus --- */
 .login-input:focus,

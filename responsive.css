@@ -815,14 +815,11 @@
         font-size: 16px; /* Prevents zoom on iOS */
     }
 
-    /* Better touch target sizes */
-    button,
-    a,
+    /* Better touch target sizes — only for interactive controls, not all buttons */
     input[type="checkbox"],
     input[type="radio"] {
-        min-width: 44px;
-        min-height: 44px;
-        padding: 12px;
+        min-width: 24px;
+        min-height: 24px;
     }
 
     /* ---------- Resource Add Panel (mobile) ---------- */
@@ -1219,5 +1216,71 @@
 @media (min-width: 1024px) {
     .dashboard-grid {
         grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+/* =============================================
+   MOBILE POLISH OVERRIDES (≤ 768px)
+   Undo desktop-only effects that look bad on touch
+   ============================================= */
+@media (max-width: 768px) {
+
+    /* No hover lifts on touch devices — use active instead */
+    .stat-card:hover,
+    .goal-item:hover,
+    .note-card:hover,
+    .resource-card:hover,
+    .reflection-tl-card:hover,
+    .insights-kpi:hover,
+    .quick-stat:hover {
+        transform: none;
+        box-shadow: var(--shadow-sm);
+    }
+
+    /* Tap feedback for cards */
+    .stat-card:active,
+    .goal-item:active {
+        transform: scale(0.98);
+        transition: transform 0.1s ease;
+    }
+
+    /* Reduce backdrop-filter intensity for mobile performance */
+    .stat-card,
+    .goal-item,
+    .note-card,
+    .resource-card,
+    .reflection-tl-card {
+        -webkit-backdrop-filter: blur(10px) saturate(130%);
+        backdrop-filter: blur(10px) saturate(130%);
+    }
+
+    /* Reduce sidebar blur on mobile */
+    .sidebar,
+    .header {
+        -webkit-backdrop-filter: blur(16px) saturate(140%);
+        backdrop-filter: blur(16px) saturate(140%);
+    }
+
+    /* No gstab wipe animation on touch */
+    .gstab::after {
+        display: none;
+    }
+
+    /* Ensure stat-number always shows plainly on mobile */
+    .stat-number {
+        background: none;
+        -webkit-text-fill-color: var(--text-primary);
+        color: var(--text-primary);
+    }
+
+    /* Shortcuts panel — full width on mobile */
+    .shortcuts-panel {
+        width: calc(100vw - 24px);
+        max-height: calc(100dvh - 48px);
+    }
+
+    /* Insights KPI hover — disable lift */
+    .insights-kpi {
+        transition: none;
     }
 }
