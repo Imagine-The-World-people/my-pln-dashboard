@@ -933,7 +933,6 @@
             const today = new Date().toISOString().slice(0, 10);
             const isOverdue = deadline < today;
             const isSoon = !isOverdue && deadline <= new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
-            const [y, m, d] = deadline.split('-');
             const label = new Date(deadline + 'T00:00:00').toLocaleDateString('no-NO', { day: 'numeric', month: 'short' });
             const cls = isOverdue ? 'goal-deadline-badge--overdue' : isSoon ? 'goal-deadline-badge--soon' : '';
             const icon = isOverdue ? '⚠️' : isSoon ? '⏰' : '📅';
@@ -1284,6 +1283,12 @@
             // Set category picker
             $$('#res-category-picker .res-cat-pill').forEach(p => {
                 p.classList.toggle('active', p.dataset.category === (resource.category || 'development'));
+            });
+
+            // Set star rating
+            const rating = resource.rating || 0;
+            $$('#res-star-picker .star-pick-btn').forEach(b => {
+                b.classList.toggle('active', parseInt(b.dataset.star) <= rating && rating > 0);
             });
 
             // Update save button text
@@ -2157,8 +2162,14 @@
         _filterBySearch(q) {
             const lc = q.toLowerCase();
             const noResults = $('#notes-no-results');
+            const allCards = Array.from(document.querySelectorAll('#notes-list .note-card'));
+            // If there are no notes at all, don't interfere with the empty state
+            if (allCards.length === 0) {
+                if (noResults) noResults.classList.add('hidden');
+                return;
+            }
             let anyVisible = false;
-            document.querySelectorAll('#notes-list .note-card').forEach(card => {
+            allCards.forEach(card => {
                 const match = !lc || card.textContent.toLowerCase().includes(lc);
                 card.style.display = match ? '' : 'none';
                 if (match) anyVisible = true;
@@ -3251,6 +3262,7 @@ ${reflectionsHtml}
             Store._onWrite = () => CloudSync.scheduleSave();
             CloudSync.load();
             AutoLogout.start();
+            Onboarding.maybeShow();
         },
 
         _onSignedOut() {
@@ -3528,20 +3540,32 @@ ${reflectionsHtml}
         WARN_BEFORE_MS: 60 * 1000, // warn 1 min before
         _timer: null,
         _warnTimer: null,
-        _toast: null,
+        _controller: null, // AbortController for event listeners
 
         start() {
-            this._toast = this._createToast();
-            this._reset();
+            // Stop any previous session first (removes old listeners, clears timers)
+            this.stop();
+            // Ensure toast exists in DOM
+            if (!$('#autologout-toast')) {
+                const el = document.createElement('div');
+                el.className = 'autologout-toast';
+                el.id = 'autologout-toast';
+                el.innerHTML = '⚠️ Du logges ut om 1 minutt på grunn av inaktivitet';
+                document.body.appendChild(el);
+            }
+            this._controller = new AbortController();
+            const { signal } = this._controller;
             ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(ev =>
-                document.addEventListener(ev, () => this._reset(), { passive: true })
+                document.addEventListener(ev, () => this._reset(), { passive: true, signal })
             );
+            this._reset();
         },
 
         stop() {
             clearTimeout(this._timer);
             clearTimeout(this._warnTimer);
             this._hideToast();
+            if (this._controller) { this._controller.abort(); this._controller = null; }
         },
 
         _reset() {
@@ -3553,15 +3577,6 @@ ${reflectionsHtml}
                 this._hideToast();
                 if (typeof supabaseClient !== 'undefined') supabaseClient.auth.signOut();
             }, this.TIMEOUT_MS);
-        },
-
-        _createToast() {
-            const el = document.createElement('div');
-            el.className = 'autologout-toast';
-            el.id = 'autologout-toast';
-            el.innerHTML = '⚠️ Du logges ut om 1 minutt på grunn av inaktivitet';
-            document.body.appendChild(el);
-            return el;
         },
 
         _showToast() {
@@ -3585,12 +3600,15 @@ ${reflectionsHtml}
         _total: 4,
 
         init() {
-            const done = Store.getRaw(this.STORE_KEY);
-            if (!done) {
-                setTimeout(() => this._show(), 800);
-            }
+            // Only bind buttons here — _show() is triggered by Auth._onSignedIn
+            // so the onboarding never appears on top of the login overlay
             $('#onboarding-next')?.addEventListener('click', () => this._next());
             $('#onboarding-skip')?.addEventListener('click', () => this._complete());
+        },
+
+        maybeShow() {
+            const done = Store.getRaw(this.STORE_KEY);
+            if (!done) setTimeout(() => this._show(), 800);
         },
 
         _show() {
