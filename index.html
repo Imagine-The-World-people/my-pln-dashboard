@@ -138,6 +138,63 @@
         </div>
     </div>
 
+    <!-- =============================================
+         REGISTRATION MODAL
+         ============================================= -->
+    <div class="reg-modal-overlay hidden" id="reg-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="reg-modal-title">
+        <div class="reg-modal-card">
+            <button class="reg-modal-close" id="reg-modal-close" aria-label="Lukk">&times;</button>
+
+            <div class="reg-modal-header">
+                <div class="reg-modal-icon">🚀</div>
+                <h2 class="reg-modal-title" id="reg-modal-title">Opprett gratis konto</h2>
+                <p class="reg-modal-subtitle">Kom i gang på under ett minutt — helt gratis</p>
+            </div>
+
+            <form class="reg-form" id="reg-form" novalidate>
+                <div class="auth-field">
+                    <label class="auth-label" for="reg-email">E-postadresse</label>
+                    <input type="email" id="reg-email" class="magic-link-input" placeholder="deg@eksempel.no" autocomplete="email" required />
+                </div>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="reg-password">Passord</label>
+                    <input type="password" id="reg-password" class="magic-link-input" placeholder="Minst 6 tegn" autocomplete="new-password" required />
+                    <!-- Strength bar -->
+                    <div class="pw-strength" id="pw-strength" aria-live="polite">
+                        <div class="pw-strength-bars">
+                            <span class="pw-bar" data-idx="0"></span>
+                            <span class="pw-bar" data-idx="1"></span>
+                            <span class="pw-bar" data-idx="2"></span>
+                            <span class="pw-bar" data-idx="3"></span>
+                        </div>
+                        <span class="pw-strength-label" id="pw-strength-label"></span>
+                    </div>
+                    <ul class="pw-hints" id="pw-hints">
+                        <li class="pw-hint" data-rule="length">Minst 6 tegn</li>
+                        <li class="pw-hint" data-rule="upper">Stor og liten bokstav</li>
+                        <li class="pw-hint" data-rule="number">Minst ett tall</li>
+                        <li class="pw-hint" data-rule="special">Minst ett spesialtegn (!@#…)</li>
+                    </ul>
+                </div>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="reg-password2">Bekreft passord</label>
+                    <input type="password" id="reg-password2" class="magic-link-input" placeholder="Skriv passordet på nytt" autocomplete="new-password" required />
+                    <span class="pw-match-msg" id="pw-match-msg"></span>
+                </div>
+
+                <button type="button" class="btn-magic-link" id="btn-reg-submit">
+                    <span>Opprett konto</span>
+                    <span class="btn-signin-icon">→</span>
+                </button>
+            </form>
+
+            <p class="reg-modal-footer">Har du allerede en konto? <button type="button" class="reg-back-link" id="reg-back-link">Logg inn</button></p>
+            <p class="login-note" id="reg-note"></p>
+        </div>
+    </div>
+
     <div class="wrapper">
         <!-- Sidebar Navigation -->
         <aside class="sidebar">

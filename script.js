@@ -2942,19 +2942,139 @@ ${reflectionsHtml}
                 if (error) notify('Innloggingsfeil', error.message, 'error');
             });
 
-            // Register new account
-            $('#btn-register')?.addEventListener('click', async () => {
-                const { email, password } = getFields();
-                if (!email || !password) { notify('Mangler felt', 'Fyll inn e-post og passord', 'warning'); return; }
-                if (password.length < 6) { notify('Passord for kort', 'Passordet må være minst 6 tegn', 'warning'); return; }
+            // Register new account — open modal instead of inline form
+            const regModal    = $('#reg-modal-overlay');
+            const regNote     = $('#reg-note');
+            const regEmailEl  = $('#reg-email');
+            const regPwEl     = $('#reg-password');
+            const regPw2El    = $('#reg-password2');
+            const strengthEl  = $('#pw-strength');
+            const strengthLbl = $('#pw-strength-label');
+            const matchMsg    = $('#pw-match-msg');
+            const hints       = {
+                length:  $('#pw-hints [data-rule="length"]'),
+                upper:   $('#pw-hints [data-rule="upper"]'),
+                number:  $('#pw-hints [data-rule="number"]'),
+                special: $('#pw-hints [data-rule="special"]'),
+            };
 
-                const { error } = await supabaseClient.auth.signUp({ email, password });
+            const pwStrengthLabels = ['', 'Svak', 'Middels', 'Bra', 'Sterk'];
+
+            function evalPassword(pw) {
+                const rules = {
+                    length:  pw.length >= 6,
+                    upper:   /[A-Z]/.test(pw) && /[a-z]/.test(pw),
+                    number:  /\d/.test(pw),
+                    special: /[^A-Za-z0-9]/.test(pw),
+                };
+                // Extra: longer passwords give bonus
+                const bonus = pw.length >= 12 ? 1 : 0;
+                const score = Math.min(4, Object.values(rules).filter(Boolean).length + bonus - (rules.length ? 0 : 1));
+                return { rules, score: Math.max(0, score) };
+            }
+
+            function updateStrength() {
+                const pw = regPwEl?.value || '';
+                if (!pw) {
+                    if (strengthEl) strengthEl.removeAttribute('data-level');
+                    if (strengthLbl) strengthLbl.textContent = '';
+                    Object.values(hints).forEach(el => el?.classList.remove('met'));
+                    return;
+                }
+                const { rules, score } = evalPassword(pw);
+                if (strengthEl) strengthEl.dataset.level = score;
+                if (strengthLbl) strengthLbl.textContent = pwStrengthLabels[score] || '';
+                Object.entries(rules).forEach(([rule, met]) => {
+                    hints[rule]?.classList.toggle('met', met);
+                });
+            }
+
+            function updateMatch() {
+                const pw  = regPwEl?.value || '';
+                const pw2 = regPw2El?.value || '';
+                if (!matchMsg) return;
+                if (!pw2) { matchMsg.textContent = ''; matchMsg.className = 'pw-match-msg'; return; }
+                if (pw === pw2) {
+                    matchMsg.textContent = '✓ Passordene stemmer overens';
+                    matchMsg.className = 'pw-match-msg match';
+                } else {
+                    matchMsg.textContent = '✗ Passordene er ikke like';
+                    matchMsg.className = 'pw-match-msg mismatch';
+                }
+            }
+
+            function openRegModal() {
+                if (!regModal) return;
+                // Pre-fill email if already typed in login form
+                const loginEmail = $('#auth-email')?.value?.trim();
+                if (loginEmail && regEmailEl) regEmailEl.value = loginEmail;
+                regModal.classList.remove('hidden');
+                regEmailEl?.focus();
+            }
+
+            function closeRegModal() {
+                regModal?.classList.add('hidden');
+                // Reset form
+                if (regEmailEl)  regEmailEl.value  = '';
+                if (regPwEl)     regPwEl.value      = '';
+                if (regPw2El)    regPw2El.value     = '';
+                if (regNote)     regNote.textContent = '';
+                if (matchMsg)    { matchMsg.textContent = ''; matchMsg.className = 'pw-match-msg'; }
+                if (strengthEl)  { strengthEl.removeAttribute('data-level'); }
+                if (strengthLbl) strengthLbl.textContent = '';
+                Object.values(hints).forEach(el => el?.classList.remove('met'));
+            }
+
+            $('#btn-register')?.addEventListener('click', openRegModal);
+
+            $('#reg-modal-close')?.addEventListener('click', closeRegModal);
+            $('#reg-back-link')?.addEventListener('click', closeRegModal);
+
+            // Close on backdrop click
+            regModal?.addEventListener('click', (e) => {
+                if (e.target === regModal) closeRegModal();
+            });
+
+            // Close on Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && regModal && !regModal.classList.contains('hidden')) closeRegModal();
+            });
+
+            regPwEl?.addEventListener('input', () => { updateStrength(); updateMatch(); });
+            regPw2El?.addEventListener('input', updateMatch);
+
+            $('#btn-reg-submit')?.addEventListener('click', async () => {
+                const email = regEmailEl?.value?.trim();
+                const pw    = regPwEl?.value;
+                const pw2   = regPw2El?.value;
+
+                if (!email || !pw) { notify('Mangler felt', 'Fyll inn e-post og passord', 'warning'); return; }
+                if (pw.length < 6) { notify('Passord for kort', 'Passordet må være minst 6 tegn', 'warning'); return; }
+                if (pw !== pw2) { notify('Passord stemmer ikke', 'De to passordene er ikke like', 'warning'); return; }
+
+                const btn = $('#btn-reg-submit');
+                if (btn) { btn.disabled = true; btn.querySelector('span').textContent = 'Oppretter…'; }
+
+                const { error } = await supabaseClient.auth.signUp({ email, password: pw });
+
+                if (btn) { btn.disabled = false; btn.querySelector('span').textContent = 'Opprett konto'; }
+
                 if (error) {
                     notify('Registreringsfeil', error.message, 'error');
+                    if (regNote) regNote.textContent = '⚠ ' + error.message;
                 } else {
+                    closeRegModal();
+                    notify('Konto opprettet! 🎉', 'Du kan nå logge inn med ditt passord', 'success');
                     const note = $('#auth-note');
-                    if (note) note.textContent = '\u2705 Konto opprettet! Du kan n\u00e5 logge inn.';
+                    if (note) note.textContent = '✅ Konto opprettet! Du kan nå logge inn.';
                 }
+            });
+
+            // Allow Enter in reg form to submit
+            [regEmailEl, regPwEl, regPw2El].forEach(el => {
+                el?.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') $('#btn-reg-submit')?.click();
+                });
             });
 
             // Allow Enter key to trigger sign in
