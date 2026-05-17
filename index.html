@@ -43,12 +43,12 @@
             <div class="login-logo">📚</div>
             <h1 class="login-title">My PLN Dashboard</h1>
             <p class="login-subtitle" data-i18n="loginSubtitle">Logg inn for å lagre og synkronisere data på tvers av enheter</p>
-            <div class="auth-form" id="auth-form">
-                <input type="email" id="auth-email" class="magic-link-input" data-i18n-placeholder="emailPlaceholder" placeholder="E-post" autocomplete="email" />
-                <input type="password" id="auth-password" class="magic-link-input" data-i18n-placeholder="passwordPlaceholder" placeholder="Passord" autocomplete="current-password" aria-label="Password" />
-                <button class="btn-magic-link" id="btn-signin" data-i18n="signIn">Logg inn</button>
-                <button class="btn-register" id="btn-register" data-i18n="register">Opprett konto</button>
-            </div>
+            <form class="auth-form" id="auth-form">
+                <input type="email" id="auth-email" class="magic-link-input" data-i18n-placeholder="emailPlaceholder" placeholder="E-post" autocomplete="email" required />
+                <input type="password" id="auth-password" class="magic-link-input" data-i18n-placeholder="passwordPlaceholder" placeholder="Passord" autocomplete="current-password" aria-label="Password" required />
+                <button type="button" class="btn-magic-link" id="btn-signin" data-i18n="signIn">Logg inn</button>
+                <button type="button" class="btn-register" id="btn-register" data-i18n="register">Opprett konto</button>
+            </form>
             <p class="login-note" id="auth-note"></p>
         </div>
     </div>
