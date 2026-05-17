@@ -208,7 +208,11 @@
                 }
 
                 // Refresh insights data when navigating to insights section
-                if (sectionId === 'insights') Insights.refresh();
+                if (sectionId === 'insights') {
+                    Insights.refresh();
+                    ActivityChart.render();
+                    StreakCalendar.render();
+                }
 
                 const container = $('.sections-container');
                 if (container) container.scrollTop = 0;
@@ -811,10 +815,14 @@
             const activePill = document.querySelector('#goal-category-picker .cat-pill.active');
             const category = activePill?.dataset.cat || 'coding';
 
+            const deadlineInput = $('#goal-deadline');
+            const deadline = deadlineInput?.value || null;
+
             const goal = {
                 id: Date.now(),
                 text,
                 category,
+                deadline,
                 completed: false,
                 createdAt: formatDate({ month: 'short', day: 'numeric', year: 'numeric' })
             };
@@ -824,7 +832,11 @@
             this.render();
             this.updateProgress();
             Streak.recordActivity();
+            ActivityTracker.record();
+            ActivityChart.render();
+            StreakCalendar.render();
             input.value = '';
+            if (deadlineInput) deadlineInput.value = '';
             input.focus();
             notify('Goal Added! 🎯', `"${goal.text}" has been added to your learning goals`);
             // Animate only the new item
@@ -910,9 +922,22 @@
                 <div class="goal-top-row">
                     <p class="goal-text">${escapeHtml(goal.text)}</p>
                     ${this._tagHtml(goal.category)}
+                    ${this._deadlineBadge(goal.deadline)}
                 </div>
                 <span class="goal-date">📅 ${goal.createdAt}</span>
             `;
+        },
+
+        _deadlineBadge(deadline) {
+            if (!deadline) return '';
+            const today = new Date().toISOString().slice(0, 10);
+            const isOverdue = deadline < today;
+            const isSoon = !isOverdue && deadline <= new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+            const [y, m, d] = deadline.split('-');
+            const label = new Date(deadline + 'T00:00:00').toLocaleDateString('no-NO', { day: 'numeric', month: 'short' });
+            const cls = isOverdue ? 'goal-deadline-badge--overdue' : isSoon ? 'goal-deadline-badge--soon' : '';
+            const icon = isOverdue ? '⚠️' : isSoon ? '⏰' : '📅';
+            return `<span class="goal-deadline-badge ${cls}">${icon} ${label}</span>`;
         },
 
         _actionsHtml(id) {
@@ -1198,6 +1223,19 @@
                 pill.classList.add('active');
             });
 
+            // Star rating picker
+            const starPicker = $('#res-star-picker');
+            starPicker?.addEventListener('click', (e) => {
+                const btn = e.target.closest('.star-pick-btn');
+                if (!btn) return;
+                const val = parseInt(btn.dataset.star);
+                // Toggle off if clicking the same star
+                const isActive = btn.classList.contains('active');
+                starPicker.querySelectorAll('.star-pick-btn').forEach((b, i) => {
+                    b.classList.toggle('active', !isActive && (i + 1) <= val);
+                });
+            });
+
             saveBtn?.addEventListener('click', () => this._addResource());
 
             // Show/hide empty state on load
@@ -1277,6 +1315,7 @@
             const type = document.querySelector('#res-type-picker .res-type-pill.active')?.dataset.type || 'blog';
             const category = document.querySelector('#res-category-picker .res-cat-pill.active')?.dataset.category || 'development';
             const tagsRaw = $('#res-tags')?.value.trim();
+            const rating = parseInt(document.querySelector('#res-star-picker .star-pick-btn.active')?.dataset.star || '0');
 
             if (!title) { notify('Missing Title', 'Please enter a resource title'); return; }
 
@@ -1288,7 +1327,7 @@
                 const list = Store.get(this.STORE_KEY, []);
                 const idx = list.findIndex(r => String(r.id) === this._editingId);
                 if (idx !== -1) {
-                    list[idx] = { ...list[idx], title, desc: desc || 'No description provided.', url: url || '#', type, category, tags };
+                    list[idx] = { ...list[idx], title, desc: desc || 'No description provided.', url: url || '#', type, category, tags, rating };
                     Store.set(this.STORE_KEY, list);
 
                     // Remove old card and re-append
@@ -1316,6 +1355,7 @@
                     type,
                     category,
                     tags,
+                    rating,
                     createdAt: new Date().toISOString()
                 };
 
@@ -1325,6 +1365,9 @@
 
                 this._appendCard(resource);
                 this._updateCount();
+                ActivityTracker.record();
+                ActivityChart.render();
+                StreakCalendar.render();
                 notify('Resource Added! 📚', `"${title}" has been added to your resources`);
 
                 // Animate new card
@@ -1340,6 +1383,8 @@
             ['#res-title', '#res-desc', '#res-url', '#res-tags'].forEach(sel => {
                 const el = $(sel); if (el) el.value = '';
             });
+            // Reset star picker
+            $$('#res-star-picker .star-pick-btn').forEach(b => b.classList.remove('active'));
             const catPills = $$('#res-category-picker .res-cat-pill');
             catPills.forEach((p, i) => p.classList.toggle('active', i === 0));
             const typePills = $$('#res-type-picker .res-type-pill');
@@ -1471,6 +1516,10 @@
                 return `<span class="resource-tag ${colorCls}" data-tag="${escapeHtml(key)}">${escapeHtml(t)}</span>`;
             }).join('');
 
+            const starsHtml = r.rating && r.rating > 0
+                ? `<div class="resource-stars">${[1,2,3,4,5].map(s => `<span class="resource-star ${s <= r.rating ? 'filled' : ''}">★</span>`).join('')}</div>`
+                : '';
+
             const card = document.createElement('div');
             card.className = 'resource-card user-added';
             card.dataset.type = r.type;
@@ -1496,6 +1545,7 @@
                 </div>
                 <div class="resource-card-body">
                     <h3>${escapeHtml(r.title)}</h3>
+                    ${starsHtml}
                     <p>${escapeHtml(r.desc)}</p>
                     <div class="resource-badges-row">
                         <span class="resource-cat-badge resource-cat--${cat}">${catIcon} ${escapeHtml(catLabel)}</span>
@@ -1728,6 +1778,12 @@
                 if (e.target.closest('.note-edit-btn'))   return this.startEdit(id);
                 if (e.target.closest('.note-edit-save'))  return this.saveEdit(id);
                 if (e.target.closest('.note-edit-cancel'))return this.cancelEdit(id);
+                if (e.target.closest('.note-pin-btn'))    return this.togglePin(id);
+            });
+
+            // Note search
+            $('#notes-search')?.addEventListener('input', (e) => {
+                this._filterBySearch(e.target.value.trim());
             });
 
             // Draw toggle button
@@ -1904,13 +1960,17 @@
                 displayDate: formatDateTime({ month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
                 wordCount: text ? text.split(/\s+/).length : 0,
                 drawing: this._drawDataURL || null,
-                files: this._pendingFiles.length ? [...this._pendingFiles] : null
+                files: this._pendingFiles.length ? [...this._pendingFiles] : null,
+                pinned: false
             };
 
             state.notes.unshift(note);
             this._save();
             this.render();
             Streak.recordActivity();
+            ActivityTracker.record();
+            ActivityChart.render();
+            StreakCalendar.render();
 
             // Reset
             if (textarea) textarea.value = '';
@@ -2024,7 +2084,10 @@
             }
             empty?.classList.remove('show');
 
-            list.innerHTML = state.notes.map((n, i) => {
+            // Sort: pinned first, then by date
+            const sorted = [...state.notes].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+
+            list.innerHTML = sorted.map((n, i) => {
                 const timeAgo = this._timeAgo(n.createdAt);
                 const edited = n.editedAt ? ' (edited)' : '';
 
@@ -2049,7 +2112,7 @@
                 }
 
                 return `
-                <div class="note-card" id="note-${n.id}" style="--note-delay:${i * 60}ms">
+                <div class="note-card ${n.pinned ? 'pinned-note' : ''}" id="note-${n.id}" style="--note-delay:${i * 60}ms">
                     <div class="note-card-inner">
                         <div class="note-header">
                             <div class="note-header-left">
@@ -2060,6 +2123,9 @@
                                 </span>
                             </div>
                             <div class="note-header-actions">
+                                <button class="note-action-btn note-pin-btn ${n.pinned ? 'pinned' : ''}" title="${n.pinned ? 'Unpin note' : 'Pin note'}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="${n.pinned ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>
+                                </button>
                                 <button class="note-action-btn note-edit-btn" title="Edit note">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                 </button>
@@ -2078,6 +2144,26 @@
                     </div>
                 </div>`;
             }).join('');
+        },
+
+        togglePin(id) {
+            const note = state.notes.find(n => n.id === id);
+            if (!note) return;
+            note.pinned = !note.pinned;
+            this._save();
+            this.render();
+        },
+
+        _filterBySearch(q) {
+            const lc = q.toLowerCase();
+            const noResults = $('#notes-no-results');
+            let anyVisible = false;
+            document.querySelectorAll('#notes-list .note-card').forEach(card => {
+                const match = !lc || card.textContent.toLowerCase().includes(lc);
+                card.style.display = match ? '' : 'none';
+                if (match) anyVisible = true;
+            });
+            if (noResults) noResults.classList.toggle('hidden', anyVisible || !lc);
         },
 
         _timeAgo(isoStr) {
@@ -3085,6 +3171,61 @@ ${reflectionsHtml}
                 });
             });
 
+            // ---- Forgot Password ----
+            const forgotModal = $('#forgot-pw-modal');
+
+            function openForgotModal() {
+                const loginEmail = $('#auth-email')?.value?.trim();
+                const fpEmail = $('#forgot-pw-email');
+                if (loginEmail && fpEmail) fpEmail.value = loginEmail;
+                forgotModal?.classList.remove('hidden');
+                fpEmail?.focus();
+            }
+
+            function closeForgotModal() {
+                forgotModal?.classList.add('hidden');
+                const fpNote = $('#forgot-pw-note');
+                if (fpNote) fpNote.textContent = '';
+            }
+
+            $('#forgot-pw-link')?.addEventListener('click', openForgotModal);
+            $('#forgot-pw-close')?.addEventListener('click', closeForgotModal);
+            $('#forgot-pw-back')?.addEventListener('click', closeForgotModal);
+            forgotModal?.addEventListener('click', (e) => { if (e.target === forgotModal) closeForgotModal(); });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && forgotModal && !forgotModal.classList.contains('hidden')) closeForgotModal();
+            });
+
+            $('#forgot-pw-email')?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') $('#btn-forgot-pw-submit')?.click();
+            });
+
+            $('#btn-forgot-pw-submit')?.addEventListener('click', async () => {
+                const email = $('#forgot-pw-email')?.value?.trim();
+                if (!email) { notify('Mangler e-post', 'Fyll inn e-postadressen din', 'warning'); return; }
+
+                const btn = $('#btn-forgot-pw-submit');
+                const btnLabel = btn?.querySelector('span');
+                if (btn) { btn.disabled = true; if (btnLabel) btnLabel.textContent = 'Sender…'; }
+
+                const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin
+                });
+
+                if (btn) { btn.disabled = false; if (btnLabel) btnLabel.textContent = 'Send tilbakestillingslenke'; }
+
+                const fpNote = $('#forgot-pw-note');
+                if (error) {
+                    notify('Feil', error.message, 'error');
+                } else {
+                    if (fpNote) fpNote.textContent = '✅ Sjekk e-posten din for tilbakestillingslenke';
+                    notify('E-post sendt! 📧', 'Sjekk innboksen din for tilbakestillingslenken', 'success');
+                }
+            });
+
+            // Start auto-logout only after sign-in (set up in _onSignedIn)
+
+
             $('#signout-btn')?.addEventListener('click', () => {
                 supabaseClient.auth.signOut()
                     .then(() => notify('Logget ut', 'Du er n\u00e5 logget ut', 'info'));
@@ -3109,6 +3250,7 @@ ${reflectionsHtml}
 
             Store._onWrite = () => CloudSync.scheduleSave();
             CloudSync.load();
+            AutoLogout.start();
         },
 
         _onSignedOut() {
@@ -3118,6 +3260,7 @@ ${reflectionsHtml}
             if (note) note.textContent = '';
 
             $('#login-overlay')?.classList.remove('hidden');
+            AutoLogout.stop();
 
             const avatar = $('#user-avatar');
             if (avatar) { avatar.innerHTML = '\u{1F464}'; avatar.title = ''; }
@@ -3263,6 +3406,219 @@ ${reflectionsHtml}
     };
 
     // =========================================
+    // Activity Tracker
+    // =========================================
+
+    const ActivityTracker = {
+        STORE_KEY: 'kompass_activity',
+
+        record() {
+            const today = new Date().toISOString().slice(0, 10);
+            const data = Store.get(this.STORE_KEY, {});
+            data[today] = (data[today] || 0) + 1;
+            Store.set(this.STORE_KEY, data);
+        },
+
+        getLast(days) {
+            const data = Store.get(this.STORE_KEY, {});
+            const result = [];
+            for (let i = days - 1; i >= 0; i--) {
+                const d = new Date(Date.now() - i * 86400000);
+                const key = d.toISOString().slice(0, 10);
+                result.push({ date: key, count: data[key] || 0, day: d });
+            }
+            return result;
+        }
+    };
+
+    // =========================================
+    // Weekly Activity Chart
+    // =========================================
+
+    const ActivityChart = {
+        render() {
+            const container = $('#activity-chart-bars');
+            if (!container) return;
+            const data = ActivityTracker.getLast(7);
+            const max = Math.max(...data.map(d => d.count), 1);
+            container.innerHTML = data.map(d => {
+                const pct = Math.round((d.count / max) * 100);
+                const dayLabel = d.day.toLocaleDateString('no-NO', { weekday: 'short' });
+                return `<div class="activity-bar-col">
+                    <div class="activity-bar-wrap">
+                        <div class="activity-bar" style="height:${pct}%" title="${d.date}: ${d.count}"></div>
+                    </div>
+                    <span class="activity-bar-label">${dayLabel}</span>
+                    <span class="activity-bar-count">${d.count || ''}</span>
+                </div>`;
+            }).join('');
+        }
+    };
+
+    // =========================================
+    // Streak Calendar (GitHub-style, 12 weeks)
+    // =========================================
+
+    const StreakCalendar = {
+        render() {
+            const container = $('#streak-calendar');
+            if (!container) return;
+            const data = ActivityTracker.getLast(84); // 12 weeks
+            // Pad front so first week starts on Monday
+            const firstDay = data[0].day.getDay(); // 0=Sun,1=Mon…
+            const padDays = firstDay === 0 ? 6 : firstDay - 1;
+            const padded = Array(padDays).fill(null).concat(data);
+            // Split into weeks of 7
+            const weeks = [];
+            for (let i = 0; i < padded.length; i += 7) {
+                weeks.push(padded.slice(i, i + 7));
+            }
+            container.innerHTML = `<div class="streak-calendar-grid">${weeks.map(week =>
+                `<div class="streak-cal-week">${week.map(d => {
+                    if (!d) return `<div class="streak-cal-cell level-0"></div>`;
+                    const lv = d.count === 0 ? 0 : d.count < 2 ? 1 : d.count < 4 ? 2 : d.count < 7 ? 3 : 4;
+                    return `<div class="streak-cal-cell level-${lv}" title="${d.date}: ${d.count}"></div>`;
+                }).join('')}</div>`
+            ).join('')}</div>`;
+        }
+    };
+
+    // =========================================
+    // Motivational Quotes
+    // =========================================
+
+    const Quotes = {
+        _list: [
+            { text: 'Live as if you were to die tomorrow. Learn as if you were to live forever.', author: 'Mahatma Gandhi' },
+            { text: 'An investment in knowledge pays the best interest.', author: 'Benjamin Franklin' },
+            { text: 'The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.', author: 'Brian Herbert' },
+            { text: 'Education is the passport to the future, for tomorrow belongs to those who prepare for it today.', author: 'Malcolm X' },
+            { text: 'The beautiful thing about learning is that nobody can take it away from you.', author: 'B.B. King' },
+            { text: 'The more that you read, the more things you will know.', author: 'Dr. Seuss' },
+            { text: 'Learning never exhausts the mind.', author: 'Leonardo da Vinci' },
+            { text: 'Tell me and I forget. Teach me and I remember. Involve me and I learn.', author: 'Benjamin Franklin' },
+            { text: 'In learning you will teach, and in teaching you will learn.', author: 'Phil Collins' },
+            { text: 'The expert in anything was once a beginner.', author: 'Helen Hayes' },
+            { text: 'Every accomplishment starts with the decision to try.', author: 'John F. Kennedy' },
+            { text: 'Success is the sum of small efforts repeated day in and day out.', author: 'Robert Collier' },
+            { text: 'You don\'t have to be great to start, but you have to start to be great.', author: 'Zig Ziglar' },
+            { text: 'Knowledge is power. Information is liberating.', author: 'Kofi Annan' },
+        ],
+
+        init() {
+            const widget = $('#quote-widget');
+            if (!widget) return;
+            const day = Math.floor(Date.now() / 86400000);
+            const q = this._list[day % this._list.length];
+            const textEl = $('#quote-text');
+            const authorEl = $('#quote-author');
+            if (textEl) textEl.textContent = q.text;
+            if (authorEl) authorEl.textContent = '— ' + q.author;
+            widget.classList.remove('hidden');
+            setTimeout(() => widget.classList.add('visible'), 50);
+        }
+    };
+
+    // =========================================
+    // Auto-Logout (30 min inactivity)
+    // =========================================
+
+    const AutoLogout = {
+        TIMEOUT_MS: 30 * 60 * 1000,
+        WARN_BEFORE_MS: 60 * 1000, // warn 1 min before
+        _timer: null,
+        _warnTimer: null,
+        _toast: null,
+
+        start() {
+            this._toast = this._createToast();
+            this._reset();
+            ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(ev =>
+                document.addEventListener(ev, () => this._reset(), { passive: true })
+            );
+        },
+
+        stop() {
+            clearTimeout(this._timer);
+            clearTimeout(this._warnTimer);
+            this._hideToast();
+        },
+
+        _reset() {
+            clearTimeout(this._timer);
+            clearTimeout(this._warnTimer);
+            this._hideToast();
+            this._warnTimer = setTimeout(() => this._showToast(), this.TIMEOUT_MS - this.WARN_BEFORE_MS);
+            this._timer = setTimeout(() => {
+                this._hideToast();
+                if (typeof supabaseClient !== 'undefined') supabaseClient.auth.signOut();
+            }, this.TIMEOUT_MS);
+        },
+
+        _createToast() {
+            const el = document.createElement('div');
+            el.className = 'autologout-toast';
+            el.id = 'autologout-toast';
+            el.innerHTML = '⚠️ Du logges ut om 1 minutt på grunn av inaktivitet';
+            document.body.appendChild(el);
+            return el;
+        },
+
+        _showToast() {
+            const t = $('#autologout-toast');
+            if (t) t.classList.add('visible');
+        },
+
+        _hideToast() {
+            const t = $('#autologout-toast');
+            if (t) t.classList.remove('visible');
+        }
+    };
+
+    // =========================================
+    // Onboarding Tour
+    // =========================================
+
+    const Onboarding = {
+        STORE_KEY: 'kompass_onboarded',
+        _current: 1,
+        _total: 4,
+
+        init() {
+            const done = Store.getRaw(this.STORE_KEY);
+            if (!done) {
+                setTimeout(() => this._show(), 800);
+            }
+            $('#onboarding-next')?.addEventListener('click', () => this._next());
+            $('#onboarding-skip')?.addEventListener('click', () => this._complete());
+        },
+
+        _show() {
+            const overlay = $('#onboarding-overlay');
+            overlay?.classList.remove('hidden');
+        },
+
+        _next() {
+            if (this._current >= this._total) { this._complete(); return; }
+            const cur = document.querySelector(`.onboarding-step[data-step="${this._current}"]`);
+            this._current++;
+            const nxt = document.querySelector(`.onboarding-step[data-step="${this._current}"]`);
+            cur?.classList.remove('active');
+            nxt?.classList.add('active');
+            document.querySelectorAll('.onboarding-dot').forEach(d =>
+                d.classList.toggle('active', parseInt(d.dataset.dot) === this._current)
+            );
+            const lbl = $('#onboarding-next-label');
+            if (lbl) lbl.textContent = this._current === this._total ? 'Kom i gang!' : 'Neste';
+        },
+
+        _complete() {
+            Store.setRaw(this.STORE_KEY, '1');
+            $('#onboarding-overlay')?.classList.add('hidden');
+        }
+    };
+
+    // =========================================
     // Bootstrap
     // =========================================
 
@@ -3282,6 +3638,10 @@ ${reflectionsHtml}
         FocusMode.init();
         DataIO.init();
         Auth.init(); // Must be last — triggers onAuthStateChanged
+        Quotes.init();
+        Onboarding.init();
+        ActivityChart.render();
+        StreakCalendar.render();
 
         // Stagger cards in the initially active section (no navigation.switchTo was called)
         setTimeout(() => {

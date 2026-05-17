@@ -12,25 +12,28 @@ A personal **Professional Learning Network** dashboard for tracking goals, resou
 
 | Section | Highlights |
 |---------|-----------|
-| **Dashboard** | Stat cards with animated counters, progress ring, learning streak tracker, smart suggestions |
-| **Goals** | Add/complete/delete goals, progress bar, inline edit, completion tracking |
-| **Resources** | Add/search/filter resources, type badges (YouTube, Blog, Podcast), category system (Development, Driftstøtte, Brukerstøtte), topic-colored tags, category + tag + type + search combined filtering, active filter chips bar |
-| **Notes** | Rich note cards with drawing canvas, file attachments, inline edit, timestamps |
-| **Reflections** | Timeline layout with expand/collapse, color-coded question blocks (learned/worked/improve), relative timestamps |
-| **Insights** | Analytics dashboard — KPI cards with spark bars, goal progress, top resource type, notes/drawings stats, deep dive metrics |
+| **Dashboard** | Stat cards with animated counters, progress ring, learning streak tracker, daily motivational quote, smart suggestions |
+| **Goals** | Add/complete/delete goals, **deadline date picker** with overdue/soon/future badges, progress bar, inline edit, completion tracking |
+| **Resources** | Add/search/filter resources, **star ratings (1–5)**, type badges (YouTube, Blog, Podcast), category system, topic-colored tags, combined filtering |
+| **Notes** | Rich note cards with **pin to top**, **search filter**, drawing canvas, file attachments, inline edit, timestamps |
+| **Reflections** | Timeline layout with expand/collapse, color-coded question blocks, relative timestamps |
+| **Insights** | Analytics dashboard — KPI cards, goal progress, **7-day activity bar chart**, **GitHub-style streak calendar**, top resource type, notes stats |
 
 ### General
-- 🌗 **Dark / Light theme** — sophisticated color palette with warm, creative tones; toggle with persistence
+- 🌗 **Dark / Light theme** — sophisticated color palette; toggle with persistence
 - 🌐 **i18n** — Norwegian (default) and English
 - ☁️ **Cloud sync** — Supabase auth (email/password) with real-time data sync
 - 💾 **Offline-first** — localStorage fallback when not signed in
 - 📱 **Fully responsive** — hamburger sidebar, touch-friendly inputs, mobile-optimized layout
-- 🎨 **Professional Glassmorphism UI** — sophisticated backdrop blur, gradient accents, delightful micro-animations, smooth card transitions, elevated hover effects
-- ✨ **Refined Animations** — smooth entrance animations, playful interactions, bounce effects, polished state transitions
-- 🎯 **Focus mode** — 25-minute focus session timer with toast notification on completion
-- 📄 **PDF export** — generate a styled learning report with all goals, notes, reflections, and stats
+- 🔑 **Forgot password** — send reset link via Supabase email
+- ⏱️ **Auto-logout** — 30-minute inactivity timer with 1-minute warning toast
+- 🧭 **Onboarding tour** — 4-step welcome modal for new users (shown once)
+- 📲 **PWA** — installable as standalone app, offline caching via service worker
+- 🎨 **Professional Glassmorphism UI** — backdrop blur, gradient accents, delightful micro-animations
+- 🎯 **Focus mode** — 25-minute focus session timer
+- 📄 **PDF export** — generate a styled learning report
 - 📦 **Import / Export** — download or upload all data as JSON
-- ♿ **Accessible** — focus-visible outlines, `prefers-reduced-motion` support, ARIA attributes
+- ♿ **Accessible** — focus-visible outlines, `prefers-reduced-motion`, ARIA attributes
 - 🔔 **Toast notifications** — contextual feedback for all actions
 
 ---
