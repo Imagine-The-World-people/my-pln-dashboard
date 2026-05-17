@@ -24,7 +24,7 @@ A personal **Professional Learning Network** dashboard for tracking goals, resou
 - 🌐 **i18n** — Norwegian (default) and English
 - ☁️ **Cloud sync** — Supabase auth (email/password) with real-time data sync
 - 💾 **Offline-first** — localStorage fallback when not signed in
-- 📱 **Fully responsive** — hamburger sidebar, touch-friendly inputs, mobile-optimized layout
+- 📱 **Fully responsive** — hamburger sidebar, touch-friendly inputs, 4-tier breakpoints (1024px tablet landscape, 900px tablet portrait, 768px, 480px, 360px tiny mobile) covering all new components
 - 🔑 **Forgot password** — send reset link via Supabase email
 - 👤 **Profile management** — avatar dropdown with display name editor, avatar color picker, and change password — all saved to Supabase user metadata
 - ⏱️ **Auto-logout** — 30-minute inactivity timer with 1-minute warning toast

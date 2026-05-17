@@ -118,6 +118,26 @@
     .login-hero-title { font-size: 24px; }
     .login-hero-tagline { font-size: 13px; }
     .login-feature strong { font-size: 13px; }
+
+    /* Insights — 3-col KPI on tablet landscape */
+    .insights-kpi-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* Quick stats — 2-col on tablet */
+    .insights-quick-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Deep dive grid — 1-col on tablet */
+    .insights-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Notes — 2-col on tablet */
+    .notes-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 /* TABLET AND SMALL SCREENS (768px and below) */
@@ -873,5 +893,293 @@
     }
     .empty-state p {
         font-size: 13px;
+    }
+}
+
+/* =============================================
+   TABLET PORTRAIT — 900px and below
+   (analytics, notes 2-col, header tightening)
+   ============================================= */
+@media (max-width: 900px) {
+
+    /* Header — hide lang code label, save space */
+    .lang-code { display: none; }
+
+    /* Notes — 2-column on tablet, 1-col only at 600px */
+    .notes-list {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+    }
+
+    /* Insights — deep-dive grid to 1-col */
+    .insights-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Quick Stats — 2-col on tablet */
+    .insights-quick-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Insights progress card — stack */
+    .insights-progress-header {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    /* Summary cards — 2-col on tablet */
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Resources grid — 2-col */
+    .resources-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Goal form row — stack on tablet */
+    .add-goal-form {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .add-goal-form .btn {
+        align-self: stretch;
+    }
+
+    /* Activity chart — reduce font */
+    .activity-chart-bar-label {
+        font-size: 10px;
+    }
+}
+
+/* =============================================
+   TABLET + MOBILE shared (≤ 768px) — additions
+   to the main block above
+   ============================================= */
+@media (max-width: 768px) {
+
+    /* Lang toggle — icon only */
+    .lang-code { display: none; }
+
+    /* Notes — 1-col at 768 */
+    .notes-list {
+        grid-template-columns: 1fr;
+    }
+
+    /* Insights KPI — 3-col at 768px */
+    .insights-kpi-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* Insights quick stats — 2-col */
+    .insights-quick-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Insights section labels — smaller */
+    .insights-section-label {
+        font-size: 14px;
+    }
+
+    /* Category breakdown — tighter */
+    .cat-breakdown-row {
+        grid-template-columns: 90px 1fr 40px;
+        gap: 8px;
+    }
+
+    /* Avatar dropdown — fixed left edge protection */
+    .avatar-dropdown {
+        right: 0;
+        left: auto;
+        max-width: calc(100vw - 24px);
+    }
+
+    /* Profile modal — full width on small screens */
+    .profile-modal {
+        width: calc(100vw - 24px);
+        border-radius: 16px;
+    }
+
+    /* Profile modal header — compact */
+    .profile-modal-avatar {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+    }
+
+    /* Streak calendar — scrollable */
+    #streak-calendar {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Activity chart — scrollable */
+    .activity-chart {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Resource badges row — wrap */
+    .resource-badges-row {
+        flex-wrap: wrap;
+    }
+
+    /* Hide sync badge label on small header */
+    .sync-badge span[data-i18n="syncActive"] {
+        display: none;
+    }
+
+    /* Goal deadline inline — stack */
+    .goal-card .goal-actions {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+}
+
+/* =============================================
+   MOBILE — 480px additions (new components)
+   ============================================= */
+@media (max-width: 480px) {
+
+    /* Insights KPI — 2-col on mobile */
+    .insights-kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* KPI value font size */
+    .insights-kpi-value {
+        font-size: 22px;
+    }
+
+    /* Quick stats — 2-col always */
+    .insights-quick-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .quick-stat {
+        padding: 12px;
+        gap: 8px;
+    }
+
+    .quick-stat-value {
+        font-size: 17px;
+    }
+
+    .quick-stat-icon {
+        font-size: 17px;
+    }
+
+    /* Category breakdown — single col label */
+    .cat-breakdown-row {
+        grid-template-columns: 80px 1fr 36px;
+        gap: 6px;
+    }
+
+    .cat-breakdown-label {
+        font-size: 11.5px;
+    }
+
+    /* Profile modal body — tighter */
+    .profile-modal-body {
+        padding: 16px;
+        gap: 14px;
+    }
+
+    .profile-modal-header {
+        padding: 18px 16px 14px;
+        gap: 12px;
+    }
+
+    /* Avatar color grid — smaller swatches */
+    .avatar-color-swatch {
+        width: 26px;
+        height: 26px;
+    }
+
+    /* Insights progress card */
+    .insights-progress-header h3 {
+        font-size: 14px;
+    }
+
+    /* Activity bar label */
+    .activity-chart-bar-label {
+        font-size: 9px;
+    }
+
+    /* Streak calendar — scroll */
+    #streak-calendar {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 8px;
+    }
+
+    /* Avatar dropdown — push up if near bottom of screen */
+    .avatar-dropdown {
+        min-width: 180px;
+    }
+
+    /* Summary cards — 1-col on mobile */
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =============================================
+   TINY MOBILE — 360px
+   ============================================= */
+@media (max-width: 360px) {
+
+    .header {
+        padding: 10px 12px;
+        gap: 6px;
+    }
+
+    .page-title {
+        font-size: 16px;
+    }
+
+    .insights-kpi-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .insights-kpi {
+        padding: 14px 12px;
+    }
+
+    .insights-kpi-value {
+        font-size: 20px;
+    }
+
+    .insights-quick-stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .quick-stat {
+        padding: 10px;
+        gap: 6px;
+    }
+
+    .quick-stat-value {
+        font-size: 15px;
+    }
+
+    .sections-container {
+        padding: 12px 10px;
+    }
+
+    .section-header h2 {
+        font-size: 18px;
+    }
+
+    .nav-item {
+        padding: 10px;
+        font-size: 11px;
+    }
+
+    .profile-modal {
+        width: calc(100vw - 12px);
+        border-radius: 12px;
     }
 }
