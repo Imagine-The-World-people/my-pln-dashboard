@@ -590,6 +590,48 @@
                             </div>
                             <div class="insights-kpi-spark" id="kpi-spark-reflections"></div>
                         </div>
+                        <div class="insights-kpi insights-kpi--resources">
+                            <div class="insights-kpi-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            </div>
+                            <div class="insights-kpi-body">
+                                <span class="insights-kpi-value" id="kpi-total-resources">0</span>
+                                <span class="insights-kpi-label">Resources</span>
+                            </div>
+                            <div class="insights-kpi-spark" id="kpi-spark-resources"></div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats Strip -->
+                    <div class="insights-quick-stats">
+                        <div class="quick-stat">
+                            <span class="quick-stat-icon">🔥</span>
+                            <div class="quick-stat-body">
+                                <span class="quick-stat-value" id="qs-streak">0</span>
+                                <span class="quick-stat-label">Day Streak</span>
+                            </div>
+                        </div>
+                        <div class="quick-stat">
+                            <span class="quick-stat-icon">📅</span>
+                            <div class="quick-stat-body">
+                                <span class="quick-stat-value" id="qs-best-day">&mdash;</span>
+                                <span class="quick-stat-label">Most Active Day</span>
+                            </div>
+                        </div>
+                        <div class="quick-stat">
+                            <span class="quick-stat-icon">⭐</span>
+                            <div class="quick-stat-body">
+                                <span class="quick-stat-value" id="qs-avg-rating">&mdash;</span>
+                                <span class="quick-stat-label">Avg Resource Rating</span>
+                            </div>
+                        </div>
+                        <div class="quick-stat" id="qs-overdue-card">
+                            <span class="quick-stat-icon">⚠️</span>
+                            <div class="quick-stat-body">
+                                <span class="quick-stat-value" id="qs-overdue">0</span>
+                                <span class="quick-stat-label">Overdue Goals</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Goal Completion Progress -->
@@ -656,6 +698,14 @@
                             </div>
                         </div>
                     </div>
+                    </div>
+
+                    <!-- Goal Category Breakdown -->
+                    <h3 class="insights-section-label">Goals by Category</h3>
+                    <div class="insight-card insight-card--categories">
+                        <div id="insights-category-bars"></div>
+                    </div>
+
                 </section>
 
                 <section id="goals" class="content-section">

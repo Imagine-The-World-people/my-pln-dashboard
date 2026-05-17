@@ -606,6 +606,8 @@
             this._weeklyGoals();
             this._topResource();
             this._notesStats();
+            this._quickStats();
+            this._categoryBreakdown();
         },
 
         /** Update KPI hero cards + goal progress bar + spark bars */
@@ -621,6 +623,7 @@
             Dashboard.countUp('kpi-completed-goals', completed, 600, 60);
             Dashboard.countUp('kpi-total-notes', notesLen, 600, 120);
             Dashboard.countUp('kpi-total-reflections', reflections, 600, 180);
+            Dashboard.countUp('kpi-total-resources', resources.length, 600, 240);
 
             const pctEl = document.getElementById('kpi-goal-pct');
             if (pctEl) pctEl.textContent = pct + '%';
@@ -632,11 +635,98 @@
             if (detail) detail.textContent = `${completed} / ${total}`;
 
             // Spark bars — show proportional fill per KPI
-            const maxItems = Math.max(total, notesLen, reflections, 1);
+            const maxItems = Math.max(total, notesLen, reflections, resources.length, 1);
             this._setSpark('kpi-spark-goals', total, maxItems);
             this._setSpark('kpi-spark-completed', completed, maxItems);
             this._setSpark('kpi-spark-notes', notesLen, maxItems);
             this._setSpark('kpi-spark-reflections', reflections, maxItems);
+            this._setSpark('kpi-spark-resources', resources.length, maxItems);
+        },
+
+        /** Quick Stats: streak, best day, avg rating, overdue */
+        _quickStats() {
+            const data = ActivityTracker.getLast(84);
+            // Current streak — consecutive days with activity ending today
+            let streak = 0;
+            const today = new Date().toISOString().slice(0, 10);
+            for (let i = data.length - 1; i >= 0; i--) {
+                if (data[i].count > 0) {
+                    streak++;
+                } else if (data[i].date <= today) {
+                    break;
+                }
+            }
+            const streakEl = $('#qs-streak');
+            if (streakEl) Dashboard.countUp('qs-streak', streak, 600, 0);
+
+            // Best day of week
+            const dayTotals = [0, 0, 0, 0, 0, 0, 0];
+            data.forEach(d => { dayTotals[d.day.getDay()] += d.count; });
+            const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const bestDayIdx = dayTotals.indexOf(Math.max(...dayTotals));
+            const bestDayEl = $('#qs-best-day');
+            if (bestDayEl) bestDayEl.textContent = dayTotals[bestDayIdx] > 0 ? DAY_NAMES[bestDayIdx] : '—';
+
+            // Avg resource rating
+            const resources = Store.get('pln_user_resources', []);
+            const rated = resources.filter(r => r.rating && r.rating > 0);
+            const avg = rated.length
+                ? (rated.reduce((s, r) => s + r.rating, 0) / rated.length).toFixed(1)
+                : null;
+            const ratingEl = $('#qs-avg-rating');
+            if (ratingEl) ratingEl.textContent = avg ? `${avg} ★` : '—';
+
+            // Overdue goals
+            const todayStr = new Date().toISOString().slice(0, 10);
+            const overdue = state.goals.filter(g => !g.completed && g.deadline && g.deadline < todayStr).length;
+            const overdueEl = $('#qs-overdue');
+            if (overdueEl) overdueEl.textContent = overdue;
+            const overdueCard = $('#qs-overdue-card');
+            if (overdueCard) overdueCard.classList.toggle('quick-stat--has-overdue', overdue > 0);
+        },
+
+        /** Goal category breakdown horizontal bars */
+        _categoryBreakdown() {
+            const container = $('#insights-category-bars');
+            if (!container) return;
+            const CATS = {
+                coding:   { label: '💻 Coding',    color: '#7c8fff' },
+                school:   { label: '📚 School',    color: '#a78bfa' },
+                personal: { label: '⭐ Personal',  color: '#f59e0b' },
+                reading:  { label: '📖 Reading',   color: '#34d399' },
+                health:   { label: '💪 Health',    color: '#f87171' },
+                other:    { label: '· Other',      color: '#94a3b8' },
+            };
+            const counts = {}, done = {};
+            state.goals.forEach(g => {
+                const c = g.category || 'other';
+                counts[c] = (counts[c] || 0) + 1;
+                if (g.completed) done[c] = (done[c] || 0) + 1;
+            });
+            const maxCount = Math.max(...Object.values(counts), 1);
+            container.innerHTML = '';
+            if (!Object.keys(counts).length) {
+                container.innerHTML = '<span style="font-size:13px;color:var(--text-tertiary)">No goals yet.</span>';
+                return;
+            }
+            Object.entries(counts).sort((a, b) => b[1] - a[1]).forEach(([cat, count]) => {
+                const cfg = CATS[cat] || CATS.other;
+                const pct = Math.round((count / maxCount) * 100);
+                const doneCnt = done[cat] || 0;
+                const row = document.createElement('div');
+                row.className = 'cat-breakdown-row';
+                row.innerHTML = `
+                    <span class="cat-breakdown-label">${cfg.label}</span>
+                    <div class="cat-breakdown-track">
+                        <div class="cat-breakdown-bar" style="background:${cfg.color};width:0%"></div>
+                    </div>
+                    <span class="cat-breakdown-count">${doneCnt}/${count}</span>
+                `;
+                container.appendChild(row);
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    row.querySelector('.cat-breakdown-bar').style.width = pct + '%';
+                }));
+            });
         },
 
         /** Animate a spark bar pseudo-element by setting a CSS custom property */
