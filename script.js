@@ -2598,6 +2598,7 @@
             if (saved === 'en' || saved === 'no') this._current = saved;
             this.apply();
             $('#lang-toggle-btn')?.addEventListener('click', () => this.toggle());
+            $('#login-lang-btn')?.addEventListener('click', () => this.toggle());
         }
     };
 
@@ -2962,13 +2963,13 @@ ${reflectionsHtml}
 
             function evalPassword(pw) {
                 const rules = {
-                    length:  pw.length >= 6,
+                    length:  pw.length >= 12,
                     upper:   /[A-Z]/.test(pw) && /[a-z]/.test(pw),
                     number:  /\d/.test(pw),
                     special: /[^A-Za-z0-9]/.test(pw),
                 };
                 // Extra: longer passwords give bonus
-                const bonus = pw.length >= 12 ? 1 : 0;
+                const bonus = pw.length >= 16 ? 1 : 0;
                 const score = Math.min(4, Object.values(rules).filter(Boolean).length + bonus - (rules.length ? 0 : 1));
                 return { rules, score: Math.max(0, score) };
             }
@@ -3049,7 +3050,7 @@ ${reflectionsHtml}
                 const pw2   = regPw2El?.value;
 
                 if (!email || !pw) { notify('Mangler felt', 'Fyll inn e-post og passord', 'warning'); return; }
-                if (pw.length < 6) { notify('Passord for kort', 'Passordet må være minst 6 tegn', 'warning'); return; }
+                if (pw.length < 12) { notify('Passord for kort', 'Passordet må være minst 12 tegn', 'warning'); return; }
                 if (pw !== pw2) { notify('Passord stemmer ikke', 'De to passordene er ikke like', 'warning'); return; }
 
                 const btn = $('#btn-reg-submit');

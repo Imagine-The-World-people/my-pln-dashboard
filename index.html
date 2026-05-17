@@ -39,6 +39,11 @@
 
     <!-- Login Overlay -->
     <div class="login-overlay" id="login-overlay">
+        <!-- Language toggle -->
+        <button class="login-lang-btn" id="login-lang-btn" title="Switch language / Bytt språk">
+            <span class="login-lang-flag" id="login-lang-flag">🇳🇴</span>
+            <span class="login-lang-code" id="login-lang-code">NO</span>
+        </button>
         <!-- Decorative background blobs -->
         <div class="login-bg-blob login-bg-blob--1"></div>
         <div class="login-bg-blob login-bg-blob--2"></div>
@@ -159,7 +164,7 @@
 
                 <div class="auth-field">
                     <label class="auth-label" for="reg-password">Passord</label>
-                    <input type="password" id="reg-password" class="magic-link-input" placeholder="Minst 6 tegn" autocomplete="new-password" required />
+                    <input type="password" id="reg-password" class="magic-link-input" placeholder="Minst 12 tegn" autocomplete="new-password" required />
                     <!-- Strength bar -->
                     <div class="pw-strength" id="pw-strength" aria-live="polite">
                         <div class="pw-strength-bars">
@@ -171,7 +176,7 @@
                         <span class="pw-strength-label" id="pw-strength-label"></span>
                     </div>
                     <ul class="pw-hints" id="pw-hints">
-                        <li class="pw-hint" data-rule="length">Minst 6 tegn</li>
+                        <li class="pw-hint" data-rule="length">Minst 12 tegn</li>
                         <li class="pw-hint" data-rule="upper">Stor og liten bokstav</li>
                         <li class="pw-hint" data-rule="number">Minst ett tall</li>
                         <li class="pw-hint" data-rule="special">Minst ett spesialtegn (!@#…)</li>
