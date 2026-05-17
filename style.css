@@ -48,6 +48,9 @@
 
     /* Section spacing */
     --section-gap: 40px;
+
+    /* Surface colors */
+    --bg-secondary: #111827;
 }
 
 /* Light theme */
@@ -62,6 +65,7 @@ html[data-theme="light"] {
     --bg-darker: #f0f2f8;
     --bg-card: rgba(255, 255, 255, 0.88);
     --bg-card-hover: rgba(255, 255, 255, 1);
+    --bg-secondary: #f8faff;
     --text-primary: #111827;
     --text-secondary: #2d3a52;
     --text-tertiary: #4a5c78;
@@ -111,7 +115,33 @@ html[data-theme="light"] body {
 }
 
 /* =============================================
-   ANIMATIONS & TRANSITIONS
+   GLOBAL FOCUS RING
+   ============================================= */
+
+:focus-visible {
+    outline: 2px solid var(--primary-light);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Remove default outline for mouse users */
+:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Icon/action buttons active state */
+button:active:not(:disabled) {
+    opacity: 0.85;
+}
+
+.note-action-btn:active,
+.goal-action-btn:active,
+.data-btn:active,
+.theme-toggle-btn:active,
+.lang-toggle-btn:active {
+    transform: scale(0.92) !important;
+    transition: transform 0.08s ease !important;
+}
    ============================================= */
 
 @keyframes slideInUp {
@@ -1390,11 +1420,14 @@ html[data-theme="light"] .goals-sort-select {
 .sections-container {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 40px 48px;
     display: grid;
     grid-template-columns: 1fr;
     position: relative;
     z-index: 1;
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
 }
 
 .sections-container::-webkit-scrollbar {
@@ -1774,9 +1807,9 @@ html[data-theme="light"] .stat-card {
 
 .stat-card:hover {
     background: rgba(255, 255, 255, 0.09);
-    border-color: rgba(124, 143, 255, 0.25);
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
+    border-color: var(--sc-border, rgba(124, 143, 255, 0.4));
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: var(--shadow-md), 0 0 28px color-mix(in srgb, var(--sc-color, #98a8ff) 30%, transparent);
 }
 
 html[data-theme="light"] .stat-card:hover {
@@ -3517,7 +3550,12 @@ html[data-theme="light"] .goal-edit-category {
 .goal-progress-fill {
     height: 100%;
     background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    transition: width 0.6s ease;
+    transition: width 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+    animation: progressFillIn 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+@keyframes progressFillIn {
+    from { width: 0 !important; }
 }
 
 /* =============================================
@@ -7012,11 +7050,6 @@ html[data-theme="light"] .signout-btn:hover {
     backface-visibility: hidden;
 }
 
-/* Smooth scroll for sections container */
-.sections-container {
-    scroll-behavior: smooth;
-}
-
 /* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -7939,5 +7972,169 @@ html[data-theme="light"] .cat-breakdown-row:not(:last-child) {
     .cat-breakdown-row {
         grid-template-columns: 90px 1fr 36px;
     }
+}
+
+/* =============================================
+   A: VISUAL POLISH
+   ============================================= */
+
+/* --- Stat card number: gradient colour in dark mode too --- */
+.stat-number {
+    font-variant-numeric: tabular-nums;
+}
+
+html:not([data-theme="light"]) .stat-number {
+    background: linear-gradient(135deg, #e0e8ff 0%, var(--sc-color, #a5b4fc) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* --- Goal item: accent glow on hover, green when completed --- */
+.goal-item:hover {
+    box-shadow: var(--shadow-md), 0 0 16px rgba(124, 143, 255, 0.12);
+}
+
+.goal-item.completed {
+    border-left: 3px solid var(--success-color);
+}
+
+/* --- Note card left stripe per mood --- */
+.note-card[data-mood="happy"]::before    { background: linear-gradient(180deg, #fbbf24, #f59e0b); }
+.note-card[data-mood="calm"]::before     { background: linear-gradient(180deg, #60a5fa, #3b82f6); }
+.note-card[data-mood="excited"]::before  { background: linear-gradient(180deg, #f472b6, #ec4899); }
+.note-card[data-mood="sad"]::before      { background: linear-gradient(180deg, #94a3b8, #64748b); }
+.note-card[data-mood="anxious"]::before  { background: linear-gradient(180deg, #fb923c, #f97316); }
+
+/* --- Insight KPI card hover lift --- */
+.insights-kpi {
+    transition: transform 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth), border-color 0.25s ease;
+}
+.insights-kpi:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-color);
+}
+
+/* --- Quick stat card hover --- */
+.quick-stat {
+    transition: transform 0.22s var(--ease-smooth), background 0.22s ease;
+    cursor: default;
+}
+.quick-stat:hover {
+    transform: translateY(-2px);
+    background: var(--bg-card-hover);
+}
+
+/* --- Smooth scrollbar with fade at edges --- */
+.sections-container {
+    --scroll-fade-size: 24px;
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0,
+        black var(--scroll-fade-size),
+        black calc(100% - var(--scroll-fade-size)),
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to bottom,
+        transparent 0,
+        black var(--scroll-fade-size),
+        black calc(100% - var(--scroll-fade-size)),
+        transparent 100%
+    );
+}
+
+/* Slim scrollbar */
+.sections-container::-webkit-scrollbar {
+    width: 5px;
+}
+
+.sections-container::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: var(--border-color);
+}
+
+/* --- Header page title: gradient sweep on dark mode --- */
+html:not([data-theme="light"]) .page-title {
+    background: linear-gradient(90deg, var(--text-primary) 0%, var(--primary-light) 60%, var(--accent-light) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* --- Pinned note badge pulse --- */
+.note-card.pinned-note::after {
+    animation: pinnedPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes pinnedPulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.6; }
+}
+
+/* --- Goal checkbox custom checkmark animation --- */
+.goal-checkbox:checked::after {
+    animation: checkPop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes checkPop {
+    from { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    to   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+/* --- Smooth tab switcher highlight --- */
+.gstab {
+    position: relative;
+    overflow: hidden;
+}
+.gstab::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.06);
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    border-radius: 7px;
+}
+.gstab:not(.active):hover::after {
+    transform: translateX(0);
+}
+
+/* --- Ripple on primary action buttons --- */
+.btn-primary {
+    position: relative;
+    overflow: hidden;
+}
+.btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.18) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+.btn-primary:hover::after {
+    opacity: 1;
+}
+
+/* --- Enhanced resource card colour accent glow --- */
+.resource-card[data-category="development"]:hover  { box-shadow: 0 16px 40px rgba(99,102,241,0.2),  0 0 0 1px rgba(99,102,241,0.15); }
+.resource-card[data-category="driftsstotte"]:hover { box-shadow: 0 16px 40px rgba(245,158,11,0.18), 0 0 0 1px rgba(245,158,11,0.12); }
+.resource-card[data-category="brukerstotte"]:hover { box-shadow: 0 16px 40px rgba(16,185,129,0.18), 0 0 0 1px rgba(16,185,129,0.12); }
+
+/* --- Auth form inputs glow on focus --- */
+.login-input:focus,
+.login-input:focus-visible {
+    box-shadow: 0 0 0 3px rgba(124, 143, 255, 0.18), 0 0 16px rgba(124, 143, 255, 0.12);
+    outline: none;
+}
+
+/* --- Light mode polish: subtle top border highlight on cards --- */
+html[data-theme="light"] .goal-item,
+html[data-theme="light"] .note-card,
+html[data-theme="light"] .resource-card {
+    box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.9);
 }
 

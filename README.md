@@ -51,8 +51,10 @@ The dashboard features a **sophisticated, professional UI** with a focus on user
 
 ### Interactions
 - **Micro-animations**: Smooth state transitions, bounce effects, and entrance animations
-- **Delightful Hover States**: Cards lift, icons rotate and glow, buttons respond with polish
+- **Delightful Hover States**: Cards lift with per-card colored glow, icons rotate, buttons respond with polish
 - **Touch-Friendly**: Tap feedback on mobile, smooth scrolling, accessible button sizes
+- **Accessibility**: Global `:focus-visible` rings, `prefers-reduced-motion` support
+- **Visual Polish**: Stat number count-up on load, progress bar animate-from-zero, scroll-faded container
 
 ### Components
 - **Glass-morphism Cards**: Sophisticated backdrop blur with subtle gradient overlays
