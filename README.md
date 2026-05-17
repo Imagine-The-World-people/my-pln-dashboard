@@ -13,7 +13,7 @@ A personal **Professional Learning Network** dashboard for tracking goals, resou
 | Section | Highlights |
 |---------|-----------|
 | **Dashboard** | Stat cards with animated counters, progress ring, learning streak tracker, daily motivational quote, smart suggestions |
-| **Goals** | Add/complete/delete goals, **deadline date picker** with overdue/soon/future badges, progress bar, inline edit, completion tracking |
+| **Goals** | Add/complete/delete goals, **deadline date picker** with overdue/soon/future badges, **search + status filter (All/Active/Done) + sort** (newest, deadline, A→Z, category), progress bar, inline edit, completion tracking |
 | **Resources** | Add/search/filter resources, **star ratings (1–5)**, type badges (YouTube, Blog, Podcast), category system, topic-colored tags, combined filtering |
 | **Notes** | Rich note cards with **pin to top**, **search filter**, drawing canvas, file attachments, inline edit, timestamps |
 | **Reflections** | Timeline layout with expand/collapse, color-coded question blocks, relative timestamps |
@@ -27,7 +27,8 @@ A personal **Professional Learning Network** dashboard for tracking goals, resou
 - 📱 **Fully responsive** — hamburger sidebar, touch-friendly inputs, 4-tier breakpoints (1024px tablet landscape, 900px tablet portrait, 768px, 480px, 360px tiny mobile) covering all new components
 - 🔑 **Forgot password** — send reset link via Supabase email
 - 👤 **Profile management** — avatar dropdown with display name editor, avatar color picker, and change password — all saved to Supabase user metadata
-- ⏱️ **Auto-logout** — 30-minute inactivity timer with 1-minute warning toast
+- ⌨️ **Keyboard shortcuts panel** — press `?` to show all shortcuts; `Alt+1–6` for sections, `Ctrl+K` for search
+- ⏱️ **Focus session counter** — tracks completed 25-min pomodoro sessions, shown as a dashboard stat card
 - 🧭 **Onboarding tour** — 4-step welcome modal for new users (shown once)
 - 📲 **PWA** — installable as standalone app, offline caching via service worker
 - 🎨 **Professional Glassmorphism UI** — backdrop blur, gradient accents, delightful micro-animations

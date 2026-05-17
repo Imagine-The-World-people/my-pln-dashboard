@@ -483,6 +483,15 @@
                                 <p class="stat-number" id="stat-reflections">0</p>
                             </div>
                         </div>
+                        <div class="stat-card stat-card--focus">
+                            <div class="stat-icon" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label">Focus Sessions</p>
+                                <p class="stat-number" id="stat-focus">0</p>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="summary-section">
@@ -771,6 +780,24 @@
                             <input type="date" id="goal-deadline" class="goal-deadline-input" />
                         </div>
                         <p class="input-hint">Press <kbd>Enter</kbd> to quickly add &nbsp;·&nbsp; Be specific and measurable</p>
+                    </div>
+                    <!-- Goal filter bar -->
+                    <div class="goals-filter-bar">
+                        <div class="goals-search-wrap">
+                            <svg class="goals-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input class="goals-search-input" id="goals-search" type="search" placeholder="Search goals…" autocomplete="off" aria-label="Search goals">
+                        </div>
+                        <div class="goals-status-tabs" role="tablist" aria-label="Filter by status">
+                            <button class="gstab active" data-status="all" role="tab">All</button>
+                            <button class="gstab" data-status="active" role="tab">Active</button>
+                            <button class="gstab" data-status="done" role="tab">Done</button>
+                        </div>
+                        <select class="goals-sort-select" id="goals-sort" aria-label="Sort goals">
+                            <option value="newest">Newest first</option>
+                            <option value="deadline">By deadline</option>
+                            <option value="az">A → Z</option>
+                            <option value="category">By category</option>
+                        </select>
                     </div>
                     <div class="goals-list-container">
                         <div class="goals-list" id="goals-list"></div>
@@ -1082,6 +1109,39 @@
 
     <!-- Notification Toast Container -->
     <div id="notification-container"></div>
+
+    <!-- Keyboard Shortcuts Panel -->
+    <div class="shortcuts-overlay hidden" id="shortcuts-overlay" role="dialog" aria-modal="true" aria-labelledby="shortcuts-title">
+        <div class="shortcuts-panel">
+            <div class="shortcuts-panel-header">
+                <h2 id="shortcuts-title">Keyboard Shortcuts</h2>
+                <button class="shortcuts-close" id="shortcuts-close" aria-label="Close">&times;</button>
+            </div>
+            <div class="shortcuts-grid">
+                <div class="shortcuts-group">
+                    <h3>Navigation</h3>
+                    <div class="shortcut-row"><kbd>Alt</kbd><kbd>1–6</kbd><span>Switch section</span></div>
+                    <div class="shortcut-row"><kbd>Ctrl</kbd><kbd>K</kbd><span>Focus search</span></div>
+                </div>
+                <div class="shortcuts-group">
+                    <h3>General</h3>
+                    <div class="shortcut-row"><kbd>?</kbd><span>Show this panel</span></div>
+                    <div class="shortcut-row"><kbd>Esc</kbd><span>Close dialogs</span></div>
+                </div>
+                <div class="shortcuts-group">
+                    <h3>Goals</h3>
+                    <div class="shortcut-row"><kbd>Enter</kbd><span>Quick-add goal</span></div>
+                    <div class="shortcut-row"><kbd>Esc</kbd><span>Cancel edit</span></div>
+                </div>
+                <div class="shortcuts-group">
+                    <h3>Notes</h3>
+                    <div class="shortcut-row"><kbd>Ctrl</kbd><kbd>Enter</kbd><span>Save note</span></div>
+                    <div class="shortcut-row"><kbd>Ctrl</kbd><kbd>B</kbd><span>Bold text</span></div>
+                </div>
+            </div>
+            <p class="shortcuts-hint">Press <kbd>Esc</kbd> or <kbd>?</kbd> to close</p>
+        </div>
+    </div>
 
     <!-- Profile Modal -->
     <div class="modal-overlay hidden" id="profile-modal-overlay">

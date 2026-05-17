@@ -838,6 +838,7 @@
 
     const Goals = {
         STORE_KEY: 'pln_goals',
+        _filter: { search: '', status: 'all', sort: 'newest' },
 
         init() {
             state.goals = Store.get(this.STORE_KEY, []);
@@ -892,6 +893,52 @@
                     this.toggleComplete(parseInt(e.target.dataset.goalId));
                 }
             });
+
+            // --- Filter bar ---
+            $('#goals-search')?.addEventListener('input', e => {
+                this._filter.search = e.target.value.trim().toLowerCase();
+                this.render();
+            });
+
+            $$('.gstab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    $$('.gstab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    this._filter.status = tab.dataset.status;
+                    this.render();
+                });
+            });
+
+            $('#goals-sort')?.addEventListener('change', e => {
+                this._filter.sort = e.target.value;
+                this.render();
+            });
+        },
+
+        _applyFilter(goals) {
+            let list = [...goals];
+            const { search, status, sort } = this._filter;
+
+            if (search) {
+                list = list.filter(g => g.text.toLowerCase().includes(search));
+            }
+            if (status === 'active') list = list.filter(g => !g.completed);
+            if (status === 'done')   list = list.filter(g => g.completed);
+
+            if (sort === 'deadline') {
+                list.sort((a, b) => {
+                    if (!a.deadline && !b.deadline) return 0;
+                    if (!a.deadline) return 1;
+                    if (!b.deadline) return -1;
+                    return a.deadline.localeCompare(b.deadline);
+                });
+            } else if (sort === 'az') {
+                list.sort((a, b) => a.text.localeCompare(b.text));
+            } else if (sort === 'category') {
+                list.sort((a, b) => (a.category || '').localeCompare(b.category || ''));
+            }
+            // 'newest' keeps insertion order (goals are unshifted on add)
+            return list;
         },
 
         add() {
@@ -988,9 +1035,32 @@
                 empty?.classList.add('show');
                 return;
             }
-            empty?.classList.remove('show');
 
-            list.innerHTML = state.goals.map(g => `
+            const filtered = this._applyFilter(state.goals);
+
+            if (filtered.length === 0) {
+                empty?.classList.add('show');
+                list.innerHTML = `
+                    <div class="goals-filter-empty">
+                        <span>🔍</span>
+                        <p>No goals match your filter.</p>
+                        <button class="goals-filter-clear-btn" id="goals-filter-clear">Clear filters</button>
+                    </div>`;
+                // clear button
+                $('#goals-filter-clear')?.addEventListener('click', () => {
+                    this._filter = { search: '', status: 'all', sort: 'newest' };
+                    const searchEl = $('#goals-search');
+                    if (searchEl) searchEl.value = '';
+                    $$('.gstab').forEach(t => t.classList.toggle('active', t.dataset.status === 'all'));
+                    const sortEl = $('#goals-sort');
+                    if (sortEl) sortEl.value = 'newest';
+                    this.render();
+                });
+                return;
+            }
+
+            empty?.classList.remove('show');
+            list.innerHTML = filtered.map(g => `
                 <div class="goal-item ${g.completed ? 'completed' : ''}" id="goal-${g.id}">
                     <input type="checkbox" class="goal-checkbox"
                         ${g.completed ? 'checked' : ''} data-goal-id="${g.id}">
@@ -3582,6 +3652,8 @@ ${reflectionsHtml}
             if (overlay) overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) this.stop();
             });
+
+            this._loadSessionCount();
         },
 
         start() {
@@ -3634,6 +3706,7 @@ ${reflectionsHtml}
             if (timer) timer.classList.add('hidden');
             if (done) done.classList.add('visible');
             Streak.recordActivity();
+            FocusMode._recordSession();
             notify(I18n.t('focusComplete'), I18n.t('focusCompleteMsg'), 'success');
 
             // Auto-close after 5 seconds
@@ -3641,6 +3714,30 @@ ${reflectionsHtml}
                 this.stop();
                 if (timer) timer.classList.remove('hidden');
             }, 5000);
+        },
+
+        _recordSession() {
+            const today = new Date().toISOString().slice(0, 10);
+            const sessions = Store.getRaw('kompass_focus_sessions');
+            let data = {};
+            try { data = JSON.parse(sessions || '{}'); } catch { data = {}; }
+            data[today] = (data[today] || 0) + 1;
+            Store.setRaw('kompass_focus_sessions', JSON.stringify(data));
+            // Update dashboard stat
+            const el = $('#stat-focus');
+            if (el) {
+                const total = Object.values(data).reduce((s, n) => s + n, 0);
+                el.textContent = total;
+            }
+        },
+
+        _loadSessionCount() {
+            const sessions = Store.getRaw('kompass_focus_sessions');
+            let data = {};
+            try { data = JSON.parse(sessions || '{}'); } catch { data = {}; }
+            const total = Object.values(data).reduce((s, n) => s + n, 0);
+            const el = $('#stat-focus');
+            if (el) el.textContent = total;
         }
     };
 
@@ -3660,8 +3757,33 @@ ${reflectionsHtml}
                 }
                 if (e.altKey && this.SECTION_MAP[e.key]) {
                     $(`[data-section="${this.SECTION_MAP[e.key]}"]`)?.click();
+                    return;
+                }
+                // ? — show shortcuts panel (only when no text input is focused)
+                if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                    const tag = document.activeElement?.tagName;
+                    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+                    this.togglePanel();
+                }
+                if (e.key === 'Escape') {
+                    this.closePanel();
                 }
             });
+
+            $('#shortcuts-close')?.addEventListener('click', () => this.closePanel());
+            $('#shortcuts-overlay')?.addEventListener('click', e => {
+                if (e.target.id === 'shortcuts-overlay') this.closePanel();
+            });
+        },
+
+        togglePanel() {
+            const overlay = $('#shortcuts-overlay');
+            if (!overlay) return;
+            overlay.classList.toggle('hidden');
+        },
+
+        closePanel() {
+            $('#shortcuts-overlay')?.classList.add('hidden');
         }
     };
 
