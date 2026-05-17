@@ -162,6 +162,9 @@ button:active:not(:disabled) {
     transform: scale(0.92) !important;
     transition: transform 0.08s ease !important;
 }
+
+/* =============================================
+   ANIMATIONS
    ============================================= */
 
 @keyframes slideInUp {
@@ -1134,13 +1137,29 @@ html[data-theme="light"] .sync-badge {
     border: 2.5px solid transparent;
     cursor: pointer;
     transition: transform 0.15s, border-color 0.15s;
+    background: var(--swatch-color, #7c8fff);
 }
+
+/* Swatch color definitions */
+.swatch--indigo  { background: #7c8fff; }
+.swatch--purple  { background: #a78bfa; }
+.swatch--emerald { background: #34d399; }
+.swatch--amber   { background: #f59e0b; }
+.swatch--red     { background: #f87171; }
+.swatch--cyan    { background: #06b6d4; }
+.swatch--pink    { background: #ec4899; }
+.swatch--slate   { background: #94a3b8; }
 
 .avatar-color-swatch:hover { transform: scale(1.18); }
 .avatar-color-swatch--active {
     border-color: #fff;
     transform: scale(1.15);
     box-shadow: 0 0 0 2px rgba(255,255,255,0.3);
+}
+
+/* Confirm-password field — top spacing via CSS instead of inline style */
+#profile-confirm-password {
+    margin-top: 8px;
 }
 
 /* Light theme overrides */

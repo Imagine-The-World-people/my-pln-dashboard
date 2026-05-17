@@ -14,7 +14,7 @@
     .login-shell {
         grid-template-columns: 1fr;
         max-width: 480px;
-        min-height: auto;
+        min-height: 0;
         border-radius: 24px;
     }
 
@@ -1007,13 +1007,11 @@
     /* Streak calendar — scrollable */
     #streak-calendar {
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
     }
 
     /* Activity chart — scrollable */
     .activity-chart {
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
     }
 
     /* Resource badges row — wrap */
@@ -1106,7 +1104,6 @@
     /* Streak calendar — scroll */
     #streak-calendar {
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
         padding-bottom: 8px;
     }
 
