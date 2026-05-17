@@ -1,0 +1,764 @@
+/* =============================================
+   RESPONSIVE MEDIA QUERIES - IMPROVED FOR MOBILE
+   ============================================= */
+
+/* Sidebar overlay - always in DOM but hidden on desktop */
+.sidebar-overlay {
+    display: none;
+}
+
+/* TABLET AND SMALL SCREENS (768px and below) */
+@media (max-width: 768px) {
+
+    /* ---------- Sidebar overlay backdrop ---------- */
+    .sidebar-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    .sidebar-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* ---------- Sidebar Toggle Button ---------- */
+    .sidebar-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        min-width: 44px;
+        padding: 10px;
+        margin-right: 16px;
+    }
+
+    /* ---------- Sidebar - Fixed slide-out ---------- */
+    .wrapper {
+        flex-direction: row;
+    }
+
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        width: 240px;
+        flex-direction: column;
+        padding: 20px 16px;
+        z-index: 999;
+        border-right: 2px solid var(--border-color);
+        border-bottom: none;
+        transform: translateX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar.hidden {
+        transform: translateX(-100%);
+    }
+
+    .logo-container {
+        margin-bottom: 24px;
+        padding: 12px;
+        min-height: 44px;
+    }
+
+    .nav-menu {
+        flex-direction: column;
+        flex: 1;
+        margin: 0;
+        gap: 8px;
+    }
+
+    .nav-item {
+        padding: 14px 16px;
+        min-height: 44px;
+        font-size: 14px;
+        border-radius: 10px;
+        justify-content: flex-start;
+    }
+
+    .nav-label {
+        display: inline;
+        margin-left: 8px;
+    }
+
+    .nav-icon {
+        font-size: 20px;
+        min-width: 20px;
+    }
+
+    .sidebar-footer {
+        display: block;
+        margin-top: auto;
+        padding-top: 16px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    /* Main Content */
+    .main-content {
+        flex: 1;
+        width: 100%;
+    }
+
+    /* Header - Adjust for toggle button */
+    .header {
+        flex-direction: row;
+        gap: 12px;
+        padding: 16px 20px;
+    }
+
+    .header-left {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .page-title {
+        font-size: 22px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .header-right {
+        flex-direction: row;
+        gap: 12px;
+        width: auto;
+    }
+
+    .search-box {
+        flex: 1;
+    }
+
+    .search-input {
+        width: 100%;
+        min-height: 40px;
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+
+    .theme-toggle-btn {
+        min-height: 40px;
+        min-width: 40px;
+        width: 40px;
+        height: 40px;
+        padding: 8px;
+    }
+
+    .avatar {
+        min-height: 40px;
+        min-width: 40px;
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    /* Content Grid */
+    .sections-container {
+        padding: 20px;
+    }
+
+    .dashboard-grid,
+    .resources-grid,
+    .goals-container {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .section-header h2 {
+        font-size: 24px;
+    }
+
+    .section-header p {
+        font-size: 14px;
+    }
+
+    .reflections-container {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-charts {
+        grid-template-columns: 1fr;
+    }
+
+    /* Touch-Friendly Buttons and Inputs */
+    .stat-card {
+        min-height: 80px;
+        padding: 16px;
+    }
+
+    .btn {
+        min-height: 44px;
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+
+    /* Improve input sizes for touch */
+    .goal-input,
+    .note-textarea,
+    .reflection-textarea {
+        min-height: 44px;
+        font-size: 16px;
+        padding: 12px 14px;
+    }
+
+    .note-textarea {
+        min-height: 100px;
+    }
+
+    .reflection-textarea {
+        min-height: 80px;
+    }
+
+    /* Filter buttons */
+    .filter-buttons {
+        gap: 8px;
+    }
+
+    .filter-btn {
+        min-height: 40px;
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+
+    .cat-filter-btn {
+        min-height: 38px;
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .filter-group {
+        margin-bottom: 10px;
+    }
+
+    .active-filters-bar {
+        padding: 8px 0 2px;
+    }
+
+    .resource-badges-row {
+        gap: 5px;
+    }
+
+    /* Summary cards */
+    .summary-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+    }
+
+    /* Input groups */
+    .input-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* ---------- Resource Add Panel ---------- */
+    .resource-add-panel {
+        padding: 16px;
+    }
+    .resource-add-panel .resource-form-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    .resource-type-picker {
+        flex-wrap: wrap;
+    }
+    .resource-type-pill {
+        min-height: 40px;
+        padding: 8px 14px;
+    }
+
+    /* ---------- Notes Toolbar & Drawing ---------- */
+    .note-tools-bar {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .note-tools-bar button,
+    .note-tools-bar label {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    .note-draw-panel canvas {
+        max-width: 100%;
+        height: 260px;
+    }
+    .draw-controls {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .draw-controls button {
+        min-height: 40px;
+        min-width: 40px;
+    }
+    .attach-preview {
+        gap: 8px;
+    }
+    .attach-thumb {
+        width: 60px;
+        height: 60px;
+    }
+
+    /* ---------- Note Cards ---------- */
+    .notes-list {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+    .note-card {
+        padding: 0;
+    }
+    .note-card-inner {
+        padding: 14px;
+    }
+    .note-card .note-card-actions {
+        opacity: 1;
+    }
+    .note-card .note-card-actions button {
+        min-height: 36px;
+        min-width: 36px;
+    }
+    .note-card .note-drawing-preview img {
+        max-height: 120px;
+    }
+    .note-card .note-file-chips {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    /* ---------- Reflection Timeline ---------- */
+    .reflection-timeline {
+        padding-left: 24px;
+    }
+    .reflection-timeline::before {
+        left: 8px;
+    }
+    .reflection-tl-dot {
+        left: -20px;
+        width: 14px;
+        height: 14px;
+    }
+    .reflection-tl-card {
+        padding: 14px;
+    }
+    .reflection-tl-header {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .reflection-tl-body .reflection-q-block {
+        padding: 12px;
+    }
+
+    /* ---------- Goals ---------- */
+    .goal-card {
+        padding: 14px;
+    }
+    .goal-card .goal-header {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .add-goal-section .input-group {
+        flex-direction: column;
+    }
+    .add-goal-section .input-group .btn {
+        width: 100%;
+    }
+}
+
+/* MOBILE SCREENS (480px and below) */
+@media (max-width: 480px) {
+    /* Sidebar - Narrower on mobile */
+    .sidebar-toggle {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 10px;
+        margin-right: 12px;
+    }
+
+    .sidebar {
+        width: 200px;
+        padding: 16px 12px;
+    }
+
+    .logo-container {
+        margin-bottom: 20px;
+        padding: 10px;
+        min-height: 40px;
+    }
+
+    .logo-icon {
+        font-size: 24px;
+    }
+
+    .logo-text {
+        font-size: 18px;
+        letter-spacing: 1px;
+    }
+
+    .nav-menu {
+        gap: 6px;
+    }
+
+    .nav-item {
+        padding: 12px 12px;
+        min-height: 40px;
+        font-size: 12px;
+        border-radius: 8px;
+    }
+
+    .nav-label {
+        font-size: 12px;
+        margin-left: 6px;
+    }
+
+    .nav-icon {
+        font-size: 18px;
+    }
+
+    .sidebar-footer {
+        padding-top: 12px;
+    }
+
+    .footer-text {
+        font-size: 12px;
+    }
+
+    .version {
+        font-size: 10px;
+    }
+
+    /* Header - Mobile optimized */
+    .header {
+        flex-direction: row;
+        gap: 8px;
+        padding: 12px 16px;
+    }
+
+    .page-title {
+        font-size: 18px;
+    }
+
+    .search-box {
+        display: none;
+    }
+
+    .theme-toggle-btn {
+        min-height: 40px;
+        min-width: 40px;
+        width: 40px;
+        height: 40px;
+        padding: 8px;
+        font-size: 20px;
+    }
+
+    .avatar {
+        min-height: 40px;
+        min-width: 40px;
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+
+    /* Content - Optimized spacing */
+    .sections-container {
+        padding: 16px 12px;
+    }
+
+    .section-header {
+        margin-bottom: 24px;
+    }
+
+    .section-header h2 {
+        font-size: 20px;
+    }
+
+    .section-header p {
+        font-size: 13px;
+    }
+
+    /* Stat cards - More compact */
+    .stat-card {
+        min-height: 70px;
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .stat-icon {
+        font-size: 32px;
+        min-width: 32px;
+    }
+
+    .stat-label {
+        font-size: 11px;
+    }
+
+    .stat-number {
+        font-size: 24px;
+    }
+
+    /* All buttons - Full width on mobile */
+    .btn {
+        min-height: 44px;
+        padding: 11px 16px;
+        font-size: 13px;
+        width: 100%;
+    }
+
+    /* Touchable input sizes */
+    .goal-input,
+    .note-textarea,
+    .reflection-textarea {
+        min-height: 44px;
+        font-size: 16px;
+        padding: 12px 14px;
+        width: 100%;
+    }
+
+    .note-textarea {
+        min-height: 100px;
+    }
+
+    .reflection-textarea {
+        min-height: 80px;
+    }
+
+    /* Filter buttons - More touch-friendly */
+    .filter-buttons {
+        gap: 6px;
+    }
+
+    .filter-btn {
+        padding: 10px 14px;
+        min-height: 40px;
+        font-size: 12px;
+    }
+
+    .cat-filter-btn {
+        padding: 7px 10px;
+        min-height: 36px;
+        font-size: 11px;
+    }
+
+    .filter-group-label {
+        font-size: 9px;
+        margin-bottom: 6px;
+    }
+
+    .active-filter-chip {
+        font-size: 11px;
+        padding: 4px 10px;
+    }
+
+    .resource-cat-badge {
+        padding: 4px 10px;
+        font-size: 10.5px;
+    }
+
+    .resource-tag {
+        padding: 2px 7px;
+        font-size: 10px;
+    }
+
+    /* Summary grid - Single column */
+    .summary-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .summary-card {
+        padding: 16px;
+        min-height: 0;
+    }
+
+    .summary-value {
+        font-size: 28px;
+    }
+
+    .summary-label {
+        font-size: 11px;
+    }
+
+    /* Input groups - Vertical stack */
+    .input-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* Delete buttons - Smaller on mobile */
+    .goal-delete-btn,
+    .note-delete-btn,
+    .reflection-delete-btn {
+        min-height: 36px;
+        min-width: 36px;
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    /* Charts and resources */
+    .dashboard-charts,
+    .resources-grid,
+    .goals-container,
+    .reflections-list {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .resource-card,
+    .note-card,
+    .reflection-card,
+    .goal-card {
+        padding: 14px;
+    }
+
+    .resource-card h3,
+    .note-card h3,
+    .reflection-card h3,
+    .goal-card h3 {
+        font-size: 16px;
+    }
+
+    .resource-card p,
+    .note-card p,
+    .reflection-card p {
+        font-size: 13px;
+    }
+
+    /* Priority badges */
+    .priority-badge {
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+
+    /* Goal items */
+    .goal-item {
+        padding: 12px;
+        min-height: 40px;
+        gap: 10px;
+    }
+
+    .goal-checkbox {
+        min-width: 20px;
+        width: 20px;
+        height: 20px;
+    }
+
+    .goal-text {
+        font-size: 14px;
+    }
+
+    .goal-date {
+        font-size: 11px;
+    }
+
+    /* Reflection form */
+    .reflection-form-section {
+        padding: 16px 12px;
+    }
+
+    .reflection-question label {
+        font-size: 14px;
+    }
+
+    .reflection-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* Note actions */
+    .note-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .char-count {
+        font-size: 12px;
+    }
+
+    /* Ensure good spacing on all inputs and textareas */
+    input,
+    textarea,
+    select {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+
+    /* Better touch target sizes */
+    button,
+    a,
+    input[type="checkbox"],
+    input[type="radio"] {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 12px;
+    }
+
+    /* ---------- Resource Add Panel (mobile) ---------- */
+    .resource-add-panel {
+        padding: 12px;
+    }
+    .resource-type-pill {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+    .resource-add-panel .btn {
+        width: 100%;
+    }
+
+    /* ---------- Notes Drawing (mobile) ---------- */
+    .note-draw-panel canvas {
+        height: 200px;
+    }
+    .draw-color-btn {
+        width: 28px;
+        height: 28px;
+    }
+    .draw-size-btn {
+        min-height: 36px;
+        font-size: 12px;
+    }
+    .attach-thumb {
+        width: 50px;
+        height: 50px;
+    }
+
+    /* ---------- Note Cards (mobile) ---------- */
+    .note-card-inner {
+        padding: 12px;
+    }
+    .note-card .note-drawing-preview img {
+        max-height: 90px;
+    }
+    .note-card .note-file-chip {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+
+    /* ---------- Reflection Timeline (mobile) ---------- */
+    .reflection-timeline {
+        padding-left: 20px;
+    }
+    .reflection-timeline::before {
+        left: 6px;
+    }
+    .reflection-tl-dot {
+        left: -17px;
+        width: 12px;
+        height: 12px;
+    }
+    .reflection-tl-card {
+        padding: 12px;
+    }
+    .reflection-tl-body .reflection-q-block {
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    /* ---------- Empty state (mobile) ---------- */
+    .empty-state-icon {
+        width: 48px;
+        height: 48px;
+    }
+    .empty-state p {
+        font-size: 13px;
+    }
+}
