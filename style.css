@@ -110,6 +110,75 @@ html[data-theme="light"] body {
 }
 
 /* =============================================
+   ANIMATIONS & TRANSITIONS
+   ============================================= */
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.92);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+@keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+}
+
+/* Card animation on hover */
+@keyframes cardLift {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-4px); }
+}
+
+/* Icon spin for loading */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* =============================================
    LAYOUT WRAPPER
    ============================================= */
 
@@ -1092,12 +1161,14 @@ html[data-theme="light"] .section-header h2 {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+    background: linear-gradient(135deg, #6b7aff 0%, #9d5bd2 50%, #d63f7f 100%);
     color: white;
-    box-shadow: 0 6px 28px rgba(99, 102, 241, 0.45),
-                inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 24px rgba(107, 122, 255, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
     position: relative;
     overflow: hidden;
+    font-weight: 700;
+    letter-spacing: 0.3px;
 }
 
 .btn-primary::before {
@@ -1107,14 +1178,14 @@ html[data-theme="light"] .section-header h2 {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s ease;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    transition: left 0.6s ease;
 }
 
 .btn-primary:hover {
-    transform: translateY(-3px) scale(1.03);
-    box-shadow: 0 14px 40px rgba(99, 102, 241, 0.6),
-                inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 36px rgba(107, 122, 255, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .btn-primary:hover::before {
@@ -1122,9 +1193,9 @@ html[data-theme="light"] .section-header h2 {
 }
 
 .btn-primary:active {
-    transform: translateY(0) scale(0.97);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
-    transition: transform 0.08s ease, box-shadow 0.08s ease;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(107, 122, 255, 0.25);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 /* =============================================
@@ -1142,25 +1213,26 @@ html[data-theme="light"] .section-header h2 {
     background: var(--bg-card);
     border: 1px solid var(--border-glass);
     border-radius: var(--card-radius);
-    padding: 22px var(--card-padding);
+    padding: 24px;
     display: flex;
-    gap: 18px;
+    gap: 20px;
     align-items: center;
     cursor: pointer;
-    transition: var(--transition);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    backdrop-filter: blur(28px) saturate(180%);
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    backdrop-filter: blur(24px) saturate(160%);
     box-shadow: var(--shadow-sm);
     position: relative;
     overflow: hidden;
+    animation: fadeIn 0.5s ease-out;
 }
 
 .stat-card::before {
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: 22px;
-    background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.04) 50%, transparent 70%);
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(107, 122, 255, 0.08) 0%, rgba(157, 91, 210, 0.03) 50%, transparent 70%);
     pointer-events: none;
     z-index: 0;
 }
@@ -1168,33 +1240,33 @@ html[data-theme="light"] .section-header h2 {
 .stat-card > * { position: relative; z-index: 1; }
 
 html[data-theme="light"] .stat-card {
-    background: rgba(255, 255, 255, 0.8);
-    border-color: rgba(79, 70, 229, 0.14);
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(90, 90, 255, 0.12);
     box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.95);
 }
 
 .stat-card:hover {
-    background: rgba(22, 28, 72, 0.72);
-    border-color: rgba(99, 102, 241, 0.5);
-    transform: translateY(-5px) scale(1.015);
+    background: rgba(38, 43, 85, 0.65);
+    border-color: rgba(107, 122, 255, 0.4);
+    transform: translateY(-6px) scale(1.02);
     box-shadow: var(--shadow-md),
-                0 0 30px rgba(99, 102, 241, 0.15);
+                0 0 32px rgba(107, 122, 255, 0.18);
 }
 
 html[data-theme="light"] .stat-card:hover {
-    background: rgba(255, 255, 255, 0.98);
+    background: rgba(255, 255, 255, 1);
     border-color: var(--primary-color);
-    box-shadow: 0 16px 40px rgba(79, 70, 229, 0.18);
+    box-shadow: 0 12px 36px rgba(90, 90, 255, 0.16);
 }
 
-/* Click / tap feedback — driven by JS adding .pressing, no setTimeout needed */
+/* Click / tap feedback */
 .stat-card.pressing {
-    animation: statPress 0.22s ease forwards;
+    animation: statPress 0.24s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 @keyframes statPress {
     0%   { transform: translateY(0)   scale(1); }
-    35%  { transform: translateY(2px) scale(0.97); }
+    40%  { transform: translateY(2px) scale(0.96); }
     100% { transform: translateY(0)   scale(1); }
 }
 
@@ -1202,38 +1274,42 @@ html[data-theme="light"] .stat-card:hover {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, transparent 100%);
-    border-radius: 22px;
+    background: radial-gradient(circle at 50% 50%, rgba(107, 122, 255, 0.1) 0%, transparent 70%);
+    border-radius: 18px;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.4s ease;
     z-index: -1;
 }
 
 /* Per-card accent colour tokens */
-.stat-card--goals       { --sc-bg: rgba(99, 102, 241, 0.14); --sc-border: rgba(99, 102, 241, 0.28); --sc-color: #a5b4fc; }
-.stat-card--resources   { --sc-bg: rgba(6, 182, 212, 0.14);  --sc-border: rgba(6, 182, 212, 0.28);  --sc-color: #67e8f9; }
-.stat-card--notes       { --sc-bg: rgba(245, 158, 11, 0.14); --sc-border: rgba(245, 158, 11, 0.28); --sc-color: #fcd34d; }
-.stat-card--reflections { --sc-bg: rgba(167, 85, 247, 0.14); --sc-border: rgba(167, 85, 247, 0.28); --sc-color: #c084fc; }
+.stat-card--goals       { --sc-bg: rgba(107, 122, 255, 0.12); --sc-border: rgba(107, 122, 255, 0.24); --sc-color: #98a8ff; }
+.stat-card--resources   { --sc-bg: rgba(45, 212, 191, 0.12);  --sc-border: rgba(45, 212, 191, 0.24);  --sc-color: #5eead4; }
+.stat-card--notes       { --sc-bg: rgba(251, 191, 36, 0.12); --sc-border: rgba(251, 191, 36, 0.24); --sc-color: #fcd34d; }
+.stat-card--reflections { --sc-bg: rgba(157, 91, 210, 0.12); --sc-border: rgba(157, 91, 210, 0.24); --sc-color: #d8b4fe; }
 
 .stat-icon {
-    width: 50px;
-    height: 50px;
+    width: 54px;
+    height: 54px;
     border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    background: var(--sc-bg, rgba(99, 102, 241, 0.14));
-    border: 1px solid var(--sc-border, rgba(99, 102, 241, 0.28));
-    color: var(--sc-color, #a5b4fc);
-    transition: var(--transition);
+    background: var(--sc-bg, rgba(107, 122, 255, 0.12));
+    border: 1.5px solid var(--sc-border, rgba(107, 122, 255, 0.24));
+    color: var(--sc-color, #98a8ff);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     position: relative;
     z-index: 1;
+    font-size: 24px;
+    font-weight: 600;
 }
 
 .stat-card:hover .stat-icon {
-    transform: scale(1.12) rotate(-6deg);
-    filter: drop-shadow(0 0 16px var(--sc-color, rgba(99, 102, 241, 0.6)));
+    transform: scale(1.18) rotate(-5deg);
+    filter: drop-shadow(0 0 12px var(--sc-color));
+    background: var(--sc-bg);
+    border-color: var(--sc-color);
 }
 
 .stat-content {
