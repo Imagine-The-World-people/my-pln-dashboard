@@ -1111,30 +1111,37 @@ import Sortable from 'sortablejs';
             `).join('');
             
             if (this._sortable) this._sortable.destroy();
-            this._sortable = Sortable.create(list, {
-                animation: 150,
-                handle: '.goal-drag-handle',
-                delay: 100, // Important: prevents jittery scrolling on mobile devices
-                delayOnTouchOnly: true, // Only delay on touch devices
-                onEnd: (evt) => {
-                    const goalIdsInDom = Array.from(list.children).map(el => Number(el.id.replace('goal-', '')));
-                    const newGoals = [];
-                    
-                    goalIdsInDom.forEach(id => {
-                        const goal = state.goals.find(g => g.id === id);
-                        if (goal) newGoals.push(goal);
-                    });
-                    
-                    state.goals.forEach(goal => {
-                        if (!goalIdsInDom.includes(goal.id)) {
-                            newGoals.push(goal);
-                        }
-                    });
-                    
-                    state.goals = newGoals;
-                    this._save();
-                }
-            });
+            
+            // Only allow dragging when viewing all goals in newest order to prevent data corruption
+            const canDrag = this._filter.status === 'all' && this._filter.sort === 'newest';
+            
+            if (canDrag) {
+                this._sortable = Sortable.create(list, {
+                    animation: 200, // Smoother glide animation
+                    handle: '.goal-drag-handle',
+                    easing: "cubic-bezier(0.25, 1, 0.5, 1)",
+                    ghostClass: "sortable-ghost",
+                    dragClass: "sortable-drag",
+                    onEnd: (evt) => {
+                        const goalIdsInDom = Array.from(list.children).map(el => Number(el.id.replace('goal-', '')));
+                        const newGoals = [];
+                        
+                        goalIdsInDom.forEach(id => {
+                            const goal = state.goals.find(g => g.id === id);
+                            if (goal) newGoals.push(goal);
+                        });
+                        
+                        state.goals.forEach(goal => {
+                            if (!goalIdsInDom.includes(goal.id)) {
+                                newGoals.push(goal);
+                            }
+                        });
+                        
+                        state.goals = newGoals;
+                        this._save();
+                    }
+                });
+            }
         },
 
         _tagHtml(category) {
@@ -3201,11 +3208,15 @@ ${reflectionsHtml}
 
                 if (error) throw error;
 
-                // Merge by id: union of local + cloud, no duplicates, newest first
+                // Rebuild array using remote order as source of truth, appending any new local-only items
                 const merge = (local, remote) => {
-                    const map = new Map(local.map(i => [i.id, i]));
-                    (remote || []).forEach(i => { if (!map.has(i.id)) map.set(i.id, i); });
-                    return Array.from(map.values()).sort((a, b) => b.id - a.id);
+                    const remoteArr = remote || [];
+                    const remoteIds = new Set(remoteArr.map(i => i.id));
+                    const localOnly = local.filter(i => !remoteIds.has(i.id));
+                    
+                    // Supabase sends items in the exact array order they were saved
+                    const merged = [...remoteArr, ...localOnly];
+                    return merged.length ? merged : local;
                 };
 
                 state.goals       = merge(state.goals,       data.goals);
