@@ -3185,7 +3185,7 @@ ${reflectionsHtml}
                     notes: state.notes,
                     reflections: state.reflections,
                     updated_at: new Date().toISOString()
-                });
+                }, { onConflict: 'user_id' });
                 if (error) {
                     console.error('CloudSync._save failed:', error);
                     notify('Synk feilet', error.message || 'Kunne ikke lagre til skyen', 'error');
