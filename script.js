@@ -3168,40 +3168,37 @@ ${reflectionsHtml}
         async _save() {
             if (!supabaseClient) return;
             if (this._isSaving) {
-                // Skeduler lagring til etterpå hvis vi allerede lagrer
                 clearTimeout(this._saveTimer);
                 this._saveTimer = setTimeout(() => this._save(), 1500);
                 return;
             }
             this._isSaving = true;
-
+            const container = $('.sections-container');
             try {
                 const { data: { user } } = await supabaseClient.auth.getUser();
-                if (!user) {
-                    this._isSaving = false;
-                    return;
+                if (!user) return;
+
+                if (container) container.classList.add('syncing');
+                const { error } = await supabaseClient.from('user_data').upsert({
+                    user_id: user.id,
+                    goals: state.goals,
+                    notes: state.notes,
+                    reflections: state.reflections,
+                    updated_at: new Date().toISOString()
+                });
+                if (error) {
+                    console.error('CloudSync._save failed:', error);
+                    notify('Synk feilet', error.message || 'Kunne ikke lagre til skyen', 'error');
+                } else {
+                    notify('Lagret i skyen ☁️', 'Dataene dine er synkronisert', 'success');
                 }
-            const container = $('.sections-container');
-            if (container) container.classList.add('syncing');
-            const { error } = await supabaseClient.from('user_data').upsert({
-                user_id: user.id,
-                goals: state.goals,
-                notes: state.notes,
-                reflections: state.reflections,
-                updated_at: new Date().toISOString()
-            });
-            if (container) container.classList.remove('syncing');
-            if (error) {
-                console.error('CloudSync._save failed:', error);
-                notify('Synk feilet', error.message || 'Kunne ikke lagre til skyen', 'error');
-            } else {
-                notify('Lagret i skyen ☁️', 'Dataene dine er synkronisert', 'success');
+            } catch (err) {
+                console.error('CloudSync._save critical error:', err);
+                notify('Synk feilet', err.message || 'Ukjent feil ved lagring', 'error');
+            } finally {
+                this._isSaving = false;
+                if (container) container.classList.remove('syncing');
             }
-        } catch (err) {
-            console.error("Critical error in CloudSync._save:", err);
-        } finally {
-            this._isSaving = false;
-        }
         },
 
         async load() {

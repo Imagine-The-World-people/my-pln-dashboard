@@ -1,13 +1,9 @@
 /* Kompass Service Worker — cache-first for static assets */
 /* Cache version: bump this string on every deploy to force cache refresh on all devices */
-const CACHE = 'kompass-v20260518-5';
+const CACHE = 'kompass-v20260518-7';
 const STATIC = [
   '/',
   '/index.html',
-  '/style.css',
-  '/responsive.css',
-  '/script.js',
-  '/supabase-config.js',
   '/manifest.json'
 ];
 
@@ -28,12 +24,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   // Network-first for Supabase API calls (By-pass Cache match if fetch fails to avoid throwing undefined)
   if (e.request.url.includes('supabase.co')) {
-    e.respondWith(
-      fetch(e.request).catch(() => new Response(JSON.stringify({ error: "Offline" }), { 
-        headers: { 'Content-Type': 'application/json' } 
-      }))
-    );
-    return;
+    return; // Do nothing, let the browser handle it directly.
   }
   // Network-first for static assets — always get fresh code, fall back to cache offline
   e.respondWith(
