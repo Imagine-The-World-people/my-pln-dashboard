@@ -478,7 +478,7 @@ html[data-theme="light"] .sidebar::before {
 }
 
 .nav-badge.has-count {
-    display: flex;
+    display: none;
 }
 
 @keyframes badgePop {

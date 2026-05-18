@@ -586,6 +586,44 @@ button, a, [role="button"], label {
     .add-goal-section .input-group .btn {
         width: 100%;
     }
+
+    /* Category pills — horizontal scroll on mobile */
+    .category-picker {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+        gap: 6px;
+    }
+    .category-picker::-webkit-scrollbar {
+        display: none;
+    }
+    .cat-pill {
+        flex-shrink: 0;
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    /* Progress section — more compact on mobile */
+    .goal-progress-section {
+        padding: 16px;
+    }
+    .progress-circle-wrap,
+    .progress-ring {
+        width: 84px;
+        height: 84px;
+    }
+    .progress-ring-bg,
+    .progress-ring-fill {
+        r: 33;
+    }
+    .progress-ring-pct {
+        font-size: 16px;
+    }
+    .progress-ring-sub {
+        font-size: 9px;
+    }
 }
 
 /* MOBILE SCREENS (480px and below) */
@@ -1413,20 +1451,12 @@ button, a, [role="button"], label {
     }
 
     .nav-badge {
-        /* Show as small dot instead */
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        min-width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        padding: 0;
-        font-size: 0; /* hide number, just show dot */
+        /* Completely hidden on tablet rail — user does not want counts */
+        display: none !important;
     }
 
     .nav-badge.has-count {
-        background: var(--accent-color);
-        display: block;
+        display: none !important;
     }
 
     .nav-icon-wrap {
