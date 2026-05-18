@@ -2,7 +2,7 @@
 
 A personal **Professional Learning Network** dashboard for tracking goals, resources, notes, reflections, and learning analytics — built with vanilla HTML, CSS, and JavaScript.
 
-![Dark & Light themes](https://img.shields.io/badge/themes-dark%20%2F%20light-6366f1)
+![Dark & Light themes](https://img.shields.io/badge/themes-dark%20%2F%20light-5B9FD4)
 ![i18n](https://img.shields.io/badge/languages-NO%20%2F%20EN-10b981)
 ![Responsive](https://img.shields.io/badge/responsive-mobile%20ready-f59e0b)
 
