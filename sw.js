@@ -1,6 +1,6 @@
 /* Kompass Service Worker — cache-first for static assets */
 /* Cache version: bump this string on every deploy to force cache refresh on all devices */
-const CACHE = 'kompass-v20260517-2';
+const CACHE = 'kompass-v20260518-1';
 const STATIC = [
   '/',
   '/index.html',
