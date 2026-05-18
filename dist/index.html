@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kompass</title>
+    <meta name="description" content="Din personlige læringsapp — sett mål, ta notater og følg veksten din">
+    <meta name="theme-color" content="#07091a">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/svg+xml" href="/assets/icon-BHM3QEzY.svg">
+    <link rel="apple-touch-icon" href="/assets/icon-BHM3QEzY.svg">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kompass">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" crossorigin src="/assets/index-DhlexT-D.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DIX8yRip.css">
+</head>
+
+
+<body>
+    <!-- Resource Detail Modal -->
+    <div class="resource-modal-overlay" id="resource-modal-overlay">
+        <div class="resource-modal" id="resource-modal" role="dialog" aria-modal="true" aria-labelledby="resource-modal-title">
+            <div class="resource-modal-header" id="resource-modal-header">
+                <div class="resource-modal-type-row">
+                    <div class="resource-modal-type-icon" id="resource-modal-type-icon"></div>
+                    <span class="resource-modal-type-label" id="resource-modal-type-label"></span>
+                </div>
+                <button class="resource-modal-close" id="resource-modal-close" aria-label="Close">&times;</button>
+            </div>
+            <div class="resource-modal-body">
+                <div class="resource-modal-meta" id="resource-modal-meta"></div>
+                <h2 class="resource-modal-title" id="resource-modal-title"></h2>
+                <div class="resource-modal-desc" id="resource-modal-desc"></div>
+            </div>
+            <div class="resource-modal-footer">
+                <a href="#" target="_blank" rel="noopener" class="btn btn-primary resource-modal-link" id="resource-modal-link">Open Resource</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Overlay -->
+    <div class="login-overlay" id="login-overlay">
+        <!-- Language toggle -->
+        <button class="login-lang-btn" id="login-lang-btn" title="Switch language / Bytt språk">
+            <span class="login-lang-flag" id="login-lang-flag">🇳🇴</span>
+            <span class="login-lang-code" id="login-lang-code">NO</span>
+        </button>
+        <!-- Decorative background blobs -->
+        <div class="login-bg-blob login-bg-blob--1"></div>
+        <div class="login-bg-blob login-bg-blob--2"></div>
+        <div class="login-bg-blob login-bg-blob--3"></div>
+
+        <div class="login-shell">
+
+            <!-- LEFT: Hero panel (desktop only) -->
+            <div class="login-hero">
+                <div class="login-hero-inner">
+                    <div class="login-hero-logo">🧭</div>
+                    <h2 class="login-hero-title">Kompass</h2>
+                    <p class="login-hero-tagline">Din personlige læringsapp — sett mål, bygg vaner og se veksten din over tid.</p>
+                    <ul class="login-features">
+                        <li class="login-feature">
+                            <span class="login-feature-icon">🎯</span>
+                            <div>
+                                <strong>Sett læringsmål</strong>
+                                <span>Følg fremgangen og feir milepæler</span>
+                            </div>
+                        </li>
+                        <li class="login-feature">
+                            <span class="login-feature-icon">📝</span>
+                            <div>
+                                <strong>Ta smarte notater</strong>
+                                <span>Med tegning, vedlegg og tidslinje</span>
+                            </div>
+                        </li>
+                        <li class="login-feature">
+                            <span class="login-feature-icon">📊</span>
+                            <div>
+                                <strong>Se innsikt og statistikk</strong>
+                                <span>Visualiser læringsreisen din</span>
+                            </div>
+                        </li>
+                        <li class="login-feature">
+                            <span class="login-feature-icon">☁️</span>
+                            <div>
+                                <strong>Synkroniser overalt</strong>
+                                <span>Tilgjengelig på alle enheter, alltid</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="login-hero-badge">✦ Gratis å bruke</div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Auth form -->
+            <div class="login-card">
+                <!-- Brand (mobile only) -->
+                <div class="login-brand">
+                    <div class="login-logo-wrap">
+                        <span class="login-logo-icon">🧭</span>
+                    </div>
+                    <h1 class="login-title">Kompass</h1>
+                    <p class="login-subtitle">Kompass hjelper deg å holde oversikt over det du lærer — og hvor du er på vei</p>
+                </div>
+
+                <div class="login-form-header">
+                    <h2 class="login-form-title">Velkommen tilbake</h2>
+                    <p class="login-form-subtitle">Velkommen tilbake — fortsett der du slapp</p>
+                </div>
+
+                <!-- Auth form -->
+                <form class="auth-form" id="auth-form" novalidate>
+                    <div class="auth-field">
+                        <label class="auth-label" for="auth-email">E-postadresse</label>
+                        <input type="email" id="auth-email" class="magic-link-input" placeholder="deg@eksempel.no" autocomplete="email" required />
+                    </div>
+                    <div class="auth-field">
+                        <label class="auth-label" for="auth-password">Passord</label>
+                        <input type="password" id="auth-password" class="magic-link-input" placeholder="Skriv inn passordet ditt" autocomplete="current-password" aria-label="Password" required />
+                    </div>
+
+                    <div class="forgot-pw-row">
+                        <button type="button" class="forgot-pw-link" id="forgot-pw-link">Glemt passord?</button>
+                    </div>
+                    <button type="button" class="btn-magic-link" id="btn-signin">
+                        <span>Logg inn</span>
+                        <span class="btn-signin-icon">→</span>
+                    </button>
+                </form>
+
+                <!-- Divider -->
+                <div class="auth-divider">
+                    <span>Ny bruker?</span>
+                </div>
+
+                <!-- Register section -->
+                <div class="auth-register-section">
+                    <p class="auth-register-hint">Ingen konto ennå? Det tar under ett minutt og er helt gratis.</p>
+                    <button type="button" class="btn-register" id="btn-register">
+                        ✦ Opprett gratis konto
+                    </button>
+                </div>
+
+                <p class="login-note" id="auth-note"></p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- =============================================
+         REGISTRATION MODAL
+         ============================================= -->
+    <!-- =============================================
+         FORGOT PASSWORD MODAL
+         ============================================= -->
+    <div class="reg-modal-overlay hidden" id="forgot-pw-modal" role="dialog" aria-modal="true" aria-labelledby="forgot-pw-title">
+        <div class="reg-modal-card">
+            <button class="reg-modal-close" id="forgot-pw-close" aria-label="Lukk">&times;</button>
+            <div class="reg-modal-header">
+                <div class="reg-modal-icon">🔑</div>
+                <h2 class="reg-modal-title" id="forgot-pw-title">Glemt passord?</h2>
+                <p class="reg-modal-subtitle">Skriv inn e-posten din — vi sender deg en tilbakestillingslenke</p>
+            </div>
+            <form class="reg-form" id="forgot-pw-form" novalidate>
+                <div class="auth-field">
+                    <label class="auth-label" for="forgot-pw-email">E-postadresse</label>
+                    <input type="email" id="forgot-pw-email" class="magic-link-input" placeholder="deg@eksempel.no" autocomplete="email" required />
+                </div>
+                <button type="button" class="btn-magic-link" id="btn-forgot-pw-submit">
+                    <span>Send tilbakestillingslenke</span>
+                    <span class="btn-signin-icon">→</span>
+                </button>
+            </form>
+            <p class="reg-modal-footer">Husket du det? <button type="button" class="reg-back-link" id="forgot-pw-back">Logg inn</button></p>
+            <p class="login-note" id="forgot-pw-note"></p>
+        </div>
+    </div>
+
+    <!-- =============================================
+         ONBOARDING MODAL
+         ============================================= -->
+    <div class="onboarding-overlay hidden" id="onboarding-overlay" role="dialog" aria-modal="true">
+        <div class="onboarding-card">
+            <div class="onboarding-steps">
+                <div class="onboarding-step active" data-step="1">
+                    <div class="onboarding-icon">🧭</div>
+                    <h2>Velkommen til Kompass!</h2>
+                    <p>Din personlige læringsapp — sett mål, ta notater og se veksten din over tid.</p>
+                </div>
+                <div class="onboarding-step" data-step="2">
+                    <div class="onboarding-icon">🎯</div>
+                    <h2>Sett læringsmål</h2>
+                    <p>Definer hva du vil lære. Legg til frist og kategori — og kryss av når du er ferdig.</p>
+                </div>
+                <div class="onboarding-step" data-step="3">
+                    <div class="onboarding-icon">📝</div>
+                    <h2>Skriv notater</h2>
+                    <p>Fang opp det du lærer mens det er ferskt. Legg til tegninger og vedlegg. Fest viktige notater øverst.</p>
+                </div>
+                <div class="onboarding-step" data-step="4">
+                    <div class="onboarding-icon">📊</div>
+                    <h2>Følg fremgangen</h2>
+                    <p>Se statistikk, aktivitetsdiagram og læringsstreak i Insights — og hold motivasjonen oppe!</p>
+                </div>
+            </div>
+            <div class="onboarding-dots" id="onboarding-dots">
+                <span class="onboarding-dot active" data-dot="1"></span>
+                <span class="onboarding-dot" data-dot="2"></span>
+                <span class="onboarding-dot" data-dot="3"></span>
+                <span class="onboarding-dot" data-dot="4"></span>
+            </div>
+            <div class="onboarding-actions">
+                <button type="button" class="onboarding-skip" id="onboarding-skip">Hopp over</button>
+                <button type="button" class="btn-magic-link onboarding-next" id="onboarding-next">
+                    <span id="onboarding-next-label">Neste</span>
+                    <span class="btn-signin-icon">→</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============================================
+         REGISTRATION MODAL
+         ============================================= -->
+    <div class="reg-modal-overlay hidden" id="reg-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="reg-modal-title">
+        <div class="reg-modal-card">
+            <button class="reg-modal-close" id="reg-modal-close" aria-label="Lukk">&times;</button>
+
+            <div class="reg-modal-header">
+                <div class="reg-modal-icon">🚀</div>
+                <h2 class="reg-modal-title" id="reg-modal-title">Opprett gratis konto</h2>
+                <p class="reg-modal-subtitle">Gratis for alltid — kom i gang på under ett minutt</p>
+            </div>
+
+            <form class="reg-form" id="reg-form" novalidate>
+                <div class="auth-field">
+                    <label class="auth-label" for="reg-email">E-postadresse</label>
+                    <input type="email" id="reg-email" class="magic-link-input" placeholder="deg@eksempel.no" autocomplete="email" required />
+                </div>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="reg-password">Passord</label>
+                    <input type="password" id="reg-password" class="magic-link-input" placeholder="Minst 12 tegn" autocomplete="new-password" required />
+                    <!-- Strength bar -->
+                    <div class="pw-strength" id="pw-strength" aria-live="polite">
+                        <div class="pw-strength-bars">
+                            <span class="pw-bar" data-idx="0"></span>
+                            <span class="pw-bar" data-idx="1"></span>
+                            <span class="pw-bar" data-idx="2"></span>
+                            <span class="pw-bar" data-idx="3"></span>
+                        </div>
+                        <span class="pw-strength-label" id="pw-strength-label"></span>
+                    </div>
+                    <ul class="pw-hints" id="pw-hints">
+                        <li class="pw-hint" data-rule="length">Minst 12 tegn</li>
+                        <li class="pw-hint" data-rule="upper">Stor og liten bokstav</li>
+                        <li class="pw-hint" data-rule="number">Minst ett tall</li>
+                        <li class="pw-hint" data-rule="special">Minst ett spesialtegn (!@#…)</li>
+                    </ul>
+                </div>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="reg-password2">Bekreft passord</label>
+                    <input type="password" id="reg-password2" class="magic-link-input" placeholder="Skriv passordet på nytt" autocomplete="new-password" required />
+                    <span class="pw-match-msg" id="pw-match-msg"></span>
+                </div>
+
+                <button type="button" class="btn-magic-link" id="btn-reg-submit">
+                    <span>Opprett konto</span>
+                    <span class="btn-signin-icon">→</span>
+                </button>
+            </form>
+
+            <p class="reg-modal-footer">Har du allerede en konto? <button type="button" class="reg-back-link" id="reg-back-link">Logg inn</button></p>
+            <p class="login-note" id="reg-note"></p>
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <div class="logo-icon">🧭</div>
+                <h1 class="logo-text">PLN</h1>
+            </div>
+            
+            <nav class="nav-menu">
+                <button class="nav-item active" data-section="dashboard" data-nav-index="0" data-tooltip="Dashboard">
+                    <span class="nav-icon-wrap">
+                        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+                        </svg>
+                    </span>
+                    <span class="nav-label" data-i18n="navDashboard">Dashboard</span>
+                </button>
+                <button class="nav-item" data-section="goals" data-nav-index="1" data-tooltip="Mål">
+                    <span class="nav-icon-wrap">
+                        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+                        </svg>
+                    </span>
+                    <span class="nav-label" data-i18n="navGoals">Learning Goals</span>
+                    <span class="nav-badge" id="badge-goals"></span>
+                </button>
+                <button class="nav-item" data-section="resources" data-nav-index="2" data-tooltip="Ressurser">
+                    <span class="nav-icon-wrap">
+                        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                        </svg>
+                    </span>
+                    <span class="nav-label" data-i18n="navResources">Resources</span>
+                    <span class="nav-feature-tag">🔍 Filter</span>
+                </button>
+                <button class="nav-item" data-section="notes" data-nav-index="3" data-tooltip="Notater">
+                    <span class="nav-icon-wrap">
+                        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                    </span>
+                    <span class="nav-label" data-i18n="navNotes">Notes</span>
+                    <span class="nav-feature-tag">✏️ Draw</span>
+                    <span class="nav-badge" id="badge-notes"></span>
+                </button>
+                <button class="nav-item" data-section="reflection" data-nav-index="4" data-tooltip="Refleksjon">
+                    <span class="nav-icon-wrap">
+                        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </span>
+                    <span class="nav-label" data-i18n="navReflection">Reflection</span>
+                    <span class="nav-feature-tag">📅 Timeline</span>
+                    <span class="nav-badge" id="badge-reflections"></span>
+                </button>
+                <button class="nav-item" data-section="insights" data-nav-index="5" data-tooltip="Innsikt">
+                    <span class="nav-icon-wrap">
+                        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/>
+                        </svg>
+                    </span>
+                    <span class="nav-label" data-i18n="navInsights">Insights</span>
+                    <span class="nav-feature-tag">📊 Analytics</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="data-actions">
+                    <button class="data-btn" id="export-btn" data-i18n-title="exportTitle" data-i18n="exportBtn" title="Last ned alle data som JSON-fil">⬇ Eksporter</button>
+                    <label class="data-btn" id="import-label" data-i18n-title="importTitle" title="Last opp en tidligere eksportert JSON-fil">
+                        <span data-i18n="importBtn">⬆ Importer</span>
+                        <input type="file" id="import-input" accept=".json" hidden>
+                    </label>
+                </div>
+                <button class="data-btn data-btn--pdf" id="export-pdf-btn" data-i18n="pdfBtn" title="Eksporter som PDF-rapport">📄 Eksporter PDF</button>
+                <p class="footer-text">Kompass</p>
+                <p class="version">v1.0</p>
+            </div>
+        </aside>
+
+        <!-- Sidebar overlay (mobile) -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <button class="sidebar-toggle" id="sidebar-toggle" title="Toggle sidebar">☰</button>
+                <div class="header-left">
+                    <h2 class="page-title">Dashboard</h2>
+                </div>
+                <div class="header-right">
+                    <div class="search-box">
+                        <input type="text" data-i18n-placeholder="searchPlaceholder" placeholder="Search..." class="search-input">
+                        <span class="search-icon">🔍</span>
+                    </div>
+                    <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle theme">🌙</button>
+                    <button class="lang-toggle-btn" id="lang-toggle-btn" title="Switch language">
+                        <span class="lang-flag" id="lang-flag">🇳🇴</span>
+                        <span class="lang-code" id="lang-code">NO</span>
+                    </button>
+                    <div class="user-profile" id="user-profile">
+                        <span class="sync-badge" id="sync-badge" hidden>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+                            <span data-i18n="syncActive">Synced</span>
+                        </span>
+                        <div class="avatar" id="user-avatar" role="button" aria-haspopup="true" aria-label="User menu" tabindex="0">👤</div>
+                        <!-- Avatar dropdown -->
+                        <div class="avatar-dropdown hidden" id="avatar-dropdown" role="navigation" aria-label="User actions">
+                            <div class="avatar-dropdown-email" id="avatar-dropdown-email"></div>
+                            <button class="avatar-dropdown-item" id="btn-open-profile">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+                                Edit Profile
+                            </button>
+                            <div class="avatar-dropdown-divider"></div>
+                            <button class="avatar-dropdown-item avatar-dropdown-item--danger" id="signout-btn" hidden>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                                <span data-i18n="signOut">Logg ut</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Sections Container -->
+            <div class="sections-container">
+
+                <!-- Section Loading Skeleton -->
+                <div class="section-skeleton" id="section-skeleton">
+                    <div class="skeleton-bar skeleton-bar--title"></div>
+                    <div class="skeleton-bar skeleton-bar--subtitle"></div>
+                    <div class="skeleton-grid">
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Section -->
+                <section id="dashboard" class="content-section active">
+                    <div class="section-header">
+                        <h2 data-i18n="dashWelcome">Welcome to Kompass</h2>
+                        <p data-i18n="dashSubtitle">Track your professional learning network and growth</p>
+                    </div>
+
+                    <div class="streak-banner" id="streak-display" aria-live="polite"></div>
+
+                    <!-- Motivational Quote Widget -->
+                    <div class="quote-widget hidden" id="quote-widget">
+                        <span class="quote-mark">&ldquo;</span>
+                        <p class="quote-text" id="quote-text"></p>
+                        <span class="quote-author" id="quote-author"></span>
+                    </div>
+
+                    <div class="suggestions-section hidden" aria-live="polite">
+                        <h3 class="suggestions-title" data-i18n="suggestionsTitle">💡 Suggestions</h3>
+                        <ul class="suggestions-list" id="suggestions-list"></ul>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="stat-card stat-card--goals">
+                            <div class="stat-icon" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label" data-i18n="navGoals">Learning Goals</p>
+                                <p class="stat-number" id="stat-goals">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-card--resources">
+                            <div class="stat-icon" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label" data-i18n="navResources">Resources</p>
+                                <p class="stat-number" id="stat-resources">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-card--notes">
+                            <div class="stat-icon" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label" data-i18n="navNotes">Notes</p>
+                                <p class="stat-number" id="stat-notes">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-card--reflections">
+                            <div class="stat-icon" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14z"/></svg>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label" data-i18n="navReflection">Reflections</p>
+                                <p class="stat-number" id="stat-reflections">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-card--focus">
+                            <div class="stat-icon" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label">Focus Sessions</p>
+                                <p class="stat-number" id="stat-focus">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="summary-section">
+                        <h3 class="summary-title" data-i18n="quickOverview">Quick Overview</h3>
+                        <div class="summary-grid">
+                        <div class="summary-card summary-card--total" id="total-goals-card">
+                                <div class="summary-header">
+                                    <span class="summary-icon" aria-hidden="true">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                                    </span>
+                                    <span class="summary-label" data-i18n="totalGoals">Total Goals</span>
+                                </div>
+                                <div class="summary-value" id="total-goals">0</div>
+                                <p class="summary-subtitle" data-i18n="totalGoalsSub">Active learning objectives</p>
+                            </div>
+                            <div class="summary-card summary-card--completed" id="completed-goals-card">
+                                <div class="summary-header">
+                                    <span class="summary-icon" aria-hidden="true">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                    </span>
+                                    <span class="summary-label" data-i18n="completedGoals">Completed Goals</span>
+                                </div>
+                                <div class="summary-value" id="completed-goals">0</div>
+                                <p class="summary-subtitle" data-i18n="completedGoalsSub">Successfully finished</p>
+                            </div>
+                            <div class="summary-card summary-card--notes" id="notes-count-card">
+                                <div class="summary-header">
+                                    <span class="summary-icon" aria-hidden="true">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                                    </span>
+                                    <span class="summary-label" data-i18n="notesCount">Notes Count</span>
+                                </div>
+                                <div class="summary-value" id="notes-count">0</div>
+                                <p class="summary-subtitle" data-i18n="notesCountSub">Knowledge captured</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-charts">
+                        <div class="chart-card">
+                            <h3 data-i18n="learningProgress">Learning Progress</h3>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="dash-progress-fill"></div>
+                            </div>
+                            <p class="progress-text"><span id="dash-progress-text">0</span>% <span data-i18n="complete">Complete</span></p>
+                        </div>
+                        <div class="chart-card">
+                            <h3 data-i18n="recentActivity">Recent Activity</h3>
+                            <ul class="activity-list">
+                                <li data-i18n="activity1">✓ Completed: Web Development Course</li>
+                                <li data-i18n="activity2">✓ Added: 3 new resources</li>
+                                <li data-i18n="activity3">✓ Published: Learning reflection</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Focus Mode Trigger -->
+                    <div class="focus-trigger">
+                        <button class="focus-start-btn" id="focus-start-btn" data-i18n="focusStartBtn">🎯 Start Focus Session</button>
+                    </div>
+                </section>
+
+                <!-- ======================== INSIGHTS SECTION ======================== -->
+                <section id="insights" class="content-section">
+                    <div class="section-header">
+                        <h2 data-i18n="insightsHeading">Learning Insights</h2>
+                        <p data-i18n="insightsSub">Your analytics dashboard — track trends and measure progress</p>
+                    </div>
+
+                    <!-- Section Intro Banner -->
+                    <div class="insights-intro">
+                        <div class="insights-intro-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                        </div>
+                        <p data-i18n="insightsIntro">Overview of your learning activity</p>
+                    </div>
+
+                    <!-- KPI Hero Cards -->
+                    <div class="insights-kpi-grid">
+                        <div class="insights-kpi insights-kpi--goals">
+                            <div class="insights-kpi-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                            </div>
+                            <div class="insights-kpi-body">
+                                <span class="insights-kpi-value" id="kpi-total-goals">0</span>
+                                <span class="insights-kpi-label" data-i18n="totalGoals">Total Goals</span>
+                            </div>
+                            <div class="insights-kpi-spark" id="kpi-spark-goals"></div>
+                        </div>
+                        <div class="insights-kpi insights-kpi--completed">
+                            <div class="insights-kpi-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            </div>
+                            <div class="insights-kpi-body">
+                                <span class="insights-kpi-value" id="kpi-completed-goals">0</span>
+                                <span class="insights-kpi-label" data-i18n="completedGoals">Completed Goals</span>
+                            </div>
+                            <div class="insights-kpi-spark" id="kpi-spark-completed"></div>
+                        </div>
+                        <div class="insights-kpi insights-kpi--notes">
+                            <div class="insights-kpi-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            </div>
+                            <div class="insights-kpi-body">
+                                <span class="insights-kpi-value" id="kpi-total-notes">0</span>
+                                <span class="insights-kpi-label" data-i18n="notesCount">Notes Count</span>
+                            </div>
+                            <div class="insights-kpi-spark" id="kpi-spark-notes"></div>
+                        </div>
+                        <div class="insights-kpi insights-kpi--reflections">
+                            <div class="insights-kpi-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            </div>
+                            <div class="insights-kpi-body">
+                                <span class="insights-kpi-value" id="kpi-total-reflections">0</span>
+                                <span class="insights-kpi-label" data-i18n="navReflection">Reflections</span>
+                            </div>
+                            <div class="insights-kpi-spark" id="kpi-spark-reflections"></div>
+                        </div>
+                        <div class="insights-kpi insights-kpi--resources">
+                            <div class="insights-kpi-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            </div>
+                            <div class="insights-kpi-body">
+                                <span class="insights-kpi-value" id="kpi-total-resources">0</span>
+                                <span class="insights-kpi-label">Resources</span>
+                            </div>
+                            <div class="insights-kpi-spark" id="kpi-spark-resources"></div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats Strip -->
+                    <div class="insights-quick-stats">
+                        <div class="quick-stat">
+                            <span class="quick-stat-icon">🔥</span>
+                            <div class="quick-stat-body">
+                                <span class="quick-stat-value" id="qs-streak">0</span>
+                                <span class="quick-stat-label">Day Streak</span>
+                            </div>
+                        </div>
+                        <div class="quick-stat">
+                            <span class="quick-stat-icon">📅</span>
+                            <div class="quick-stat-body">
+                                <span class="quick-stat-value" id="qs-best-day">&mdash;</span>
+                                <span class="quick-stat-label">Most Active Day</span>
+                            </div>
+                        </div>
+                        <div class="quick-stat">
+                            <span class="quick-stat-icon">⭐</span>
+                            <div class="quick-stat-body">
+                                <span class="quick-stat-value" id="qs-avg-rating">&mdash;</span>
+                                <span class="quick-stat-label">Avg Resource Rating</span>
+                            </div>
+                        </div>
+                        <div class="quick-stat" id="qs-overdue-card">
+                            <span class="quick-stat-icon">⚠️</span>
+                            <div class="quick-stat-body">
+                                <span class="quick-stat-value" id="qs-overdue">0</span>
+                                <span class="quick-stat-label">Overdue Goals</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Goal Completion Progress -->
+                    <div class="insights-progress-card">
+                        <div class="insights-progress-header">
+                            <h3 data-i18n="insightGoalProgress">Goal Completion</h3>
+                            <span class="insights-progress-pct" id="kpi-goal-pct">0%</span>
+                        </div>
+                        <div class="insights-progress-track">
+                            <div class="insights-progress-fill" id="kpi-goal-bar"></div>
+                        </div>
+                        <p class="insights-progress-detail">
+                            <span id="kpi-goal-detail">0 / 0</span> <span data-i18n="goalsCompleted">goals completed</span>
+                        </p>
+                    </div>
+
+                    <!-- Deep Analytics Grid -->
+                    <h3 class="insights-section-label" data-i18n="insightDeepDive">Deep Dive</h3>
+                    <div class="insights-grid">
+                        <!-- Goals This Week -->
+                        <div class="insight-card insight-card--weekly">
+                            <div class="insight-icon">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                            </div>
+                            <div class="insight-body">
+                                <span class="insight-label" data-i18n="insightWeeklyGoals">Goals Completed This Week</span>
+                                <span class="insight-value" id="insight-weekly-goals">0</span>
+                            </div>
+                            <div class="insight-bar">
+                                <div class="insight-bar-fill" id="insight-weekly-bar"></div>
+                            </div>
+                        </div>
+
+                        <!-- Most Used Resource Type -->
+                        <div class="insight-card insight-card--resource">
+                            <div class="insight-icon">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                            </div>
+                            <div class="insight-body">
+                                <span class="insight-label" data-i18n="insightTopResource">Most Used Resource Type</span>
+                                <span class="insight-value" id="insight-top-resource">—</span>
+                            </div>
+                            <div class="insight-breakdown" id="insight-resource-breakdown"></div>
+                        </div>
+
+                        <!-- Notes Written -->
+                        <div class="insight-card insight-card--notes">
+                            <div class="insight-icon">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                            </div>
+                            <div class="insight-body">
+                                <span class="insight-label" data-i18n="insightNotesWritten">Notes Written</span>
+                                <span class="insight-value" id="insight-notes-count">0</span>
+                            </div>
+                            <div class="insight-meta">
+                                <span class="insight-meta-item" id="insight-total-words">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                                    <span id="insight-words-value">0</span> <span data-i18n="insightWords">words</span>
+                                </span>
+                                <span class="insight-meta-item" id="insight-drawings">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+                                    <span id="insight-drawings-value">0</span> <span data-i18n="insightDrawings">drawings</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Goal Category Breakdown -->
+                    <h3 class="insights-section-label">Goals by Category</h3>
+                    <div class="insight-card insight-card--categories">
+                        <div id="insights-category-bars"></div>
+                    </div>
+
+                </section>
+
+                <section id="goals" class="content-section">
+                    <div class="section-header">
+                        <h2 data-i18n="navGoals">Learning Goals</h2>
+                        <p data-i18n="goalsSub">Set and track your professional learning objectives</p>
+                    </div>
+                    <div class="goal-progress-section">
+                        <div class="progress-with-circle">
+                            <div class="progress-circle-wrap">
+                                <svg class="progress-ring" viewBox="0 0 120 120" aria-hidden="true">
+                                    <circle class="progress-ring-bg" cx="60" cy="60" r="52"/>
+                                    <circle class="progress-ring-fill" id="progress-ring-fill" cx="60" cy="60" r="52"/>
+                                </svg>
+                                <div class="progress-ring-label">
+                                    <span class="progress-ring-pct" id="progress-percentage">0%</span>
+                                    <span class="progress-ring-sub" data-i18n="complete">complete</span>
+                                </div>
+                            </div>
+                            <div class="progress-details-wrap">
+                                <div class="progress-header">
+                                    <span class="progress-label" data-i18n="overallProgress">Overall Progress</span>
+                                </div>
+                                <div class="progress-bar-large">
+                                    <div class="progress-fill-large" id="progress-fill-large"></div>
+                                </div>
+                                <p class="progress-detail"><span id="completed-count">0</span> <span data-i18n="of">of</span> <span id="total-count">0</span> <span data-i18n="goalsCompleted">goals completed</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="add-goal-section">
+                        <div class="category-picker" id="goal-category-picker" role="group" aria-label="Goal category">
+                            <button class="cat-pill active" data-cat="coding">💻 Coding</button>
+                            <button class="cat-pill" data-cat="school">📚 School</button>
+                            <button class="cat-pill" data-cat="personal">⭐ Personal</button>
+                            <button class="cat-pill" data-cat="reading">📖 Reading</button>
+                            <button class="cat-pill" data-cat="health">💪 Health</button>
+                            <button class="cat-pill" data-cat="other">• Other</button>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" id="goal-input" class="goal-input" maxlength="120"
+                                data-i18n-placeholder="goalPlaceholder"
+                                placeholder="e.g. Master React Hooks, Complete CSS Grid module…">
+                            <button type="button" class="btn btn-primary add-goal-btn" id="add-goal-btn" data-i18n="addGoal">+ Add Goal</button>
+                        </div>
+                        <div class="goal-deadline-row">
+                            <label class="goal-deadline-label" for="goal-deadline">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                Frist (valgfritt)
+                            </label>
+                            <input type="date" id="goal-deadline" class="goal-deadline-input" />
+                        </div>
+                        <p class="input-hint">Press <kbd>Enter</kbd> to quickly add &nbsp;·&nbsp; Be specific and measurable</p>
+                    </div>
+                    <!-- Goal filter bar -->
+                    <div class="goals-filter-bar">
+                        <div class="goals-search-wrap">
+                            <svg class="goals-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input class="goals-search-input" id="goals-search" type="search" placeholder="Search goals…" autocomplete="off" aria-label="Search goals">
+                        </div>
+                        <div class="goals-status-tabs" role="tablist" aria-label="Filter by status">
+                            <button class="gstab active" data-status="all" role="tab">All</button>
+                            <button class="gstab" data-status="active" role="tab">Active</button>
+                            <button class="gstab" data-status="done" role="tab">Done</button>
+                        </div>
+                        <select class="goals-sort-select" id="goals-sort" aria-label="Sort goals">
+                            <option value="newest">Newest first</option>
+                            <option value="deadline">By deadline</option>
+                            <option value="az">A → Z</option>
+                            <option value="category">By category</option>
+                        </select>
+                    </div>
+                    <div class="goals-list-container">
+                        <div class="goals-list" id="goals-list"></div>
+                        <div class="empty-state" id="empty-state">
+                            <div class="empty-state-icon">🎯</div>
+                            <p data-i18n="goalsEmpty">No goals yet. Create your first learning goal!</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="resources" class="content-section">
+                    <div class="section-header">
+                        <h2 data-i18n="navResources">Resources</h2>
+                        <p data-i18n="resourcesSub">Curated learning materials and references</p>
+                    </div>
+                    <div class="filter-section">
+                        <div class="filter-group">
+                            <span class="filter-group-label" data-i18n="filterTypeLabel">Type</span>
+                            <div class="filter-buttons" id="filter-type-buttons">
+                                <button class="filter-btn active" data-filter="all" data-i18n="filterAll">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                    All Resources
+                                </button>
+                                <button class="filter-btn filter-btn--youtube" data-filter="youtube">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3 3 0 0 0-2.11-2.13C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.39.56A3 3 0 0 0 .5 6.19 31.2 31.2 0 0 0 0 12a31.2 31.2 0 0 0 .5 5.81 3 3 0 0 0 2.11 2.13c1.89.56 9.39.56 9.39.56s7.5 0 9.39-.56a3 3 0 0 0 2.11-2.13A31.2 31.2 0 0 0 24 12a31.2 31.2 0 0 0-.5-5.81zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg>
+                                    YouTube
+                                </button>
+                                <button class="filter-btn filter-btn--blog" data-filter="blog">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                                    Blogs
+                                </button>
+                                <button class="filter-btn filter-btn--podcast" data-filter="podcast">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                                    Podcasts
+                                </button>
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <span class="filter-group-label" data-i18n="filterCatLabel">Category</span>
+                            <div class="filter-buttons" id="filter-cat-buttons">
+                                <button class="cat-filter-btn active" data-cat="all" data-i18n="filterCatAll">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                                    All
+                                </button>
+                                <button class="cat-filter-btn cat-filter-btn--development" data-cat="development" data-i18n="catDevelopment">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                                    Development
+                                </button>
+                                <button class="cat-filter-btn cat-filter-btn--driftsstotte" data-cat="driftsstotte" data-i18n="catDriftsstotte">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                                    Driftstøtte
+                                </button>
+                                <button class="cat-filter-btn cat-filter-btn--brukerstotte" data-cat="brukerstotte" data-i18n="catBrukerstotte">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                    Brukerstøtte
+                                </button>
+                            </div>
+                        </div>
+                        <div class="active-filters-bar" id="active-filters-bar"></div>
+                        <div class="resource-toolbar">
+                            <div class="resource-search-wrap">
+                                <svg class="resource-search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <input type="text" id="resource-search" class="resource-search" placeholder="Search resources..." maxlength="80" autocomplete="off">
+                            </div>
+                            <button type="button" class="btn btn-primary add-resource-btn" id="add-resource-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                Add Resource
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Inline Add-Resource Panel (collapsible) -->
+                    <div class="resource-add-panel" id="resource-add-panel">
+                        <div class="resource-add-panel-inner">
+                            <div class="resource-add-panel-header">
+                                <h3>Add New Resource</h3>
+                                <button class="resource-panel-close" id="resource-panel-close" aria-label="Close panel">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                                </button>
+                            </div>
+                            <div class="resource-add-panel-body">
+                                <label class="resource-form-label">Title</label>
+                                <input type="text" id="res-title" class="resource-form-input" placeholder="e.g. React Hooks Tutorial" maxlength="100">
+                                <label class="resource-form-label">Description</label>
+                                <textarea id="res-desc" class="resource-form-input resource-form-textarea" placeholder="Write a full description (up to 5000 words)..." maxlength="35000" rows="8"></textarea>
+                                <label class="resource-form-label">URL</label>
+                                <input type="url" id="res-url" class="resource-form-input" placeholder="https://...">
+                                <label class="resource-form-label">Type</label>
+                                <div class="resource-type-picker" id="res-type-picker">
+                                    <button class="res-type-pill active" data-type="youtube">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3 3 0 0 0-2.11-2.13C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.39.56A3 3 0 0 0 .5 6.19 31.2 31.2 0 0 0 0 12a31.2 31.2 0 0 0 .5 5.81 3 3 0 0 0 2.11 2.13c1.89.56 9.39.56 9.39.56s7.5 0 9.39-.56a3 3 0 0 0 2.11-2.13A31.2 31.2 0 0 0 24 12a31.2 31.2 0 0 0-.5-5.81zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg>
+                                        YouTube
+                                    </button>
+                                    <button class="res-type-pill" data-type="blog">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                                        Blog
+                                    </button>
+                                    <button class="res-type-pill" data-type="podcast">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                                        Podcast
+                                    </button>
+                                </div>
+                                <label class="resource-form-label" data-i18n="resCategoryLabel">Category</label>
+                                <div class="resource-category-picker" id="res-category-picker">
+                                    <button class="res-cat-pill active" data-category="development">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                                        Development
+                                    </button>
+                                    <button class="res-cat-pill" data-category="driftsstotte">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                                        Driftstøtte
+                                    </button>
+                                    <button class="res-cat-pill" data-category="brukerstotte">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                        Brukerstøtte
+                                    </button>
+                                </div>
+                                <label class="resource-form-label">Tags <span class="form-hint">(comma-separated)</span></label>
+                                <input type="text" id="res-tags" class="resource-form-input" placeholder="e.g. JavaScript, Web Dev" maxlength="120">
+                                <label class="resource-form-label">Din vurdering</label>
+                                <div class="star-picker" id="res-star-picker" aria-label="Rate resource">
+                                    <button type="button" class="star-pick-btn" data-star="1">★</button>
+                                    <button type="button" class="star-pick-btn" data-star="2">★</button>
+                                    <button type="button" class="star-pick-btn" data-star="3">★</button>
+                                    <button type="button" class="star-pick-btn" data-star="4">★</button>
+                                    <button type="button" class="star-pick-btn" data-star="5">★</button>
+                                </div>
+                            </div>
+                            <div class="resource-add-panel-footer">
+                                <button class="btn resource-panel-cancel" id="resource-panel-cancel">Cancel</button>
+                                <button class="btn btn-primary resource-panel-save" id="resource-panel-save">Add Resource</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resources Grid (user-added only) -->
+                    <div class="resources-grid" id="resources-grid"></div>
+
+                    <!-- Empty state -->
+                    <div class="resource-empty-state" id="resource-empty-state">
+                        <div class="resource-empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        </div>
+                        <p>No resources yet. Click <strong>Add Resource</strong> to start building your collection!</p>
+                    </div>
+
+                    <!-- Resource Count -->
+                    <div class="resource-count">
+                        <p><span data-i18n="showing">Showing</span> <span id="resource-count">0</span> <span data-i18n="resources">resources</span></p>
+                    </div>
+
+                    <!-- Resource star rating select -->
+                    <!-- (stars are rendered per-card by JS) -->
+                </section>
+
+                <section id="notes" class="content-section">
+                    <div class="section-header">
+                        <h2 data-i18n="navNotes">Notes</h2>
+                        <p data-i18n="notesSub">Capture your learning insights and takeaways</p>
+                    </div>
+                    <div class="add-note-section">
+                        <div class="note-input-header">
+                            <label for="note-textarea" class="note-input-label">✏️ New Note</label>
+                            <span class="note-input-tip">Ctrl+Enter to save</span>
+                        </div>
+                        <textarea id="note-textarea" class="note-textarea" data-i18n-placeholder="notePlaceholder"
+                            placeholder="Capture key concepts, insights, or action items from your learning session…" rows="5"></textarea>
+
+                        <!-- Toolbar: draw + attach file -->
+                        <div class="note-toolbar">
+                            <button class="note-tool-btn" id="note-draw-btn" title="Draw a sketch">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+                                <span>Draw</span>
+                            </button>
+                            <label class="note-tool-btn" id="note-attach-label" title="Attach file">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                                <span>Attach File</span>
+                                <input type="file" id="note-file-input" class="note-file-hidden" multiple accept="image/*,.pdf,.doc,.docx,.txt,.md">
+                            </label>
+                        </div>
+
+                        <!-- Drawing canvas (hidden by default) -->
+                        <div class="note-draw-panel" id="note-draw-panel">
+                            <div class="note-draw-toolbar">
+                                <div class="note-draw-colors" id="note-draw-colors">
+                                    <button class="draw-color-btn draw-color--indigo active" data-color="#6366f1" aria-label="Indigo"></button>
+                                    <button class="draw-color-btn draw-color--rose" data-color="#f43f5e" aria-label="Rose"></button>
+                                    <button class="draw-color-btn draw-color--emerald" data-color="#10b981" aria-label="Emerald"></button>
+                                    <button class="draw-color-btn draw-color--amber" data-color="#f59e0b" aria-label="Amber"></button>
+                                    <button class="draw-color-btn draw-color--white" data-color="#ffffff" aria-label="White"></button>
+                                </div>
+                                <div class="note-draw-sizes" id="note-draw-sizes">
+                                    <button class="draw-size-btn draw-size--sm active" data-size="2" aria-label="Small brush"><span></span></button>
+                                    <button class="draw-size-btn draw-size--md" data-size="4" aria-label="Medium brush"><span></span></button>
+                                    <button class="draw-size-btn draw-size--lg" data-size="8" aria-label="Large brush"><span></span></button>
+                                </div>
+                                <button class="note-tool-btn note-draw-eraser" id="note-draw-eraser" title="Eraser">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16l9-9 8 8-3 3"/><path d="M6.05 17.95L16 8l-4-4"/></svg>
+                                </button>
+                                <button class="note-tool-btn note-draw-clear" id="note-draw-clear" title="Clear canvas">Clear</button>
+                                <button class="note-tool-btn note-draw-done" id="note-draw-done">Done</button>
+                            </div>
+                            <canvas id="note-draw-canvas" width="600" height="300"></canvas>
+                        </div>
+
+                        <!-- Attached file previews -->
+                        <div class="note-attachments-preview" id="note-attachments-preview"></div>
+
+                        <div class="note-actions">
+                            <button type="button" class="btn btn-primary save-note-btn" id="save-note-btn" data-i18n="saveNote">💾 Save Note</button>
+                            <span class="char-count"><span id="char-count">0</span>/500</span>
+                        </div>
+                    </div>
+                    <div class="notes-search-bar">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="notes-search" class="notes-search-input" placeholder="Søk i notater…" autocomplete="off" />
+                    </div>
+                    <div class="notes-list-container">
+                        <div class="notes-no-results hidden" id="notes-no-results">Ingen notater matcher søket ditt.</div>
+                        <div class="notes-list" id="notes-list"></div>
+                        <div class="empty-state-notes" id="empty-state-notes">
+                            <div class="empty-state-icon">📝</div>
+                            <p data-i18n="notesEmpty">No notes yet. Start writing your first note!</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="reflection" class="content-section">
+                    <div class="section-header">
+                        <h2 data-i18n="navReflection">Reflection</h2>
+                        <p data-i18n="reflectionSub">Document your learning journey and insights</p>
+                    </div>
+                    <div class="reflection-form-section">
+                        <div class="reflection-form">
+                            <div class="reflection-question">
+                                <label for="reflection-learn" data-i18n="reflectQ1">💡 What did I learn this week?</label>
+                                <textarea id="reflection-learn" class="reflection-textarea" data-i18n-placeholder="reflectQ1placeholder" placeholder="Share the key concepts, skills, or insights you gained..." rows="4"></textarea>
+                            </div>
+                            <div class="reflection-question">
+                                <label for="reflection-worked" data-i18n="reflectQ2">✅ What worked well?</label>
+                                <textarea id="reflection-worked" class="reflection-textarea" data-i18n-placeholder="reflectQ2placeholder" placeholder="Describe what went well, successes, or positive outcomes..." rows="4"></textarea>
+                            </div>
+                            <div class="reflection-question">
+                                <label for="reflection-improve" data-i18n="reflectQ3">🎯 What can I improve?</label>
+                                <textarea id="reflection-improve" class="reflection-textarea" data-i18n-placeholder="reflectQ3placeholder" placeholder="Share areas for improvement and action items..." rows="4"></textarea>
+                            </div>
+                            <div class="reflection-actions">
+                                <button type="button" class="btn btn-primary save-reflection-btn" id="save-reflection-btn" data-i18n="saveReflection">💭 Save Reflection</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="saved-reflections-container">
+                        <h3 class="reflections-history-title" data-i18n="prevReflections">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            Previous Reflections
+                        </h3>
+                        <div class="reflection-timeline" id="reflections-list"></div>
+                        <div class="empty-state-reflections" id="empty-state-reflections">
+                            <div class="empty-state-icon">📓</div>
+                            <p data-i18n="reflectionsEmpty">No reflections yet. Create your first reflection!</p>
+                        </div>
+                    </div>
+
+                    <!-- Activity Chart -->
+                    <h3 class="insights-section-label">Aktivitet siste 7 dager</h3>
+                    <div class="insight-card insight-card--activity">
+                        <div class="activity-chart" id="activity-chart-bars"></div>
+                    </div>
+
+                    <!-- Streak Calendar -->
+                    <h3 class="insights-section-label">Aktivitetskalender</h3>
+                    <div class="insight-card insight-card--calendar">
+                        <div id="streak-calendar"></div>
+                        <div class="streak-calendar-legend">
+                            <span>Mindre</span>
+                            <span class="streak-cal-cell level-0"></span>
+                            <span class="streak-cal-cell level-1"></span>
+                            <span class="streak-cal-cell level-2"></span>
+                            <span class="streak-cal-cell level-3"></span>
+                            <span class="streak-cal-cell level-4"></span>
+                            <span>Mer</span>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Focus Mode Overlay -->
+    <div class="focus-overlay" id="focus-overlay">
+        <div class="focus-panel">
+            <div class="focus-timer-area" id="focus-timer-area">
+                <svg class="focus-ring" width="200" height="200" viewBox="0 0 200 200">
+                    <circle class="focus-ring-bg" cx="100" cy="100" r="90" />
+                    <circle class="focus-ring-progress" id="focus-ring-progress" cx="100" cy="100" r="90" />
+                </svg>
+                <span class="focus-time" id="focus-time">25:00</span>
+                <p class="focus-label" data-i18n="focusLabel">Stay focused</p>
+            </div>
+            <div class="focus-done" id="focus-done">
+                <span class="focus-done-icon">🎉</span>
+                <h2 class="focus-done-title" data-i18n="focusDoneTitle">Session Complete!</h2>
+                <p class="focus-done-text" data-i18n="focusDoneText">Great work! You stayed focused for 25 minutes.</p>
+            </div>
+            <button class="focus-cancel-btn" id="focus-cancel-btn" data-i18n="focusCancelBtn">✕ End Session</button>
+        </div>
+    </div>
+
+    <!-- Notification Toast Container -->
+    <div id="notification-container"></div>
+
+    <!-- Keyboard Shortcuts Panel -->
+    <div class="shortcuts-overlay hidden" id="shortcuts-overlay" role="dialog" aria-modal="true" aria-labelledby="shortcuts-title">
+        <div class="shortcuts-panel">
+            <div class="shortcuts-panel-header">
+                <h2 id="shortcuts-title">Keyboard Shortcuts</h2>
+                <button class="shortcuts-close" id="shortcuts-close" aria-label="Close">&times;</button>
+            </div>
+            <div class="shortcuts-grid">
+                <div class="shortcuts-group">
+                    <h3>Navigation</h3>
+                    <div class="shortcut-row"><kbd>Alt</kbd><kbd>1–6</kbd><span>Switch section</span></div>
+                    <div class="shortcut-row"><kbd>Ctrl</kbd><kbd>K</kbd><span>Focus search</span></div>
+                </div>
+                <div class="shortcuts-group">
+                    <h3>General</h3>
+                    <div class="shortcut-row"><kbd>?</kbd><span>Show this panel</span></div>
+                    <div class="shortcut-row"><kbd>Esc</kbd><span>Close dialogs</span></div>
+                </div>
+                <div class="shortcuts-group">
+                    <h3>Goals</h3>
+                    <div class="shortcut-row"><kbd>Enter</kbd><span>Quick-add goal</span></div>
+                    <div class="shortcut-row"><kbd>Esc</kbd><span>Cancel edit</span></div>
+                </div>
+                <div class="shortcuts-group">
+                    <h3>Notes</h3>
+                    <div class="shortcut-row"><kbd>Ctrl</kbd><kbd>Enter</kbd><span>Save note</span></div>
+                    <div class="shortcut-row"><kbd>Ctrl</kbd><kbd>B</kbd><span>Bold text</span></div>
+                </div>
+            </div>
+            <p class="shortcuts-hint">Press <kbd>Esc</kbd> or <kbd>?</kbd> to close</p>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal-overlay hidden" id="profile-modal-overlay">
+        <div class="modal-panel profile-modal" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
+            <div class="profile-modal-header">
+                <div class="profile-modal-avatar" id="profile-modal-avatar"></div>
+                <div class="profile-modal-title-group">
+                    <h2 id="profile-modal-title">My Profile</h2>
+                    <p class="profile-modal-email" id="profile-modal-email-display"></p>
+                </div>
+                <button class="profile-modal-close" id="btn-close-profile" aria-label="Close">&times;</button>
+            </div>
+            <div class="profile-modal-body">
+                <!-- Display Name -->
+                <div class="profile-field-group">
+                    <label class="profile-field-label" for="profile-display-name">Display Name</label>
+                    <div class="profile-field-row">
+                        <input class="profile-field-input" id="profile-display-name" type="text" placeholder="Your name" maxlength="40" autocomplete="name">
+                        <button class="profile-save-btn" id="btn-save-display-name">Save</button>
+                    </div>
+                </div>
+
+                <!-- Avatar color -->
+                <div class="profile-field-group">
+                    <label class="profile-field-label">Avatar Color</label>
+                    <div class="avatar-color-grid" id="avatar-color-grid">
+                        <button class="avatar-color-swatch swatch--indigo"  data-color="#7c8fff" title="Indigo"></button>
+                        <button class="avatar-color-swatch swatch--purple"  data-color="#a78bfa" title="Purple"></button>
+                        <button class="avatar-color-swatch swatch--emerald" data-color="#34d399" title="Emerald"></button>
+                        <button class="avatar-color-swatch swatch--amber"   data-color="#f59e0b" title="Amber"></button>
+                        <button class="avatar-color-swatch swatch--red"     data-color="#f87171" title="Red"></button>
+                        <button class="avatar-color-swatch swatch--cyan"    data-color="#06b6d4" title="Cyan"></button>
+                        <button class="avatar-color-swatch swatch--pink"    data-color="#ec4899" title="Pink"></button>
+                        <button class="avatar-color-swatch swatch--slate"   data-color="#94a3b8" title="Slate"></button>
+                    </div>
+                </div>
+
+                <div class="profile-divider"></div>
+
+                <!-- Change Password -->
+                <div class="profile-field-group">
+                    <label class="profile-field-label">Change Password</label>
+                    <input class="profile-field-input" id="profile-new-password" type="password" placeholder="New password (min 6 chars)" maxlength="128" autocomplete="new-password">
+                    <input class="profile-field-input" id="profile-confirm-password" type="password" placeholder="Confirm new password" maxlength="128" autocomplete="new-password">
+                    <div class="profile-pw-note" id="profile-pw-note"></div>
+                    <button class="profile-save-btn profile-save-btn--pw" id="btn-save-password">Update Password</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile bottom tab bar (shown on ≤768px) -->
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav" role="navigation" aria-label="Navigasjon">
+        <button class="mob-tab active" data-section="dashboard" aria-label="Dashboard">
+            <svg class="mob-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+            </svg>
+            <span class="mob-tab-label">Hjem</span>
+        </button>
+        <button class="mob-tab" data-section="goals" aria-label="Mål">
+            <svg class="mob-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+            </svg>
+            <span class="mob-tab-label">Mål</span>
+            <span class="mob-tab-badge" id="mob-badge-goals" hidden></span>
+        </button>
+        <button class="mob-tab" data-section="resources" aria-label="Ressurser">
+            <svg class="mob-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+            <span class="mob-tab-label">Ressurser</span>
+        </button>
+        <button class="mob-tab" data-section="notes" aria-label="Notater">
+            <svg class="mob-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            <span class="mob-tab-label">Notater</span>
+            <span class="mob-tab-badge" id="mob-badge-notes" hidden></span>
+        </button>
+        <button class="mob-tab" data-section="reflection" aria-label="Refleksjon">
+            <svg class="mob-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span class="mob-tab-label">Refleksjon</span>
+            <span class="mob-tab-badge" id="mob-badge-reflections" hidden></span>
+        </button>
+        <button class="mob-tab" data-section="insights" aria-label="Innsikt">
+            <svg class="mob-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/>
+            </svg>
+            <span class="mob-tab-label">Innsikt</span>
+        </button>
+    </nav>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
+    </script>
+</body>
+</html>
+

@@ -2,6 +2,8 @@
 // Kompass – Main Application
 // =============================================
 
+import { supabaseClient } from './supabase-config.js';
+
 'use strict';
 
 // =========================================

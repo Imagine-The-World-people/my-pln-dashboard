@@ -27,7 +27,7 @@ const SUPABASE_URL = config.url;
 const SUPABASE_ANON_KEY = config.key;
 
 // Only initialize if the config has been filled in
-const supabaseClient = SUPABASE_URL.startsWith('PASTE_') || !SUPABASE_URL
+export const supabaseClient = SUPABASE_URL.startsWith('PASTE_') || !SUPABASE_URL
     ? null
     : supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         auth: { flowType: 'implicit' }
