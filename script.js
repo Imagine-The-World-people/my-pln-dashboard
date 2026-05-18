@@ -3154,6 +3154,7 @@ ${reflectionsHtml}
 
     const CloudSync = {
         _saveTimer: null,
+        _isSaving: false,
 
         scheduleSave(immediate = false) {
             clearTimeout(this._saveTimer);
@@ -3166,8 +3167,20 @@ ${reflectionsHtml}
 
         async _save() {
             if (!supabaseClient) return;
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) return;
+            if (this._isSaving) {
+                // Skeduler lagring til etterpå hvis vi allerede lagrer
+                clearTimeout(this._saveTimer);
+                this._saveTimer = setTimeout(() => this._save(), 1500);
+                return;
+            }
+            this._isSaving = true;
+
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) {
+                    this._isSaving = false;
+                    return;
+                }
             const container = $('.sections-container');
             if (container) container.classList.add('syncing');
             const { error } = await supabaseClient.from('user_data').upsert({
@@ -3180,10 +3193,15 @@ ${reflectionsHtml}
             if (container) container.classList.remove('syncing');
             if (error) {
                 console.error('CloudSync._save failed:', error);
-                notify('Synk feilet', 'Kunne ikke lagre til skyen', 'error');
+                notify('Synk feilet', error.message || 'Kunne ikke lagre til skyen', 'error');
             } else {
                 notify('Lagret i skyen ☁️', 'Dataene dine er synkronisert', 'success');
             }
+        } catch (err) {
+            console.error("Critical error in CloudSync._save:", err);
+        } finally {
+            this._isSaving = false;
+        }
         },
 
         async load() {

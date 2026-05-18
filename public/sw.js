@@ -24,12 +24,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   // Network-first for Supabase API calls (By-pass Cache match if fetch fails to avoid throwing undefined)
   if (e.request.url.includes('supabase.co')) {
-    e.respondWith(
-      fetch(e.request).catch(() => new Response(JSON.stringify({ error: "Offline" }), { 
-        headers: { 'Content-Type': 'application/json' } 
-      }))
-    );
-    return;
+    return; // Do nothing, let the browser handle it directly.
   }
   // Network-first for static assets — always get fresh code, fall back to cache offline
   e.respondWith(
