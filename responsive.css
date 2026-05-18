@@ -6,8 +6,14 @@
    GLOBAL MOBILE FIXES (applied at all sizes)
    ============================================= */
 
-/* Prevent horizontal overflow */
-html {
+/* Prevent horizontal overflow — both html and body needed for iOS Safari */
+html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+.wrapper {
+    max-width: 100vw;
     overflow-x: hidden;
 }
 
@@ -1525,6 +1531,11 @@ button, a, [role="button"], label {
     /* Content area needs bottom padding for tab bar */
     .sections-container {
         padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 8px) !important;
+    }
+
+    /* Hide keyboard-shortcut hint — irrelevant on touch devices */
+    .input-hint {
+        display: none;
     }
 
     /* Header on mobile — reduce padding */

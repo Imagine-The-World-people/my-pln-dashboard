@@ -59,6 +59,7 @@ The dashboard features a **sophisticated, professional UI** with a focus on user
 - **Touch-Friendly**: Tap feedback on mobile, smooth scrolling, accessible button sizes
 - **Accessibility**: Global `:focus-visible` rings, `prefers-reduced-motion` support
 - **Visual Polish**: Stat number count-up on load, progress bar animate-from-zero, scroll-faded container
+- **Drawing Canvas**: Stylus/finger drawing in notes — canvas sized on-demand to avoid 0×0 initialization bug when section is hidden at startup
 
 ### Components
 - **Glass-morphism Cards**: Sophisticated backdrop blur with subtle gradient overlays

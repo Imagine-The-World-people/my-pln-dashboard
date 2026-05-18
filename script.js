@@ -2341,10 +2341,25 @@ import Sortable from 'sortablejs';
                 const btn = $('#note-draw-btn');
                 const isOpen = panel?.classList.toggle('open');
                 btn?.classList.toggle('active-tool', isOpen);
+                // Size the canvas after the panel becomes visible (panel was display:none before)
+                if (isOpen) requestAnimationFrame(() => this._sizeCanvas());
             });
 
             // File input
             $('#note-file-input')?.addEventListener('change', (e) => this._handleFiles(e.target.files));
+        },
+
+        /* ---- Canvas resize (called when draw panel becomes visible) ---- */
+        _sizeCanvas() {
+            const canvas = $('#note-draw-canvas');
+            const ctx = this._drawCtx;
+            if (!canvas || !ctx) return;
+            const dpr = window.devicePixelRatio || 1;
+            const w = canvas.offsetWidth;
+            const h = canvas.offsetHeight || 200;
+            canvas.width = w * dpr;
+            canvas.height = h * dpr;
+            ctx.scale(dpr, dpr);
         },
 
         /* ---- Drawing ---- */
@@ -2353,15 +2368,6 @@ import Sortable from 'sortablejs';
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
             this._drawCtx = ctx;
-
-            // Hi-DPI
-            const rect = canvas.getBoundingClientRect();
-            const dpr = window.devicePixelRatio || 1;
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
-            ctx.scale(dpr, dpr);
-            canvas.style.width = rect.width + 'px';
-            canvas.style.height = rect.height + 'px';
 
             const getPos = (e) => {
                 const r = canvas.getBoundingClientRect();
