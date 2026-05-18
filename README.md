@@ -27,7 +27,11 @@ A personal **Professional Learning Network** dashboard for tracking goals, resou
 - 📱 **Fully responsive** — **iOS-style mobile bottom tab bar** (fixed glass nav), **tablet icon-only sidebar** (72px with hover tooltips), fluid clamp() typography; 5 breakpoints: 1024px, 769–1023px (tablet), 768px (mobile), 600px, 360px
 - 🔑 **Forgot password** — send reset link via Supabase email
 - 👤 **Profile management** — avatar dropdown with display name editor, avatar color picker, and change password — all saved to Supabase user metadata
-- ⌨️ **Keyboard shortcuts panel** — press `?` to show all shortcuts; `Alt+1–6` for sections, `Ctrl+K` for search
+- ⌨️ **Keyboard shortcuts panel** — press `?` to show all shortcuts; `Alt+1–6` for sections, `Ctrl+K` for **command palette**
+- 🔍 **Command palette** (`Ctrl+K`) — fuzzy-search goals, notes, resources, and navigate to any section instantly
+- 🗑️ **Undo delete** — 5-second undo toast for all deletes (goals, notes, reflections, resources)
+- 📡 **Offline banner** — red status banner when network drops; dismisses and shows toast on reconnect
+- 🗂️ **Sidebar rail mode** — collapse sidebar to a 68px icon rail; tooltips on hover; state persisted; chevron toggle
 - ⏱️ **Focus session counter** — tracks completed 25-min pomodoro sessions, shown as a dashboard stat card
 - 🧭 **Onboarding tour** — 4-step welcome modal for new users (shown once)
 - 📲 **PWA** — installable as standalone app, offline caching via service worker
@@ -50,7 +54,9 @@ The dashboard features a **sophisticated, professional UI** with a focus on user
 - **Adaptive**: Separate light mode with refined, professional appearance
 
 ### Interactions
-- **Micro-animations**: Smooth state transitions, bounce effects, and entrance animations
+- **Micro-animations**: Smooth state transitions, bounce effects, entrance animations, and **progress ring re-animation on every Goals visit**
+- **Scroll memory**: Each section remembers scroll position when navigating away and back
+- **Scroll-aware header**: Subtle shadow appears when content is scrolled, disappears at top
 - **Delightful Hover States**: Cards lift with per-card colored glow, icons rotate, buttons respond with polish
 - **Touch-Friendly**: Tap feedback on mobile, smooth scrolling, accessible button sizes
 - **Accessibility**: Global `:focus-visible` rings, `prefers-reduced-motion` support

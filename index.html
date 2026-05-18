@@ -346,6 +346,9 @@
                 </button>
             </nav>
 
+            <button class="sidebar-collapse-btn" id="sidebar-collapse-btn" title="Collapse sidebar" aria-label="Toggle rail mode">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
             <div class="sidebar-footer">
                 <p class="footer-text">Kompass</p>
                 <p class="version">v1.0</p>
@@ -357,6 +360,12 @@
 
         <!-- Main Content Area -->
         <main class="main-content">
+            <!-- Network status banner -->
+            <div class="network-banner" id="network-banner" role="alert" hidden>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1l22 22"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+                You're offline — changes will sync when you reconnect
+                <button class="network-banner-close" id="network-banner-close" aria-label="Dismiss">×</button>
+            </div>
             <!-- Header -->
             <header class="header">
                 <button class="sidebar-toggle" id="sidebar-toggle" title="Toggle sidebar">☰</button>
@@ -1086,7 +1095,7 @@
                 <div class="shortcuts-group">
                     <h3>Navigation</h3>
                     <div class="shortcut-row"><kbd>Alt</kbd><kbd>1–6</kbd><span>Switch section</span></div>
-                    <div class="shortcut-row"><kbd>Ctrl</kbd><kbd>K</kbd><span>Focus search</span></div>
+                    <div class="shortcut-row"><kbd>Ctrl</kbd><kbd>K</kbd><span>Command palette</span></div>
                 </div>
                 <div class="shortcuts-group">
                     <h3>General</h3>
@@ -1198,6 +1207,23 @@
             <span class="mob-tab-badge" id="mob-badge-reflections" hidden></span>
         </button>
     </nav>
+
+    <!-- Command Palette -->
+    <div class="cmd-overlay hidden" id="cmd-overlay" role="dialog" aria-modal="true" aria-label="Command Palette">
+        <div class="cmd-panel" id="cmd-panel">
+            <div class="cmd-input-row">
+                <svg class="cmd-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="cmd-input" class="cmd-input" placeholder="Search goals, notes, resources or navigate…" autocomplete="off" spellcheck="false" aria-label="Command palette search" aria-autocomplete="list" aria-controls="cmd-results">
+                <kbd class="cmd-esc-kbd">Esc</kbd>
+            </div>
+            <ul class="cmd-results" id="cmd-results" role="listbox" aria-label="Search results"></ul>
+            <div class="cmd-footer">
+                <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+                <span><kbd>↵</kbd> select</span>
+                <span><kbd>Esc</kbd> close</span>
+            </div>
+        </div>
+    </div>
 
     <script type="module" src="/script.js"></script>
     <script>

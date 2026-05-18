@@ -135,10 +135,58 @@ import Sortable from 'sortablejs';
     }
 
     // =========================================
+    // Undo Queue — soft-delete with 5s undo
+    // =========================================
+
+    const UndoQueue = {
+        _pending: null,
+        _timer: null,
+        _toast: null,
+
+        push(label, restoreFn, commitFn) {
+            this._commit(); // flush any previous pending delete
+            const container = document.getElementById('notification-container');
+            if (!container) { commitFn(); return; }
+
+            const toast = document.createElement('div');
+            toast.className = 'toast toast-info toast-undo';
+            toast.innerHTML = `
+                <span class="toast-undo-label">${escapeHtml(label)}</span>
+                <button class="toast-undo-btn" type="button">Undo</button>
+            `;
+            container.appendChild(toast);
+
+            toast.querySelector('.toast-undo-btn').addEventListener('click', () => {
+                clearTimeout(this._timer);
+                toast.remove();
+                this._pending = null;
+                restoreFn();
+            });
+
+            // Fade out toast near end
+            setTimeout(() => toast.classList.add('toast-exit'), 4500);
+            this._timer = setTimeout(() => { toast.remove(); this._commit(); }, 5000);
+            this._pending = { commitFn };
+            this._toast = toast;
+        },
+
+        _commit() {
+            if (!this._pending) return;
+            clearTimeout(this._timer);
+            this._pending.commitFn();
+            this._pending = null;
+            this._toast?.remove();
+            this._toast = null;
+        }
+    };
+
+    // =========================================
     // Navigation
     // =========================================
 
     const Navigation = {
+        _scrollPositions: {},
+
         init() {
             const navMenu = $('.nav-menu');
             if (!navMenu) return;
@@ -158,6 +206,15 @@ import Sortable from 'sortablejs';
                     this.switchTo(tab.dataset.section);
                 });
             }
+
+            // Scroll-aware header shadow
+            const scrollCtr = $('.sections-container');
+            const header = $('.header');
+            if (scrollCtr && header) {
+                scrollCtr.addEventListener('scroll', () => {
+                    header.classList.toggle('scrolled', scrollCtr.scrollTop > 8);
+                }, { passive: true });
+            }
         },
 
         switchTo(sectionId, clickedItem) {
@@ -167,6 +224,13 @@ import Sortable from 'sortablejs';
             // Determine slide direction based on nav order
             const currentSection = document.querySelector('.content-section.active');
             const oldId = currentSection?.id;
+
+            // Save scroll position of the leaving section
+            const _scrollCtr = $('.sections-container');
+            if (oldId && _scrollCtr) {
+                this._scrollPositions[oldId] = _scrollCtr.scrollTop;
+            }
+
             const oldIdx = SECTION_ORDER.indexOf(oldId);
             const newIdx = SECTION_ORDER.indexOf(sectionId);
             const goingForward = oldIdx < 0 || newIdx > oldIdx;
@@ -228,7 +292,22 @@ import Sortable from 'sortablejs';
                 }
 
                 const container = $('.sections-container');
-                if (container) container.scrollTop = 0;
+                if (container) container.scrollTop = Navigation._scrollPositions[sectionId] || 0;
+
+                // Progress ring entrance animation when visiting Goals
+                if (sectionId === 'goals') {
+                    const ring = document.getElementById('progress-ring-fill');
+                    if (ring) {
+                        const circumference = 2 * Math.PI * 52;
+                        const savedOffset = ring.style.strokeDashoffset || String(circumference);
+                        ring.style.transition = 'none';
+                        ring.style.strokeDashoffset = String(circumference);
+                        requestAnimationFrame(() => requestAnimationFrame(() => {
+                            ring.style.transition = '';
+                            ring.style.strokeDashoffset = savedOffset;
+                        }));
+                    }
+                }
             }, 160);
         },
 
@@ -316,6 +395,18 @@ import Sortable from 'sortablejs';
 
             const isMobile = () => window.innerWidth <= 768;
 
+            // Desktop icon-rail collapse
+            const collapseBtn = document.getElementById('sidebar-collapse-btn');
+            if (collapseBtn) {
+                if (!isMobile() && Store.getRaw('pln_sidebar_collapsed') === 'true') {
+                    sidebar.classList.add('collapsed');
+                }
+                collapseBtn.addEventListener('click', () => {
+                    const isCollapsed = sidebar.classList.toggle('collapsed');
+                    Store.setRaw('pln_sidebar_collapsed', String(isCollapsed));
+                });
+            }
+
             const openSidebar = () => {
                 sidebar.classList.remove('hidden');
                 if (overlay) overlay.classList.add('active');
@@ -354,6 +445,8 @@ import Sortable from 'sortablejs';
                     sidebar.classList.remove('hidden');
                     if (overlay) overlay.classList.remove('active');
                     toggle.setAttribute('aria-expanded', 'true');
+                } else {
+                    sidebar.classList.remove('collapsed');
                 }
             });
         }
@@ -1055,14 +1148,29 @@ import Sortable from 'sortablejs';
         },
 
         delete(id) {
+            const goal = state.goals.find(g => g.id === id);
+            if (!goal) return;
+            const idx = state.goals.indexOf(goal);
             const el = document.getElementById(`goal-${id}`);
+
             const doDelete = () => {
                 state.goals = state.goals.filter(g => g.id !== id);
-                this._save();
                 this.render();
                 this.updateProgress();
-                notify('Goal Deleted', 'Learning goal has been removed');
+                const label = `"${goal.text.slice(0, 40)}${goal.text.length > 40 ? '…' : ''}" deleted`;
+                UndoQueue.push(
+                    label,
+                    () => {
+                        state.goals.splice(idx, 0, goal);
+                        this._save();
+                        this.render();
+                        this.updateProgress();
+                        notify('↩ Restored', `Goal restored successfully`, 'success');
+                    },
+                    () => { this._save(); Dashboard.refresh(); }
+                );
             };
+
             if (el) {
                 el.classList.add('deleting');
                 setTimeout(doDelete, 280);
@@ -1429,17 +1537,29 @@ import Sortable from 'sortablejs';
                 if (delBtn) {
                     const card = delBtn.closest('.resource-card');
                     if (!card) return;
+                    const id = card.dataset.id;
+                    const list = Store.get(this.STORE_KEY, []);
+                    const resource = id ? list.find(r => String(r.id) === id) : null;
+                    const idx = resource ? list.indexOf(resource) : -1;
                     card.classList.add('card-out');
                     setTimeout(() => {
                         card.remove();
-                        const id = card.dataset.id;
-                        if (id) {
-                            const list = Store.get(this.STORE_KEY, []);
-                            Store.set(this.STORE_KEY, list.filter(r => String(r.id) !== id));
-                        }
+                        Store.set(this.STORE_KEY, list.filter(r => String(r.id) !== id));
                         this._updateCount();
                         this._toggleEmpty();
-                        notify('Resource Deleted', 'Resource removed');
+                        if (resource) {
+                            UndoQueue.push(
+                                `"${(resource.title || resource.url || 'Resource').slice(0, 40)}" deleted`,
+                                () => {
+                                    const cur = Store.get(this.STORE_KEY, []);
+                                    cur.splice(Math.min(idx, cur.length), 0, resource);
+                                    Store.set(this.STORE_KEY, cur);
+                                    this.render();
+                                    notify('↩ Restored', `Resource restored successfully`, 'success');
+                                },
+                                () => {}
+                            );
+                        }
                     }, 280);
                     return;
                 }
@@ -2327,13 +2447,27 @@ import Sortable from 'sortablejs';
 
         /* ---- Delete ---- */
         delete(id) {
+            const note = state.notes.find(n => n.id === id);
+            if (!note) return;
+            const idx = state.notes.indexOf(note);
             const el = document.getElementById(`note-${id}`);
+
             const doDelete = () => {
                 state.notes = state.notes.filter(n => n.id !== id);
-                this._save();
                 this.render();
                 this._syncDashboard();
-                notify('Note Deleted', 'Your note has been removed');
+                const preview = (note.content || '').slice(0, 40);
+                UndoQueue.push(
+                    `Note deleted`,
+                    () => {
+                        state.notes.splice(idx, 0, note);
+                        this._save();
+                        this.render();
+                        this._syncDashboard();
+                        notify('↩ Restored', `Note restored successfully`, 'success');
+                    },
+                    () => { this._save(); }
+                );
             };
 
             if (el) {
@@ -2540,12 +2674,24 @@ import Sortable from 'sortablejs';
         },
 
         delete(id) {
+            const reflection = state.reflections.find(r => r.id === id);
+            if (!reflection) return;
+            const idx = state.reflections.indexOf(reflection);
             const el = document.getElementById(`reflection-${id}`);
+
             const doDelete = () => {
                 state.reflections = state.reflections.filter(r => r.id !== id);
-                this._save();
                 this.render();
-                notify('Reflection Deleted', 'Your reflection has been removed');
+                UndoQueue.push(
+                    `Reflection deleted`,
+                    () => {
+                        state.reflections.splice(idx, 0, reflection);
+                        this._save();
+                        this.render();
+                        notify('↩ Restored', `Reflection restored successfully`, 'success');
+                    },
+                    () => { this._save(); }
+                );
             };
 
             if (el) {
@@ -3895,7 +4041,7 @@ ${reflectionsHtml}
             document.addEventListener('keydown', (e) => {
                 if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                     e.preventDefault();
-                    $('.search-input')?.focus();
+                    CommandPalette.open();
                     return;
                 }
                 if (e.altKey && this.SECTION_MAP[e.key]) {
@@ -4178,6 +4324,211 @@ ${reflectionsHtml}
     };
 
     // =========================================
+    // Command Palette (Ctrl+K)
+    // =========================================
+
+    const CommandPalette = {
+        _items: [],
+        _active: -1,
+
+        init() {
+            const overlay = document.getElementById('cmd-overlay');
+            overlay?.addEventListener('click', (e) => {
+                if (e.target === overlay) this.close();
+            });
+
+            const input = document.getElementById('cmd-input');
+            input?.addEventListener('input', () => this._search(input.value));
+            input?.addEventListener('keydown', (e) => this._onKeydown(e));
+        },
+
+        open() {
+            const overlay = document.getElementById('cmd-overlay');
+            const input = document.getElementById('cmd-input');
+            if (!overlay) return;
+            overlay.classList.remove('hidden');
+            if (input) { input.value = ''; input.focus(); }
+            this._search('');
+        },
+
+        close() {
+            document.getElementById('cmd-overlay')?.classList.add('hidden');
+            this._active = -1;
+        },
+
+        _getItems(query) {
+            const q = query.trim().toLowerCase();
+            const results = [];
+
+            const sections = [
+                { id: 'dashboard',  label: 'Dashboard',       icon: '⊞', badge: 'Section' },
+                { id: 'goals',      label: 'Learning Goals',  icon: '🎯', badge: 'Section' },
+                { id: 'resources',  label: 'Resources',       icon: '📚', badge: 'Section' },
+                { id: 'notes',      label: 'Notes',           icon: '📝', badge: 'Section' },
+                { id: 'reflection', label: 'Reflection',      icon: '💭', badge: 'Section' },
+                { id: 'insights',   label: 'Insights',        icon: '📊', badge: 'Section' },
+            ];
+
+            const matchSec = q ? sections.filter(s => s.label.toLowerCase().includes(q)) : sections;
+            if (matchSec.length) {
+                results.push({ type: 'group', label: 'Navigate' });
+                matchSec.forEach(s => results.push({ ...s, type: 'section' }));
+            }
+
+            const goals = (state?.goals || []).filter(g => !q || g.text.toLowerCase().includes(q)).slice(0, 6);
+            if (goals.length) {
+                results.push({ type: 'group', label: 'Goals' });
+                goals.forEach(g => results.push({
+                    type: 'goal', id: g.id,
+                    label: g.text,
+                    icon: g.completed ? '✅' : '🎯',
+                    badge: g.completed ? 'Done' : 'Active',
+                    sub: g.category || ''
+                }));
+            }
+
+            const notes = (state?.notes || []).filter(n => !q || (n.content || '').toLowerCase().includes(q)).slice(0, 5);
+            if (notes.length) {
+                results.push({ type: 'group', label: 'Notes' });
+                notes.forEach(n => results.push({
+                    type: 'note', id: n.id,
+                    label: (n.content || '').slice(0, 60) || 'Untitled note',
+                    icon: '📝', badge: 'Note', sub: ''
+                }));
+            }
+
+            const resList = Store.get('pln_user_resources', [])
+                .filter(r => !q || (r.title || '').toLowerCase().includes(q) || (r.url || '').toLowerCase().includes(q))
+                .slice(0, 5);
+            if (resList.length) {
+                results.push({ type: 'group', label: 'Resources' });
+                resList.forEach(r => results.push({
+                    type: 'resource', id: r.id,
+                    label: r.title || r.url || 'Untitled',
+                    icon: r.type === 'youtube' ? '▶️' : r.type === 'podcast' ? '🎙️' : '🔗',
+                    badge: r.type || 'Link',
+                    sub: r.url || ''
+                }));
+            }
+
+            return results;
+        },
+
+        _search(query) {
+            this._items = this._getItems(query);
+            this._active = -1;
+            this._render();
+        },
+
+        _render() {
+            const list = document.getElementById('cmd-results');
+            if (!list) return;
+            list.innerHTML = '';
+            this._items.forEach((item, i) => {
+                if (item.type === 'group') {
+                    const li = document.createElement('li');
+                    li.className = 'cmd-group-label';
+                    li.textContent = item.label;
+                    li.setAttribute('role', 'presentation');
+                    list.appendChild(li);
+                    return;
+                }
+                const li = document.createElement('li');
+                li.className = 'cmd-item';
+                li.setAttribute('role', 'option');
+                li.setAttribute('data-idx', i);
+                li.innerHTML = `
+                    <div class="cmd-item-icon">${item.icon}</div>
+                    <div class="cmd-item-body">
+                        <div class="cmd-item-title">${escapeHtml(item.label)}</div>
+                        ${item.sub ? `<div class="cmd-item-sub">${escapeHtml(item.sub)}</div>` : ''}
+                    </div>
+                    <span class="cmd-item-badge">${escapeHtml(item.badge || '')}</span>
+                `;
+                li.addEventListener('click', () => this._select(i));
+                li.addEventListener('mouseenter', () => {
+                    this._active = i;
+                    this._highlightActive();
+                });
+                list.appendChild(li);
+            });
+        },
+
+        _onKeydown(e) {
+            if (e.key === 'ArrowDown') { e.preventDefault(); this._moveActive(1); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); this._moveActive(-1); }
+            else if (e.key === 'Enter') {
+                e.preventDefault();
+                const active = document.querySelector('.cmd-item.active');
+                if (active) this._select(parseInt(active.dataset.idx));
+            } else if (e.key === 'Escape') {
+                this.close();
+            }
+        },
+
+        _moveActive(dir) {
+            const items = Array.from(document.querySelectorAll('.cmd-item'));
+            if (!items.length) return;
+            const cur = items.findIndex(el => el.classList.contains('active'));
+            let next = cur + dir;
+            if (next < 0) next = items.length - 1;
+            if (next >= items.length) next = 0;
+            items.forEach(el => el.classList.remove('active'));
+            items[next]?.classList.add('active');
+            items[next]?.scrollIntoView({ block: 'nearest' });
+            this._active = parseInt(items[next]?.dataset.idx ?? '-1');
+        },
+
+        _highlightActive() {
+            document.querySelectorAll('.cmd-item').forEach(el => {
+                el.classList.toggle('active', parseInt(el.dataset.idx) === this._active);
+            });
+        },
+
+        _select(idx) {
+            const item = this._items[idx];
+            if (!item || item.type === 'group') return;
+            this.close();
+            if (item.type === 'section') {
+                document.querySelector(`[data-section="${item.id}"]`)?.click();
+            } else if (item.type === 'goal') {
+                document.querySelector('[data-section="goals"]')?.click();
+                setTimeout(() => {
+                    document.getElementById(`goal-${item.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 220);
+            } else if (item.type === 'note') {
+                document.querySelector('[data-section="notes"]')?.click();
+                setTimeout(() => {
+                    document.getElementById(`note-${item.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 220);
+            } else if (item.type === 'resource') {
+                document.querySelector('[data-section="resources"]')?.click();
+            }
+        }
+    };
+
+    // =========================================
+    // Network Offline Banner
+    // =========================================
+
+    const NetworkStatus = {
+        init() {
+            const banner = document.getElementById('network-banner');
+            const closeBtn = document.getElementById('network-banner-close');
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => { if (banner) banner.hidden = true; });
+            }
+            window.addEventListener('offline', () => { if (banner) banner.hidden = false; });
+            window.addEventListener('online', () => {
+                if (banner) banner.hidden = true;
+                notify('Back Online ✓', 'Your connection has been restored', 'success');
+            });
+            if (!navigator.onLine && banner) banner.hidden = false;
+        }
+    };
+
+    // =========================================
     // Bootstrap
     // =========================================
 
@@ -4199,6 +4550,8 @@ ${reflectionsHtml}
         Auth.init(); // Must be last — triggers onAuthStateChanged
         Quotes.init();
         Onboarding.init();
+        CommandPalette.init();
+        NetworkStatus.init();
         ActivityChart.render();
         StreakCalendar.render();
 
