@@ -2782,7 +2782,13 @@ import Sortable from 'sortablejs';
                     dashboard: 'Dashboard', goals: 'Læringsmål',
                     resources: 'Ressurser', notes: 'Notater', reflection: 'Refleksjon',
                     insights: 'Innsikt'
-                }
+                },
+                mobHome: 'Hjem',
+                mobGoals: 'Mål',
+                mobResources: 'Ressurser',
+                mobNotes: 'Notater',
+                mobReflect: 'Refleksjon',
+                mobInsights: 'Innsikt'
             },
             en: {
                 loginSubtitle:      'Welcome back — pick up right where you left off',
@@ -2899,7 +2905,13 @@ import Sortable from 'sortablejs';
                     dashboard: 'Dashboard', goals: 'Learning Goals',
                     resources: 'Resources', notes: 'Notes', reflection: 'Reflection',
                     insights: 'Insights'
-                }
+                },
+                mobHome: 'Home',
+                mobGoals: 'Goals',
+                mobResources: 'Resources',
+                mobNotes: 'Notes',
+                mobReflect: 'Reflect',
+                mobInsights: 'Insights'
             }
         },
 
@@ -4189,6 +4201,22 @@ ${reflectionsHtml}
         Onboarding.init();
         ActivityChart.render();
         StreakCalendar.render();
+
+        // Empty state CTA buttons
+        $('#empty-state-goals-cta')?.addEventListener('click', () => {
+            $('#goal-input')?.focus();
+        });
+        $('#empty-state-notes-cta')?.addEventListener('click', () => {
+            $('#note-textarea')?.focus();
+            $('#note-textarea')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+        $('#empty-state-reflections-cta')?.addEventListener('click', () => {
+            $('#reflection-learn')?.focus();
+            $('#reflection-learn')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+        $('#empty-state-resources-cta')?.addEventListener('click', () => {
+            $('#add-resource-btn')?.click();
+        });
 
         // Stagger cards in the initially active section (no navigation.switchTo was called)
         setTimeout(() => {
