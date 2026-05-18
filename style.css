@@ -7238,22 +7238,7 @@ html[data-theme="light"] .mob-tab.active::before {
 }
 
 .mob-tab-badge {
-    position: absolute;
-    top: 7px;
-    left: calc(50% + 8px);
-    min-width: 16px;
-    height: 16px;
-    background: var(--accent-color);
-    color: #fff;
-    font-size: 9px;
-    font-weight: 700;
-    border-radius: 8px;
-    padding: 0 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid var(--bg-dark);
-    z-index: 2;
+    display: none !important;
 }
 
 .mob-tab-badge[hidden] { display: none; }
