@@ -14,9 +14,9 @@
     <meta name="apple-mobile-web-app-title" content="Kompass">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <script type="module" crossorigin src="/assets/index-WraXO2TS.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-C9Vc40e9.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script type="module" crossorigin src="/assets/index-DLjcXZ0I.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-D__zI5Nb.css">
 </head>
 
 
@@ -285,7 +285,7 @@
         <aside class="sidebar">
             <div class="logo-container">
                 <div class="logo-icon">🧭</div>
-                <h1 class="logo-text">PLN</h1>
+                <h1 class="logo-text">Kompass</h1>
             </div>
             
             <nav class="nav-menu">
@@ -315,7 +315,6 @@
                         </svg>
                     </span>
                     <span class="nav-label" data-i18n="navResources">Resources</span>
-                    <span class="nav-feature-tag">🔍 Filter</span>
                 </button>
                 <button class="nav-item" data-section="notes" data-nav-index="3" data-tooltip="Notater">
                     <span class="nav-icon-wrap">
@@ -326,7 +325,6 @@
                         </svg>
                     </span>
                     <span class="nav-label" data-i18n="navNotes">Notes</span>
-                    <span class="nav-feature-tag">✏️ Draw</span>
                     <span class="nav-badge" id="badge-notes"></span>
                 </button>
                 <button class="nav-item" data-section="reflection" data-nav-index="4" data-tooltip="Refleksjon">
@@ -336,7 +334,6 @@
                         </svg>
                     </span>
                     <span class="nav-label" data-i18n="navReflection">Reflection</span>
-                    <span class="nav-feature-tag">📅 Timeline</span>
                     <span class="nav-badge" id="badge-reflections"></span>
                 </button>
                 <button class="nav-item" data-section="insights" data-nav-index="5" data-tooltip="Innsikt">
@@ -346,7 +343,6 @@
                         </svg>
                     </span>
                     <span class="nav-label" data-i18n="navInsights">Insights</span>
-                    <span class="nav-feature-tag">📊 Analytics</span>
                 </button>
             </nav>
 
@@ -537,11 +533,8 @@
                         </div>
                         <div class="chart-card">
                             <h3 data-i18n="recentActivity">Recent Activity</h3>
-                            <ul class="activity-list">
-                                <li data-i18n="activity1">✓ Completed: Web Development Course</li>
-                                <li data-i18n="activity2">✓ Added: 3 new resources</li>
-                                <li data-i18n="activity3">✓ Published: Learning reflection</li>
-                            </ul>
+                            <ul class="activity-list" id="activity-list"></ul>
+                            <p class="activity-empty" id="activity-empty">No activity yet — start by adding a goal or a note.</p>
                         </div>
                     </div>
 

@@ -423,7 +423,46 @@ import Sortable from 'sortablejs';
             Navigation.updateBadges();
             Insights.refresh();
             Suggestions.refresh();
+            Dashboard._updateActivity();
         }, 50),
+
+        _updateActivity() {
+            const list = document.getElementById('activity-list');
+            const empty = document.getElementById('activity-empty');
+            if (!list) return;
+
+            const ICONS = { goal: '🎯', note: '📝', reflection: '💬', complete: '✅' };
+            const items = [];
+
+            state.goals.slice(0, 8).forEach(g => {
+                if (g.completed) {
+                    items.push({ id: g.id, icon: ICONS.complete, text: `Completed: ${g.text}` });
+                } else {
+                    items.push({ id: g.id, icon: ICONS.goal, text: `Goal added: ${g.text}` });
+                }
+            });
+            state.notes.slice(0, 8).forEach(n => {
+                const preview = (n.content || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+                items.push({ id: n.id, icon: ICONS.note, text: `Note: ${preview || '(drawing)'}` });
+            });
+            state.reflections.slice(0, 8).forEach(r => {
+                const preview = (r.content || r.text || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+                items.push({ id: r.id, icon: ICONS.reflection, text: `Reflection: ${preview || '…'}` });
+            });
+
+            items.sort((a, b) => b.id - a.id);
+            const recent = items.slice(0, 5);
+
+            if (recent.length === 0) {
+                list.innerHTML = '';
+                if (empty) empty.style.display = '';
+            } else {
+                if (empty) empty.style.display = 'none';
+                list.innerHTML = recent.map(item =>
+                    `<li><span class="activity-icon">${item.icon}</span><span class="activity-text">${escapeHtml(item.text)}</span></li>`
+                ).join('');
+            }
+        },
 
         countUp(elementId, target, duration = 700, delay = 0) {
             const el = document.getElementById(elementId);

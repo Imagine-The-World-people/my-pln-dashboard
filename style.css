@@ -101,7 +101,7 @@ html[data-theme="light"] {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 html, body {
@@ -110,7 +110,7 @@ html, body {
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background:
         /* Upper-centre warm haze */
         radial-gradient(ellipse 70% 45% at 62% 10%, rgba(190, 110, 30, 0.40) 0%, transparent 60%),
@@ -358,9 +358,9 @@ html[data-theme="light"] .sidebar::before {
 }
 
 .logo-text {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 700;
-    letter-spacing: 1.5px;
+    letter-spacing: -0.2px;
     color: var(--text-primary);
     position: relative;
     z-index: 1;
@@ -387,7 +387,7 @@ html[data-theme="light"] .sidebar::before {
     letter-spacing: 0.2px;
     cursor: pointer;
     transition: var(--transition);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     position: relative;
     overflow: hidden;
 }
@@ -456,7 +456,8 @@ html[data-theme="light"] .sidebar::before {
 .nav-label {
     flex: 1;
     font-weight: 500;
-    font-size: 14px;
+    font-size: 13.5px;
+    letter-spacing: -0.1px;
 }
 
 .nav-badge {
@@ -485,24 +486,9 @@ html[data-theme="light"] .sidebar::before {
     to   { transform: scale(1);   opacity: 1; }
 }
 
-/* Feature tags on nav items */
+/* Feature tags on nav items — hidden (removed from HTML, kept for compat) */
 .nav-feature-tag {
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 0.4px;
-    padding: 2px 7px;
-    border-radius: 6px;
-    background: rgba(91, 159, 212, 0.10);
-    color: var(--primary-light);
-    white-space: nowrap;
-    line-height: 1.4;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-}
-.nav-item:hover .nav-feature-tag { opacity: 1; }
-html[data-theme="light"] .nav-feature-tag {
-    background: rgba(10, 65, 116, 0.08);
-    color: var(--primary-color);
+    display: none;
 }
 
 /* Light theme nav overrides */
@@ -553,7 +539,7 @@ html[data-theme="light"] .nav-item.active .nav-label {
     border: 1.5px solid var(--border-color);
     border-radius: 8px;
     color: var(--text-secondary);
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -703,10 +689,10 @@ html[data-theme="light"] .header {
 }
 
 .page-title {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 20px;
+    font-weight: 700;
     color: var(--text-primary);
-    letter-spacing: -0.2px;
+    letter-spacing: -0.4px;
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
@@ -736,7 +722,7 @@ html[data-theme="light"] .page-title {
     border: 1.5px solid rgba(91, 159, 212, 0.18);
     border-radius: 12px;
     color: var(--text-primary);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 13.5px;
     font-weight: 400;
     letter-spacing: 0.2px;
@@ -784,7 +770,7 @@ html[data-theme="light"] .page-title {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 /* Language toggle ??? pill shape with flag + code */
@@ -802,7 +788,7 @@ html[data-theme="light"] .page-title {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .lang-flag { font-size: 17px; line-height: 1; }
@@ -1693,11 +1679,11 @@ html[data-theme="light"] .section-header h2 {
 
 .section-header p {
     color: var(--text-tertiary);
-    font-size: 14px;
+    font-size: 14.5px;
     font-weight: 400;
-    letter-spacing: 0.1px;
-    line-height: 1.6;
-    max-width: 500px;
+    letter-spacing: 0px;
+    line-height: 1.55;
+    max-width: 520px;
 }
 
 /* =============================================
@@ -1714,7 +1700,7 @@ html[data-theme="light"] .section-header h2 {
     min-width: 46px;
     border: none;
     border-radius: 14px;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
@@ -1883,10 +1869,10 @@ html[data-theme="light"] .stat-card:hover {
 
 .stat-label {
     color: var(--text-tertiary);
-    font-size: 11px;
+    font-size: 11.5px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.6px;
     margin-bottom: 6px;
 }
 
@@ -1976,17 +1962,46 @@ html[data-theme="light"] .chart-card:hover {
 
 .activity-list {
     list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .activity-list li {
-    padding: 8px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 7px 0;
     color: var(--text-secondary);
-    font-size: 14px;
-    border-bottom: 1px solid rgba(52, 65, 85, 0.5);
+    font-size: 13.5px;
+    border-bottom: 1px solid var(--border-glass);
+    line-height: 1.45;
 }
 
 .activity-list li:last-child {
     border-bottom: none;
+}
+
+.activity-icon {
+    flex-shrink: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-top: 1px;
+}
+
+.activity-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.activity-empty {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    font-style: italic;
+    padding: 4px 0;
 }
 
 /* =============================================
@@ -2927,7 +2942,7 @@ html[data-theme="light"] .progress-ring-fill {
     background: rgba(91, 159, 212, 0.08);
     border: 1.5px solid var(--border-color);
     border-radius: 10px;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 14px;
     color: var(--text-primary);
     transition: var(--transition);
@@ -2981,7 +2996,7 @@ kbd {
     background: rgba(91, 159, 212, 0.15);
     border: 1px solid rgba(91, 159, 212, 0.3);
     border-radius: 4px;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 11px;
     color: var(--primary-light);
     line-height: 1.6;
@@ -3010,7 +3025,7 @@ html[data-theme="light"] kbd {
     border: 1.5px solid var(--border-color);
     border-radius: 20px;
     color: var(--text-secondary);
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 12.5px;
     font-weight: 500;
     cursor: pointer;
@@ -3280,7 +3295,7 @@ html[data-theme="light"] .goal-tag--other    { background: rgba(148, 163, 184, 0
     font-size: 14px;
     font-weight: 600;
     transition: var(--transition);
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .goal-delete-btn:hover {
@@ -3308,7 +3323,7 @@ html[data-theme="light"] .goal-tag--other    { background: rgba(148, 163, 184, 0
     font-size: 13px;
     font-weight: 600;
     transition: var(--transition);
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .goal-edit-btn:hover {
@@ -3354,7 +3369,7 @@ html[data-theme="light"] .goal-item.editing {
     background: rgba(91, 159, 212, 0.1);
     border: 1.5px solid var(--primary-color);
     border-radius: 8px;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 14px;
     color: var(--text-primary);
     outline: none;
@@ -3375,7 +3390,7 @@ html[data-theme="light"] .goal-edit-input {
     background: rgba(91, 159, 212, 0.08);
     border: 1.5px solid var(--border-color);
     border-radius: 8px;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 12px;
     color: var(--text-primary);
     cursor: pointer;
@@ -3406,7 +3421,7 @@ html[data-theme="light"] .goal-edit-category {
     font-size: 13px;
     font-weight: 600;
     transition: var(--transition);
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     box-shadow: 0 4px 12px rgba(91, 159, 212, 0.38);
     white-space: nowrap;
 }
@@ -3431,7 +3446,7 @@ html[data-theme="light"] .goal-edit-category {
     font-size: 13px;
     font-weight: 600;
     transition: var(--transition);
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     white-space: nowrap;
 }
 
@@ -3813,7 +3828,7 @@ html[data-theme="light"] .resource-card-header--podcast .resource-type-label { c
     border: 1.5px solid var(--border-color);
     border-radius: 10px;
     color: var(--text-secondary);
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 12.5px;
     font-weight: 600;
     cursor: pointer;
@@ -3891,7 +3906,7 @@ html[data-theme="light"] .cat-filter-btn--brukerstotte:hover { color: #059669; }
     gap: 5px;
     padding: 5px 12px;
     border-radius: 20px;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -3949,7 +3964,7 @@ html[data-theme="light"] .active-filter-chip--search  { background: rgba(5,150,1
 .active-filter-clear-all {
     padding: 5px 14px;
     border-radius: 20px;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 11.5px;
     font-weight: 600;
     color: var(--text-tertiary);
@@ -3974,7 +3989,7 @@ html[data-theme="light"] .active-filter-chip--search  { background: rgba(5,150,1
     border: 1.5px solid var(--border-color);
     border-radius: 10px;
     color: var(--text-secondary);
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -4136,7 +4151,7 @@ html[data-theme="light"] .resource-tag.tag--default { background: rgba(100,116,1
     background: rgba(91, 159, 212, 0.08);
     border: 1.5px solid var(--border-color);
     border-radius: 12px;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 14px;
     color: var(--text-primary);
     outline: none;
@@ -4173,7 +4188,7 @@ html[data-theme="light"] .resource-search:focus {
     border-radius: 12px;
     font-size: 14px;
     font-weight: 600;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     cursor: pointer;
     border: none;
     color: white;
@@ -4287,7 +4302,7 @@ html[data-theme="light"] .resource-add-panel-inner {
     border-radius: 12px;
     font-size: 14px;
     font-weight: 600;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     cursor: pointer;
     color: var(--text-secondary);
     background: rgba(91, 159, 212, 0.08);
@@ -4306,7 +4321,7 @@ html[data-theme="light"] .resource-add-panel-inner {
     border-radius: 12px;
     font-size: 14px;
     font-weight: 700;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     cursor: pointer;
     color: white;
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
@@ -4376,7 +4391,7 @@ html[data-theme="light"] .resource-add-panel-inner {
     background: rgba(91, 159, 212, 0.08);
     border: 1.5px solid var(--border-color);
     border-radius: 10px;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 14px;
     color: var(--text-primary);
     outline: none;
@@ -4413,7 +4428,7 @@ html[data-theme="light"] .resource-form-input {
     border: 1.5px solid var(--border-color);
     border-radius: 20px;
     color: var(--text-secondary);
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
@@ -4452,7 +4467,7 @@ html[data-theme="light"] .resource-form-input {
     border: 1.5px solid var(--border-color);
     border-radius: 20px;
     color: var(--text-secondary);
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
@@ -4553,7 +4568,7 @@ html[data-theme="light"] .resource-cat--brukerstotte:hover { box-shadow: 0 3px 1
     font-size: 16px;
     cursor: pointer;
     transition: var(--transition);
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     border: 1px solid;
 }
 
@@ -4615,7 +4630,7 @@ html[data-theme="light"] .add-note-section {
     background: rgba(91, 159, 212, 0.08);
     border: 1.5px solid var(--border-color);
     border-radius: 10px;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 14px;
     color: var(--text-primary);
     resize: vertical;
@@ -4676,7 +4691,7 @@ html[data-theme="light"] .note-textarea:not(:placeholder-shown) {
     border: 1.5px solid var(--border-color);
     border-radius: 10px;
     color: var(--text-secondary);
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
@@ -5122,7 +5137,7 @@ html[data-theme="light"] .note-card:hover {
     background: rgba(91, 159, 212, 0.08);
     border: 1.5px solid var(--primary-color);
     border-radius: 10px;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 14px;
     color: var(--text-primary);
     resize: vertical;
@@ -5145,7 +5160,7 @@ html[data-theme="light"] .note-card:hover {
     border-radius: 8px;
     font-size: 12px;
     font-weight: 600;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     cursor: pointer;
     border: 1.5px solid var(--border-color);
     transition: var(--transition);
@@ -5331,7 +5346,7 @@ html[data-theme="light"] .reflection-form-section {
     background: rgba(91, 159, 212, 0.08);
     border: 1.5px solid var(--border-color);
     border-radius: 10px;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 14px;
     color: var(--text-primary);
     resize: vertical;
@@ -5664,7 +5679,7 @@ html[data-theme="light"] .reflection-tl-card:hover {
     font-size: 12px;
     font-weight: 600;
     transition: var(--transition);
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     opacity: 0;
 }
 
@@ -5852,7 +5867,7 @@ body {
     padding: 10px 24px;
     font-size: 14px;
     font-weight: 600;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     color: #fff;
     background: linear-gradient(135deg, var(--accent), #818cf8);
     border: none;
@@ -5943,7 +5958,7 @@ body {
     transform: translate(-50%, -60%);
     font-size: 48px;
     font-weight: 700;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     color: #fff;
     letter-spacing: -1px;
     font-variant-numeric: tabular-nums;
@@ -6004,7 +6019,7 @@ body {
     padding: 8px 20px;
     font-size: 13px;
     font-weight: 600;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     color: rgba(255, 255, 255, 0.5);
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -6059,7 +6074,7 @@ body.focus-active #sidebar-overlay {
     transform: translateX(calc(100% + 24px));
     opacity: 0;
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .toast.toast-visible {
@@ -6125,7 +6140,7 @@ body.focus-active #sidebar-overlay {
     line-height: 1;
     transition: color 0.2s, transform 0.2s;
     flex-shrink: 0;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .toast-close:hover {
@@ -6775,7 +6790,7 @@ html[data-theme="light"] .auth-label { color: #374063; }
     border: 1.5px solid rgba(255, 255, 255, 0.13);
     border-radius: 12px;
     color: #ffffff;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 15px;
     font-weight: 400;
     outline: none;
@@ -6813,7 +6828,7 @@ html[data-theme="light"] .magic-link-input:focus {
     border: none;
     border-radius: 12px;
     color: #ffffff;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 15px;
     font-weight: 700;
     letter-spacing: 0.1px;
@@ -6906,7 +6921,7 @@ html[data-theme="light"] .auth-register-hint { color: #5a6c85; }
     border: 1.5px solid rgba(123, 189, 232, 0.32);
     border-radius: 12px;
     color: #b0c0ff;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -6977,7 +6992,7 @@ html[data-theme="light"] .login-note { color: #8896b8; }
     border: 1px solid rgba(239, 68, 68, 0.25);
     border-radius: 7px;
     color: #fca5a5;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -7505,7 +7520,7 @@ html[data-theme="light"] .reg-back-link:hover { color: #312e81; }
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 99px;
     color: rgba(220, 230, 255, 0.85);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 12.5px;
     font-weight: 700;
     letter-spacing: 0.5px;
