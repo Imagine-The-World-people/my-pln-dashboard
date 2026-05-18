@@ -1100,6 +1100,9 @@ import Sortable from 'sortablejs';
             empty?.classList.remove('show');
             list.innerHTML = filtered.map(g => `
                 <div class="goal-item ${g.completed ? 'completed' : ''}" id="goal-${g.id}">
+                    <div class="goal-drag-handle" style="cursor: grab; color: var(--text-tertiary); padding: 0 10px 0 0; display: flex; align-items: center;" aria-label="Drag to reorder">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+                    </div>
                     <input type="checkbox" class="goal-checkbox"
                         ${g.completed ? 'checked' : ''} data-goal-id="${g.id}">
                     <div class="goal-content">${this._contentHtml(g)}</div>
@@ -1110,6 +1113,9 @@ import Sortable from 'sortablejs';
             if (this._sortable) this._sortable.destroy();
             this._sortable = Sortable.create(list, {
                 animation: 150,
+                handle: '.goal-drag-handle',
+                delay: 100, // Important: prevents jittery scrolling on mobile devices
+                delayOnTouchOnly: true, // Only delay on touch devices
                 onEnd: (evt) => {
                     const goalIdsInDom = Array.from(list.children).map(el => Number(el.id.replace('goal-', '')));
                     const newGoals = [];
