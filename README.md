@@ -73,14 +73,18 @@ The dashboard features a **sophisticated, professional UI** with a focus on user
 
 ```
 PLN/
-├── index.html          # Single-page app markup
-├── style.css           # Main styles + design tokens
-├── responsive.css      # Mobile/tablet media queries
-├── script.js           # App logic (single IIFE)
-├── supabase-config.js  # Supabase client setup
-├── playwright.config.js# Playwright E2E test config
+├── index.html              # Single-page app markup
+├── style.css               # Main styles + design tokens
+├── responsive.css          # Mobile/tablet media queries
+├── script.js               # App logic (ES module)
+├── supabase-config.js      # Supabase client setup
+├── package.json            # Node / Vite build config
+├── playwright.config.js    # Playwright E2E test config
+├── public/
+│   ├── sw.js               # Service worker (PWA offline support)
+│   └── manifest.json       # Web app manifest (install prompt, icons)
 ├── tests/
-│   └── app.spec.js     # E2E tests (goals, notes, resources, cmd palette, …)
+│   └── app.spec.js         # E2E tests (goals, notes, resources, …)
 └── README.md
 ```
 

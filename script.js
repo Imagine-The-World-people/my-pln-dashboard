@@ -4,8 +4,7 @@
 
 import { supabaseClient } from './supabase-config.js';
 import Sortable from 'sortablejs';
-
-'use strict';
+// ES modules are always in strict mode — no 'use strict' needed
 
 // =========================================
 // Utilities
@@ -251,7 +250,7 @@ import Sortable from 'sortablejs';
 
             // Exit current section
             if (currentSection) {
-                currentSection.classList.add('leave-left');
+                currentSection.classList.add(goingForward ? 'leave-left' : 'leave-right');
                 currentSection.classList.remove('active');
             }
 
@@ -809,15 +808,13 @@ import Sortable from 'sortablejs';
         /** Quick Stats: streak, best day, avg rating, overdue */
         _quickStats() {
             const data = ActivityTracker.getLast(84);
-            // Current streak — consecutive days with activity ending today
+            // Current streak — consecutive days with activity, skipping today if no activity yet
             let streak = 0;
-            const today = new Date().toISOString().slice(0, 10);
-            for (let i = data.length - 1; i >= 0; i--) {
-                if (data[i].count > 0) {
-                    streak++;
-                } else if (data[i].date <= today) {
-                    break;
-                }
+            let startIdx = data.length - 1;
+            if (startIdx >= 0 && data[startIdx].count === 0) startIdx--;
+            for (let i = startIdx; i >= 0; i--) {
+                if (data[i].count > 0) streak++;
+                else break;
             }
             const streakEl = $('#qs-streak');
             if (streakEl) Dashboard.countUp('qs-streak', streak, 600, 0);
@@ -1317,7 +1314,7 @@ import Sortable from 'sortablejs';
                 </div>
             `).join('');
             
-            if (this._sortable) this._sortable.destroy();
+            if (this._sortable) { this._sortable.destroy(); this._sortable = null; }
             
             // Only allow dragging when viewing all goals in newest order to prevent data corruption
             const canDrag = this._filter.status === 'all' && this._filter.sort === 'newest';
@@ -3053,10 +3050,9 @@ import Sortable from 'sortablejs';
                 insightsHeading:    'Læringsinnsikt',
                 insightsSub:        'Se hva du faktisk har oppnådd — tallene forteller din læringshistorie',
                 insightsIntro:      'Oversikt over læringsaktiviteten din',
-                totalGoals:         'Totale mål',
-                completedGoals:     'Fullførte mål',
                 insightGoalProgress:'Måloppnåelse',
                 insightDeepDive:    'Dypdykk',
+
                 streakDay:          'dags streak',
                 streakDays:         'dagers streak',
                 suggestionsTitle:   '💡 Forslag',
@@ -3620,7 +3616,7 @@ ${reflectionsHtml}
             const container = $('.sections-container');
             try {
                 const { data: { user } } = await supabaseClient.auth.getUser();
-                if (!user) return;
+                if (!user) { this._isSaving = false; return; }
 
                 if (container) container.classList.add('syncing');
                 const { error } = await supabaseClient.from('user_data').upsert({
@@ -3647,17 +3643,16 @@ ${reflectionsHtml}
 
         async load() {
             if (!supabaseClient) return;
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) return;
-
             const container = $('.sections-container');
-            if (container) container.classList.add('syncing');
-
             // Disable write hook during load to avoid a feedback loop
             const prevHook = Store._onWrite;
             Store._onWrite = null;
 
             try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) { Store._onWrite = prevHook; return; }
+
+                if (container) container.classList.add('syncing');
                 const { data, error } = await supabaseClient
                     .from('user_data')
                     .select('*')
@@ -4153,8 +4148,8 @@ ${reflectionsHtml}
             const newPw = $('#profile-new-password')?.value;
             const confirmPw = $('#profile-confirm-password')?.value;
             const pwNote = $('#profile-pw-note');
-            if (!newPw || newPw.length < 6) {
-                if (pwNote) pwNote.textContent = '⚠️ Password must be at least 6 characters';
+            if (!newPw || newPw.length < 12) {
+                if (pwNote) pwNote.textContent = '⚠️ Password must be at least 12 characters';
                 return;
             }
             if (newPw !== confirmPw) {
@@ -4874,10 +4869,16 @@ ${reflectionsHtml}
                 const nameInput = document.getElementById('collection-name-input');
                 const name = nameInput?.value.trim();
                 if (!name) { nameInput?.focus(); return; }
-                const group = this.create(name, this._selectedColor);
+                if (this._editingId) {
+                    const groups = this.getAll();
+                    const g = groups.find(g => String(g.id) === this._editingId);
+                    if (g) { g.name = name; g.color = this._selectedColor; this._saveGroups(groups); }
+                } else {
+                    const group = this.create(name, this._selectedColor);
+                    this._setActive(String(group.id));
+                }
                 this._renderBar();
                 this._populateSelect();
-                this._setActive(String(group.id));
                 this._closeDialog();
             });
         },
@@ -4999,7 +5000,7 @@ ${reflectionsHtml}
             titleEl.textContent = goal.text;
             const today = new Date().toISOString().slice(0, 10);
             const isOverdue = goal.deadline && goal.deadline < today;
-            const catLabels = { coding:'Coding', reading:'Reading', course:'Course', project:'Project', writing:'Writing', other:'Other' };
+            const catLabels = { coding:'Coding', school:'School', personal:'Personal', reading:'Reading', health:'Health', other:'Other' };
             const catLabel = catLabels[goal.category] || goal.category || 'Other';
             const statusLabel = goal.completed ? 'Completed' : isOverdue ? 'Overdue' : 'Active';
             const statusCls = goal.completed ? 'tag--green' : isOverdue ? 'tag--red' : 'tag--blue';
