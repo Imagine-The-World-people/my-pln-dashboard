@@ -11,8 +11,8 @@
     --accent-light: #BDD8E9;
     --bg-dark: #001D39;
     --bg-darker: #000e1e;
-    --bg-card: rgba(0, 40, 82, 0.35);
-    --bg-card-hover: rgba(10, 65, 116, 0.45);
+    --bg-card: rgba(0, 20, 45, 0.20);
+    --bg-card-hover: rgba(10, 65, 116, 0.32);
     --text-primary: #e8f4fd;
     --text-secondary: #9ECCE8;
     --text-tertiary: #6EA2B3;
@@ -46,20 +46,20 @@
     --card-gap: 16px;
 
     /* iOS-style glass tokens */
-    --glass-blur: blur(40px) saturate(180%);
-    --glass-blur-heavy: blur(60px) saturate(200%);
-    --glass-blur-light: blur(20px) saturate(150%);
-    --glass-bg: rgba(0, 20, 44, 0.55);
-    --glass-bg-elevated: rgba(0, 30, 62, 0.78);
-    --glass-border: rgba(123, 189, 232, 0.15);
-    --glass-highlight: inset 0 1px 0 rgba(189, 216, 233, 0.12), inset 1px 0 0 rgba(189, 216, 233, 0.05);
+    --glass-blur: blur(40px) saturate(200%);
+    --glass-blur-heavy: blur(60px) saturate(220%);
+    --glass-blur-light: blur(24px) saturate(160%);
+    --glass-bg: rgba(0, 15, 32, 0.28);
+    --glass-bg-elevated: rgba(0, 12, 28, 0.52);
+    --glass-border: rgba(189, 216, 233, 0.20);
+    --glass-highlight: inset 0 1px 0 rgba(189, 216, 233, 0.18), inset 1px 0 0 rgba(189, 216, 233, 0.08);
     --card-blur: var(--glass-blur);
 
     /* Section spacing */
     --section-gap: 40px;
 
     /* Surface colors */
-    --bg-secondary: #010d1c;
+    --bg-secondary: rgba(0, 10, 24, 0.72);
 }
 
 /* Light theme */
@@ -112,11 +112,11 @@ html, body {
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background:
-        radial-gradient(ellipse 65% 55% at 82% 72%, rgba(210, 90, 15, 0.30) 0%, rgba(170, 50, 0, 0.10) 45%, transparent 65%),
-        radial-gradient(ellipse 50% 50% at 18% 62%, rgba(78, 142, 162, 0.22) 0%, transparent 50%),
-        radial-gradient(ellipse 85% 45% at 50% 100%, rgba(10, 65, 116, 0.52) 0%, transparent 62%),
-        radial-gradient(ellipse 40% 35% at 65% 25%, rgba(0, 29, 57, 0.38) 0%, transparent 55%),
-        linear-gradient(155deg, #0c1520 0%, #091220 50%, #040c18 100%);
+        radial-gradient(ellipse 55% 65% at 88% 75%, rgba(225, 90, 5, 0.75) 0%, rgba(180, 50, 0, 0.38) 38%, transparent 62%),
+        radial-gradient(ellipse 36% 48% at 82% 68%, rgba(255, 145, 30, 0.50) 0%, transparent 48%),
+        radial-gradient(ellipse 48% 58% at 10% 62%, rgba(15, 80, 110, 0.58) 0%, rgba(8, 45, 70, 0.28) 45%, transparent 65%),
+        radial-gradient(ellipse 80% 45% at 50% 105%, rgba(0, 20, 50, 0.88) 0%, transparent 60%),
+        #04080f;
     background-attachment: fixed;
     color: var(--text-primary);
     line-height: 1.55;
