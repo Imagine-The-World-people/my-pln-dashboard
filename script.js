@@ -3,6 +3,7 @@
 // =============================================
 
 import { supabaseClient } from './supabase-config.js';
+import Sortable from 'sortablejs';
 
 'use strict';
 
@@ -1105,6 +1106,29 @@ import { supabaseClient } from './supabase-config.js';
                     <div class="goal-actions">${this._actionsHtml(g.id)}</div>
                 </div>
             `).join('');
+            
+            if (this._sortable) this._sortable.destroy();
+            this._sortable = Sortable.create(list, {
+                animation: 150,
+                onEnd: (evt) => {
+                    const goalIdsInDom = Array.from(list.children).map(el => Number(el.id.replace('goal-', '')));
+                    const newGoals = [];
+                    
+                    goalIdsInDom.forEach(id => {
+                        const goal = state.goals.find(g => g.id === id);
+                        if (goal) newGoals.push(goal);
+                    });
+                    
+                    state.goals.forEach(goal => {
+                        if (!goalIdsInDom.includes(goal.id)) {
+                            newGoals.push(goal);
+                        }
+                    });
+                    
+                    state.goals = newGoals;
+                    this._save();
+                }
+            });
         },
 
         _tagHtml(category) {
