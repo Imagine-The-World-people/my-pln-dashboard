@@ -4702,6 +4702,418 @@ ${reflectionsHtml}
     };
 
     // =========================================
+    // Resource Groups / Collections
+    // =========================================
+
+    const ResourceGroups = {
+        STORE_KEY: 'pln_resource_groups',
+        _activeGroupId: 'all',
+        _editingId: null,
+        _selectedColor: '#5B9FD4',
+
+        getAll() {
+            const raw = Store.getRaw(this.STORE_KEY);
+            return raw ? JSON.parse(raw) : [];
+        },
+
+        _saveGroups(groups) {
+            Store.setRaw(this.STORE_KEY, JSON.stringify(groups));
+        },
+
+        create(name, color) {
+            const groups = this.getAll();
+            const group = { id: Date.now(), name: name.trim(), color: color || '#5B9FD4' };
+            groups.push(group);
+            this._saveGroups(groups);
+            return group;
+        },
+
+        delete(id) {
+            const groups = this.getAll().filter(g => g.id !== id);
+            this._saveGroups(groups);
+            const resources = Store.get(Resources.STORE_KEY, []);
+            resources.forEach(r => { if (String(r.groupId) === String(id)) delete r.groupId; });
+            Store.set(Resources.STORE_KEY, resources);
+        },
+
+        getById(id) {
+            return this.getAll().find(g => String(g.id) === String(id)) || null;
+        },
+
+        init() {
+            this._renderBar();
+            this._populateSelect();
+            this._wireDialog();
+            document.getElementById('collection-add-btn')?.addEventListener('click', () => this._openDialog(null));
+            document.getElementById('collections-scroll')?.addEventListener('click', (e) => {
+                const pill = e.target.closest('.collection-pill');
+                if (!pill) return;
+                document.querySelectorAll('.collection-pill').forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                this._activeGroupId = pill.dataset.groupId || 'all';
+                Resources._applyFilters();
+            });
+        },
+
+        _wireDialog() {
+            const overlay = document.getElementById('collection-dialog-overlay');
+            const cancel  = document.getElementById('collection-dialog-cancel');
+            const save    = document.getElementById('collection-dialog-save');
+            const colors  = document.getElementById('collection-colors');
+            cancel?.addEventListener('click', () => this._closeDialog());
+            overlay?.addEventListener('click', (e) => { if (e.target === overlay) this._closeDialog(); });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && overlay && !overlay.classList.contains('hidden')) this._closeDialog();
+            });
+            colors?.addEventListener('click', (e) => {
+                const swatch = e.target.closest('.collection-color-swatch');
+                if (!swatch) return;
+                colors.querySelectorAll('.collection-color-swatch').forEach(s => s.classList.remove('active'));
+                swatch.classList.add('active');
+                this._selectedColor = swatch.dataset.color;
+            });
+            save?.addEventListener('click', () => {
+                const nameInput = document.getElementById('collection-name-input');
+                const name = nameInput?.value.trim();
+                if (!name) { nameInput?.focus(); return; }
+                const group = this.create(name, this._selectedColor);
+                this._renderBar();
+                this._populateSelect();
+                this._setActive(String(group.id));
+                this._closeDialog();
+            });
+        },
+
+        _openDialog(groupId) {
+            this._editingId = groupId;
+            this._selectedColor = '#5B9FD4';
+            const overlay = document.getElementById('collection-dialog-overlay');
+            const nameInput = document.getElementById('collection-name-input');
+            const colors = document.getElementById('collection-colors');
+            const saveBtn = document.getElementById('collection-dialog-save');
+            if (nameInput) nameInput.value = groupId ? (this.getById(groupId)?.name || '') : '';
+            if (saveBtn) saveBtn.textContent = groupId ? 'Save' : 'Create';
+            if (colors) colors.querySelectorAll('.collection-color-swatch').forEach((s, i) => s.classList.toggle('active', i === 0));
+            overlay?.classList.remove('hidden');
+            setTimeout(() => nameInput?.focus(), 50);
+        },
+
+        _closeDialog() {
+            document.getElementById('collection-dialog-overlay')?.classList.add('hidden');
+            this._editingId = null;
+        },
+
+        _renderBar() {
+            const scroll = document.getElementById('collections-scroll');
+            if (!scroll) return;
+            const groups = this.getAll();
+            scroll.querySelectorAll('.collection-pill:not([data-group-id="all"])').forEach(p => p.remove());
+            groups.forEach(g => {
+                const pill = document.createElement('button');
+                pill.className = 'collection-pill';
+                pill.dataset.groupId = String(g.id);
+                pill.innerHTML = '<span class="collection-pill-dot" style="background:' + escapeHtml(g.color) + '"></span>' + escapeHtml(g.name);
+                pill.addEventListener('dblclick', (e) => {
+                    e.stopPropagation();
+                    if (confirm('Delete collection "' + g.name + '"?')) {
+                        this.delete(g.id);
+                        this._renderBar();
+                        this._populateSelect();
+                        if (this._activeGroupId === String(g.id)) this._setActive('all');
+                        else Resources._applyFilters();
+                    }
+                });
+                scroll.appendChild(pill);
+            });
+            this._restoreActivePill();
+        },
+
+        _restoreActivePill() {
+            document.querySelectorAll('.collection-pill').forEach(p => {
+                p.classList.toggle('active', p.dataset.groupId === this._activeGroupId);
+            });
+        },
+
+        _setActive(groupId) {
+            this._activeGroupId = groupId;
+            this._restoreActivePill();
+            Resources._applyFilters();
+        },
+
+        _populateSelect() {
+            const select = document.getElementById('res-group');
+            if (!select) return;
+            const current = select.value;
+            select.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
+            this.getAll().forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = String(g.id);
+                opt.textContent = g.name;
+                select.appendChild(opt);
+            });
+            if (current && select.querySelector('option[value="' + current + '"]')) select.value = current;
+        }
+    };
+
+    // =========================================
+    // Goal Detail Drawer
+    // =========================================
+
+    const GoalDetailDrawer = {
+        _currentGoalId: null,
+
+        init() {
+            document.getElementById('goal-drawer-close')?.addEventListener('click', () => this.close());
+            document.getElementById('goal-drawer-overlay')?.addEventListener('click', (e) => {
+                if (e.target === document.getElementById('goal-drawer-overlay')) this.close();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && this._currentGoalId !== null) this.close();
+            });
+        },
+
+        open(goalId) {
+            const goal = state.goals.find(g => g.id === goalId);
+            if (!goal) return;
+            this._currentGoalId = goalId;
+            this._render(goal);
+            const overlay = document.getElementById('goal-drawer-overlay');
+            overlay?.classList.remove('hidden');
+            document.getElementById('goal-drawer-close')?.focus();
+        },
+
+        close() {
+            const overlay = document.getElementById('goal-drawer-overlay');
+            if (!overlay || overlay.classList.contains('hidden')) return;
+            overlay.classList.add('closing');
+            overlay.addEventListener('animationend', () => {
+                overlay.classList.remove('closing');
+                overlay.classList.add('hidden');
+                this._currentGoalId = null;
+            }, { once: true });
+        },
+
+        _render(goal) {
+            const titleEl = document.getElementById('goal-drawer-title');
+            const bodyEl  = document.getElementById('goal-drawer-body');
+            const actEl   = document.getElementById('goal-drawer-actions');
+            if (!titleEl || !bodyEl) return;
+            titleEl.textContent = goal.text;
+            const today = new Date().toISOString().slice(0, 10);
+            const isOverdue = goal.deadline && goal.deadline < today;
+            const catLabels = { coding:'Coding', reading:'Reading', course:'Course', project:'Project', writing:'Writing', other:'Other' };
+            const catLabel = catLabels[goal.category] || goal.category || 'Other';
+            const statusLabel = goal.completed ? 'Completed' : isOverdue ? 'Overdue' : 'Active';
+            const statusCls = goal.completed ? 'tag--green' : isOverdue ? 'tag--red' : 'tag--blue';
+            const ms = goal.milestones || [];
+            const msDone = ms.filter(m => m.done).length;
+            const msPct = ms.length ? Math.round(msDone / ms.length * 100) : 0;
+            const shortText = goal.text.slice(0, 30).toLowerCase();
+            const linkedNotes = (state.notes || []).filter(n => (n.content || '').toLowerCase().includes(shortText)).slice(0, 5);
+            let msHtml = '';
+            if (ms.length) {
+                const checkboxes = ms.map(m => {
+                    const chk = m.done ? 'checked' : '';
+                    return '<div class="milestone-item ' + (m.done ? 'done' : '') + '">' +
+                        '<input type="checkbox" class="milestone-checkbox drawer-ms-cb" ' + chk + ' data-goal-id="' + goal.id + '" data-milestone-id="' + m.id + '">' +
+                        '<span class="milestone-text">' + escapeHtml(m.text) + '</span></div>';
+                }).join('');
+                msHtml = '<div class="goal-drawer-section">' +
+                    '<p class="goal-drawer-section-heading">Milestones (' + msDone + '/' + ms.length + ' — ' + msPct + '%)</p>' +
+                    '<div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px;margin-bottom:10px;overflow:hidden">' +
+                    '<div style="height:100%;width:' + msPct + '%;background:var(--accent-primary);border-radius:2px;transition:width .3s"></div></div>' +
+                    checkboxes + '</div>';
+            }
+            const notesHtml = linkedNotes.length
+                ? linkedNotes.map(n => '<div class="goal-drawer-linked-note" data-note-id="' + n.id + '">' + escapeHtml((n.content || '').slice(0, 120)) + ((n.content || '').length > 120 ? '…' : '') + '</div>').join('')
+                : '<p class="goal-drawer-empty-msg">No notes mention this goal yet.</p>';
+            bodyEl.innerHTML =
+                '<div class="goal-drawer-meta-row">' +
+                    '<span class="tag ' + statusCls + '">' + statusLabel + '</span>' +
+                    '<span class="tag">' + escapeHtml(catLabel) + '</span>' +
+                    (goal.deadline ? '<span class="goal-deadline-badge">📅 ' + goal.deadline + '</span>' : '') +
+                '</div>' +
+                msHtml +
+                '<div class="goal-drawer-section">' +
+                    '<p class="goal-drawer-section-heading">Linked Notes</p>' +
+                    notesHtml +
+                '</div>';
+            bodyEl.querySelectorAll('.drawer-ms-cb').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    Goals._toggleMilestone(Number(cb.dataset.goalId), cb.dataset.milestoneId);
+                    const updated = state.goals.find(g => g.id === Number(cb.dataset.goalId));
+                    if (updated) this._render(updated);
+                });
+            });
+            bodyEl.querySelectorAll('.goal-drawer-linked-note').forEach(el => {
+                el.addEventListener('click', () => {
+                    this.close();
+                    document.querySelector('[data-section="notes"]')?.click();
+                    const nId = el.dataset.noteId;
+                    setTimeout(() => document.getElementById('note-' + nId)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 280);
+                });
+            });
+            if (actEl) {
+                actEl.innerHTML = '<button class="btn btn-primary" id="goal-drawer-complete-btn">' + (goal.completed ? 'Mark Active' : 'Mark Complete') + '</button>' +
+                    '<button class="btn" id="goal-drawer-edit-btn">Edit</button>';
+                document.getElementById('goal-drawer-complete-btn')?.addEventListener('click', () => {
+                    Goals.toggleComplete(goal.id);
+                    const updated = state.goals.find(g => g.id === goal.id);
+                    if (updated) this._render(updated);
+                });
+                document.getElementById('goal-drawer-edit-btn')?.addEventListener('click', () => {
+                    this.close();
+                    setTimeout(() => { document.querySelector('[data-section="goals"]')?.click(); setTimeout(() => Goals.edit(goal.id), 200); }, 300);
+                });
+            }
+        }
+    };
+
+    // =========================================
+    // Smart Deadline Notifications
+    // =========================================
+
+    const DeadlineNotifier = {
+        STORE_KEY: 'pln_last_deadline_notify',
+        init() {
+            setTimeout(() => this._checkAndNotify(), 3000);
+            setInterval(() => this._checkAndNotify(), 3600000);
+        },
+        async _checkAndNotify() {
+            if (!('Notification' in window)) return;
+            if (Notification.permission === 'denied') return;
+            const goalsWithDeadlines = (state.goals || []).filter(g => !g.completed && g.deadline);
+            if (!goalsWithDeadlines.length) return;
+            const today = new Date().toISOString().slice(0, 10);
+            const in3Days = new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
+            const urgent = goalsWithDeadlines.filter(g => g.deadline <= in3Days);
+            if (!urgent.length) return;
+            const lastNotified = Store.getRaw(this.STORE_KEY);
+            if (lastNotified === today) return;
+            if (Notification.permission === 'default') {
+                const result = await Notification.requestPermission();
+                if (result !== 'granted') return;
+            }
+            Store.setRaw(this.STORE_KEY, today);
+            urgent.forEach(g => {
+                const overdue = g.deadline < today;
+                const title = overdue ? '⚠️ Overdue Goal' : '⏰ Goal Due Soon';
+                const body = (overdue ? 'Overdue since ' : 'Due ') + g.deadline + ': ' + g.text.slice(0, 60);
+                try { new Notification(title, { body, tag: 'pln-goal-' + g.id, icon: '/icons/icon-192.png' }); } catch (_) {}
+            });
+        }
+    };
+
+    // =========================================
+    // Recurring Reflection Prompts
+    // =========================================
+
+    const ReflectionPrompts = {
+        STORE_KEY: 'pln_last_reflection_prompt',
+        PROMPTS: [
+            'What is one concept you finally understood this week?',
+            'What challenge stretched you beyond your comfort zone?',
+            'What would you do differently if you started the week over?',
+            'Which skill improved the most and how did you practise it?',
+            'What resource had the biggest impact on your learning?',
+            'What question are you still trying to answer?',
+            'What are you most proud of achieving this week?',
+            'How have you applied something you learned in a real situation?',
+            'What habit could you build to accelerate your learning next week?',
+            'What feedback was most valuable this week?',
+        ],
+        _currentPrompt: '',
+        init() {
+            this._maybeShow();
+            document.getElementById('reflection-prompt-use')?.addEventListener('click', () => {
+                const learn = document.getElementById('reflection-learn');
+                if (learn) { learn.value = this._currentPrompt; learn.focus(); }
+                this._dismiss();
+            });
+            document.getElementById('reflection-prompt-skip')?.addEventListener('click', () => this._dismiss());
+        },
+        _maybeShow() {
+            const lastShown = Store.getRaw(this.STORE_KEY);
+            const daysSince = lastShown ? Math.floor((Date.now() - new Date(lastShown).getTime()) / 86400000) : 999;
+            const isMonday = new Date().getDay() === 1;
+            if (daysSince < 6 && !isMonday) return;
+            this._currentPrompt = this.PROMPTS[Math.floor(Math.random() * this.PROMPTS.length)];
+            const banner = document.getElementById('reflection-prompt-banner');
+            const text = document.getElementById('reflection-prompt-text');
+            if (banner && text) { text.textContent = this._currentPrompt; banner.classList.remove('hidden'); }
+        },
+        _dismiss() {
+            Store.setRaw(this.STORE_KEY, new Date().toISOString().slice(0, 10));
+            document.getElementById('reflection-prompt-banner')?.classList.add('hidden');
+        }
+    };
+
+    // =========================================
+    // Supabase Real-time Sync
+    // =========================================
+
+    const RealtimeSync = {
+        _channel: null,
+        async init() {
+            if (!supabaseClient) return;
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) return;
+                this._channel = supabaseClient.channel('pln_rt_' + user.id)
+                    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'user_data', filter: 'user_id=eq.' + user.id },
+                        (payload) => { if (!CloudSync._isSaving) this._applyRemote(payload.new); })
+                    .subscribe();
+            } catch (e) { console.warn('RealtimeSync.init:', e); }
+        },
+        _applyRemote(data) {
+            const merge = (local, remote) => {
+                const arr = Array.isArray(remote) ? remote : [];
+                const ids = new Set(arr.map(i => i.id));
+                return [...arr, ...(local || []).filter(i => !ids.has(i.id))];
+            };
+            state.goals = merge(state.goals, data.goals);
+            state.notes = merge(state.notes, data.notes);
+            state.reflections = merge(state.reflections, data.reflections);
+            Goals.render(); Goals.updateProgress();
+            Notes.render();
+            if (typeof Notes._syncDashboard === 'function') Notes._syncDashboard();
+            Reflections.render();
+            Navigation.updateBadges();
+            notify('Synkronisert', 'Data updated from another device', 'info');
+        },
+        stop() {
+            if (this._channel && supabaseClient) { supabaseClient.removeChannel(this._channel); this._channel = null; }
+        }
+    };
+
+    // =========================================
+    // Supabase Storage Utility
+    // NOTE: Requires a public bucket named "drawings" in Supabase Storage.
+    // =========================================
+
+    const StorageSync = {
+        BUCKET: 'drawings',
+        async uploadImage(userId, dataURL, filename) {
+            if (!supabaseClient) return null;
+            try {
+                const res = await fetch(dataURL);
+                const blob = await res.blob();
+                const filePath = userId + '/' + filename;
+                const { error } = await supabaseClient.storage.from(this.BUCKET).upload(filePath, blob, { contentType: blob.type, upsert: true });
+                if (error) { console.warn('StorageSync upload:', error.message); return null; }
+                const { data } = supabaseClient.storage.from(this.BUCKET).getPublicUrl(filePath);
+                return data?.publicUrl || null;
+            } catch (e) { console.warn('StorageSync.uploadImage:', e); return null; }
+        },
+        async deleteImage(userId, filename) {
+            if (!supabaseClient) return;
+            try { await supabaseClient.storage.from(this.BUCKET).remove([userId + '/' + filename]); }
+            catch (e) { console.warn('StorageSync.deleteImage:', e); }
+        }
+    };
+
+
+    // =========================================
     // Network Offline Banner
     // =========================================
 
