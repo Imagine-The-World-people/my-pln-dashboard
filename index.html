@@ -373,6 +373,14 @@
                     <h2 class="page-title">Dashboard</h2>
                 </div>
                 <div class="header-right">
+                    <!-- Pomodoro mini ring (shown when focus session is active) -->
+                    <div class="focus-mini-ring hidden" id="focus-mini-ring" role="timer" aria-live="off" title="Focus session active — click to cancel">
+                        <svg class="focus-mini-svg" viewBox="0 0 36 36" width="36" height="36" aria-hidden="true">
+                            <circle class="focus-mini-bg" cx="18" cy="18" r="14"/>
+                            <circle class="focus-mini-progress" id="focus-mini-progress" cx="18" cy="18" r="14"/>
+                        </svg>
+                        <span class="focus-mini-time" id="focus-mini-time">25:00</span>
+                    </div>
                     <div class="search-box">
                         <input type="text" data-i18n-placeholder="searchPlaceholder" placeholder="Search..." class="search-input">
                         <span class="search-icon">🔍</span>
@@ -860,6 +868,19 @@
                         </div>
                     </div>
 
+                    <!-- Collections / Folders bar -->
+                    <div class="collections-bar" id="collections-bar">
+                        <div class="collections-scroll" id="collections-scroll">
+                            <button class="collection-pill active" data-group-id="all">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                All
+                            </button>
+                        </div>
+                        <button class="collection-add-btn" id="collection-add-btn" title="New Collection" aria-label="Create new collection">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
+                    </div>
+
                     <!-- Inline Add-Resource Panel (collapsible) -->
                     <div class="resource-add-panel" id="resource-add-panel">
                         <div class="resource-add-panel-inner">
@@ -916,6 +937,10 @@
                                     <button type="button" class="star-pick-btn" data-star="4">★</button>
                                     <button type="button" class="star-pick-btn" data-star="5">★</button>
                                 </div>
+                                <label class="resource-form-label">Collection <span class="form-hint">(optional)</span></label>
+                                <select id="res-group" class="resource-form-input resource-form-select" aria-label="Choose collection">
+                                    <option value="">No collection</option>
+                                </select>
                             </div>
                             <div class="resource-add-panel-footer">
                                 <button class="btn resource-panel-cancel" id="resource-panel-cancel">Cancel</button>
@@ -1022,6 +1047,16 @@
                     <div class="section-header">
                         <h2 data-i18n="navReflection">Reflection</h2>
                         <p data-i18n="reflectionSub">Document your learning journey and insights</p>
+                    </div>
+                    <!-- Weekly reflection prompt banner -->
+                    <div class="reflection-prompt-banner hidden" id="reflection-prompt-banner" role="alert">
+                        <span class="reflection-prompt-icon" aria-hidden="true">&#128161;</span>
+                        <div class="reflection-prompt-body">
+                            <p class="reflection-prompt-label">Weekly prompt</p>
+                            <p class="reflection-prompt-text" id="reflection-prompt-text"></p>
+                        </div>
+                        <button class="reflection-prompt-use" id="reflection-prompt-use">Use this prompt</button>
+                        <button class="reflection-prompt-skip" id="reflection-prompt-skip" aria-label="Dismiss prompt">&times;</button>
                     </div>
                     <div class="reflection-form-section">
                         <div class="reflection-form">
@@ -1207,6 +1242,45 @@
             <span class="mob-tab-badge" id="mob-badge-reflections" hidden></span>
         </button>
     </nav>
+
+    <!-- Collection create/edit dialog -->
+    <div class="collection-dialog-overlay hidden" id="collection-dialog-overlay" role="dialog" aria-modal="true" aria-labelledby="collection-dialog-title">
+        <div class="collection-dialog-panel">
+            <h3 id="collection-dialog-title">New Collection</h3>
+            <label for="collection-name-input">Name</label>
+            <input type="text" id="collection-name-input" class="collection-dialog-input" maxlength="40" placeholder="e.g. JavaScript, Design, UX…">
+            <label>Colour</label>
+            <div class="collection-colors" id="collection-colors">
+                <button class="collection-color-swatch active" data-color="#5B9FD4" style="background:#5B9FD4" aria-label="Blue"></button>
+                <button class="collection-color-swatch" data-color="#10b981" style="background:#10b981" aria-label="Green"></button>
+                <button class="collection-color-swatch" data-color="#f59e0b" style="background:#f59e0b" aria-label="Amber"></button>
+                <button class="collection-color-swatch" data-color="#ef4444" style="background:#ef4444" aria-label="Red"></button>
+                <button class="collection-color-swatch" data-color="#a855f7" style="background:#a855f7" aria-label="Purple"></button>
+                <button class="collection-color-swatch" data-color="#ec4899" style="background:#ec4899" aria-label="Pink"></button>
+                <button class="collection-color-swatch" data-color="#6366f1" style="background:#6366f1" aria-label="Indigo"></button>
+                <button class="collection-color-swatch" data-color="#64748b" style="background:#64748b" aria-label="Slate"></button>
+            </div>
+            <div class="collection-dialog-footer">
+                <button class="btn" id="collection-dialog-cancel">Cancel</button>
+                <button class="btn btn-primary" id="collection-dialog-save">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Goal detail drawer -->
+    <div class="goal-drawer-overlay hidden" id="goal-drawer-overlay" role="complementary">
+        <div class="goal-drawer" id="goal-drawer" aria-label="Goal details">
+            <div class="goal-drawer-header">
+                <div class="goal-drawer-title-wrap">
+                    <p class="goal-drawer-section-label">Goal Details</p>
+                    <h3 class="goal-drawer-title" id="goal-drawer-title"></h3>
+                </div>
+                <button class="goal-drawer-close" id="goal-drawer-close" aria-label="Close goal details">&times;</button>
+            </div>
+            <div class="goal-drawer-body" id="goal-drawer-body"></div>
+            <div class="goal-drawer-actions" id="goal-drawer-actions"></div>
+        </div>
+    </div>
 
     <!-- Command Palette -->
     <div class="cmd-overlay hidden" id="cmd-overlay" role="dialog" aria-modal="true" aria-label="Command Palette">

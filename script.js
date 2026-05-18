@@ -1029,16 +1029,83 @@ import Sortable from 'sortablejs';
                 pill.classList.add('active');
             });
 
-            // Goal item actions: delete, edit, save, cancel
+            // Goal item actions: delete, edit, save, cancel, milestones, details
             list?.addEventListener('click', (e) => {
-                const deleteBtn = e.target.closest('.goal-delete-btn');
-                const editBtn   = e.target.closest('.goal-edit-btn');
-                const saveBtn   = e.target.closest('.goal-save-btn');
-                const cancelBtn = e.target.closest('.goal-cancel-btn');
+                const deleteBtn   = e.target.closest('.goal-delete-btn');
+                const editBtn     = e.target.closest('.goal-edit-btn');
+                const saveBtn     = e.target.closest('.goal-save-btn');
+                const cancelBtn   = e.target.closest('.goal-cancel-btn');
+                const msToggle    = e.target.closest('.milestones-toggle-btn');
+                const msCb        = e.target.closest('.milestone-checkbox');
+                const msDelBtn    = e.target.closest('.milestone-delete-btn');
+                const msAddBtn    = e.target.closest('.milestone-add-btn');
+                const goalTextEl  = e.target.closest('.goal-text');
+
                 if (deleteBtn) this.delete(parseInt(deleteBtn.dataset.goalId));
                 if (editBtn)   this.edit(parseInt(editBtn.dataset.goalId));
                 if (saveBtn)   this._saveEdit(parseInt(saveBtn.dataset.goalId));
                 if (cancelBtn) this._cancelEdit(parseInt(cancelBtn.dataset.goalId));
+
+                if (msToggle) {
+                    const gId = msToggle.dataset.goalId;
+                    const body = list.querySelector(`.milestone-list-body[data-goal-id="${gId}"]`);
+                    if (body) {
+                        body.classList.toggle('open');
+                        msToggle.classList.toggle('open', body.classList.contains('open'));
+                        msToggle.setAttribute('aria-expanded', String(body.classList.contains('open')));
+                    }
+                    return;
+                }
+
+                if (msCb) {
+                    this._toggleMilestone(Number(msCb.dataset.goalId), msCb.dataset.milestoneId);
+                    return;
+                }
+
+                if (msDelBtn) {
+                    this._deleteMilestone(Number(msDelBtn.dataset.goalId), msDelBtn.dataset.milestoneId);
+                    return;
+                }
+
+                if (msAddBtn) {
+                    const gId = Number(msAddBtn.dataset.goalId);
+                    const inp = list.querySelector(`.milestone-add-input[data-goal-id="${gId}"]`);
+                    if (inp?.value.trim()) {
+                        const wasOpen = list.querySelector(`.milestone-list-body[data-goal-id="${gId}"]`)?.classList.contains('open');
+                        this._addMilestone(gId, inp.value.trim());
+                        inp.value = '';
+                        // Re-open the list after add
+                        if (wasOpen) {
+                            const newBody = list.querySelector(`.milestone-list-body[data-goal-id="${gId}"]`);
+                            if (newBody) { newBody.classList.add('open'); }
+                        }
+                    } else { inp?.focus(); }
+                    return;
+                }
+
+                if (goalTextEl && !e.target.closest('.goal-edit-btn') && !e.target.closest('.goal-delete-btn')) {
+                    const gId = Number(goalTextEl.dataset.goalId);
+                    if (!isNaN(gId)) GoalDetailDrawer.open(gId);
+                    return;
+                }
+            });
+
+            // Milestone add on Enter key
+            list?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && e.target.classList.contains('milestone-add-input')) {
+                    e.preventDefault();
+                    const gId = Number(e.target.dataset.goalId);
+                    if (e.target.value.trim()) {
+                        const wasOpen = list.querySelector(`.milestone-list-body[data-goal-id="${gId}"]`)?.classList.contains('open');
+                        this._addMilestone(gId, e.target.value.trim());
+                        e.target.value = '';
+                        if (wasOpen) {
+                            const newBody = list.querySelector(`.milestone-list-body[data-goal-id="${gId}"]`);
+                            if (newBody) newBody.classList.add('open');
+                        }
+                    }
+                    return;
+                }
             });
 
             // Keyboard shortcuts inside inline edit
@@ -1296,12 +1363,87 @@ import Sortable from 'sortablejs';
         _contentHtml(goal) {
             return `
                 <div class="goal-top-row">
-                    <p class="goal-text">${escapeHtml(goal.text)}</p>
+                    <p class="goal-text" data-goal-id="${goal.id}" style="cursor:pointer" title="Open details">${escapeHtml(goal.text)}</p>
                     ${this._tagHtml(goal.category)}
                     ${this._deadlineBadge(goal.deadline)}
                 </div>
                 <span class="goal-date">📅 ${goal.createdAt}</span>
+                ${this._milestonesHtml(goal)}
             `;
+        },
+
+        _milestonesHtml(goal) {
+            const ms = goal.milestones || [];
+            const done = ms.filter(m => m.done).length;
+            const pct  = ms.length ? Math.round(done / ms.length * 100) : 0;
+            const msListHtml = ms.map(m => `
+                <div class="milestone-item${m.done ? ' done' : ''}" data-milestone-id="${m.id}">
+                    <input type="checkbox" class="milestone-checkbox" ${m.done ? 'checked' : ''} data-goal-id="${goal.id}" data-milestone-id="${m.id}" aria-label="${escapeHtml(m.text)}">
+                    <span class="milestone-text">${escapeHtml(m.text)}</span>
+                    <button class="milestone-delete-btn" data-goal-id="${goal.id}" data-milestone-id="${m.id}" aria-label="Delete step">&times;</button>
+                </div>`).join('');
+            return `
+                <div class="goal-milestones" data-goal-id="${goal.id}">
+                    <div class="milestone-header-row">
+                        <button class="milestones-toggle-btn" data-goal-id="${goal.id}" aria-expanded="false">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+                            ${ms.length ? `${done}/${ms.length} steps` : 'Add steps'}
+                        </button>
+                        ${ms.length ? `
+                        <div class="milestone-progress-bar-wrap">
+                            <div class="milestone-progress-fill" style="width:${pct}%"></div>
+                        </div>
+                        <span class="milestone-progress-mini">${pct}%</span>` : ''}
+                    </div>
+                    <div class="milestone-list-body" data-goal-id="${goal.id}">
+                        ${msListHtml}
+                        <div class="milestone-add-row">
+                            <input type="text" class="milestone-add-input" placeholder="Add a step…" maxlength="80" data-goal-id="${goal.id}">
+                            <button class="milestone-add-btn" data-goal-id="${goal.id}">+ Add</button>
+                        </div>
+                    </div>
+                </div>`;
+        },
+
+        _addMilestone(goalId, text) {
+            const goal = state.goals.find(g => g.id === goalId);
+            if (!goal) return;
+            if (!goal.milestones) goal.milestones = [];
+            goal.milestones.push({ id: String(Date.now()), text, done: false });
+            this._save();
+            this._rerenderContent(goalId);
+        },
+
+        _toggleMilestone(goalId, milestoneId) {
+            const goal = state.goals.find(g => g.id === goalId);
+            if (!goal?.milestones) return;
+            const ms = goal.milestones.find(m => m.id === milestoneId);
+            if (ms) { ms.done = !ms.done; this._save(); this._rerenderContent(goalId); }
+        },
+
+        _deleteMilestone(goalId, milestoneId) {
+            const goal = state.goals.find(g => g.id === goalId);
+            if (!goal?.milestones) return;
+            goal.milestones = goal.milestones.filter(m => m.id !== milestoneId);
+            this._save();
+            this._rerenderContent(goalId);
+        },
+
+        _rerenderContent(goalId) {
+            // Partial DOM update: only replace goal-content without a full list re-render
+            const el = document.getElementById(`goal-${goalId}`);
+            const goal = state.goals.find(g => g.id === goalId);
+            if (!el || !goal) return;
+            // Preserve open state of milestone body
+            const wasOpen = el.querySelector('.milestone-list-body')?.classList.contains('open');
+            const contentEl = el.querySelector('.goal-content');
+            if (contentEl) contentEl.innerHTML = this._contentHtml(goal);
+            if (wasOpen) {
+                const body = el.querySelector('.milestone-list-body');
+                const toggle = el.querySelector('.milestones-toggle-btn');
+                if (body) { body.classList.add('open'); }
+                if (toggle) { toggle.classList.add('open'); toggle.setAttribute('aria-expanded', 'true'); }
+            }
         },
 
         _deadlineBadge(deadline) {
@@ -1452,6 +1594,9 @@ import Sortable from 'sortablejs';
         init() {
             const filterContainer = $('.filter-section');
             if (!filterContainer) return;
+
+            // Initialize resource groups (collections) first
+            ResourceGroups.init();
 
             // Load user-added resources from localStorage
             const saved = Store.get(this.STORE_KEY, []);
@@ -1713,6 +1858,7 @@ import Sortable from 'sortablejs';
             if (!title) { notify('Missing Title', 'Please enter a resource title'); return; }
 
             const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean).slice(0, 5) : [];
+            const groupId = $('#res-group')?.value || '';
             const isEdit = !!this._editingId;
 
             if (isEdit) {
@@ -1720,7 +1866,7 @@ import Sortable from 'sortablejs';
                 const list = Store.get(this.STORE_KEY, []);
                 const idx = list.findIndex(r => String(r.id) === this._editingId);
                 if (idx !== -1) {
-                    list[idx] = { ...list[idx], title, desc: desc || 'No description provided.', url: url || '#', type, category, tags, rating };
+                    list[idx] = { ...list[idx], title, desc: desc || 'No description provided.', url: url || '#', type, category, tags, rating, groupId: groupId || list[idx].groupId || '' };
                     Store.set(this.STORE_KEY, list);
 
                     // Remove old card and re-append
@@ -1749,6 +1895,7 @@ import Sortable from 'sortablejs';
                     category,
                     tags,
                     rating,
+                    groupId: groupId || '',
                     createdAt: new Date().toISOString()
                 };
 
@@ -1919,6 +2066,7 @@ import Sortable from 'sortablejs';
             card.dataset.category = r.category || 'development';
             card.dataset.tags = tagsArr.join(',').toLowerCase();
             card.dataset.id = r.id;
+            card.dataset.groupId = r.groupId || '';
             if (r.url && r.url !== '#') card.dataset.url = r.url;
 
             const cat = r.category || 'development';
@@ -1943,6 +2091,12 @@ import Sortable from 'sortablejs';
                     <div class="resource-badges-row">
                         <span class="resource-cat-badge resource-cat--${cat}">${catIcon} ${escapeHtml(catLabel)}</span>
                         ${tagsHtml ? tagsHtml : ''}
+                        ${(() => {
+                            if (!r.groupId) return '';
+                            const grp = ResourceGroups.getById(r.groupId);
+                            if (!grp) return '';
+                            return `<span class="resource-group-chip" style="background:${escapeHtml(grp.color)}22;color:${escapeHtml(grp.color)}"><span class="group-dot" style="background:${escapeHtml(grp.color)}"></span>${escapeHtml(grp.name)}</span>`;
+                        })()}
                     </div>
                 </div>
                 <a href="${escapeHtml(r.url || '#')}" target="_blank" rel="noopener" class="resource-link">
@@ -1955,10 +2109,11 @@ import Sortable from 'sortablejs';
 
         _applyFilters(typeOverride) {
             const activeFilter = typeOverride || document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
-            const activeCat = this._activeCat || 'all';
-            const cards = Array.from($$('.resource-card'));
-            const search = this._searchTerm;
-            const tag = this._activeTag;
+            const activeCat    = this._activeCat || 'all';
+            const activeGroup  = ResourceGroups._activeGroupId || 'all';
+            const cards        = Array.from($$('.resource-card'));
+            const search       = this._searchTerm;
+            const tag          = this._activeTag;
 
             cards.forEach(card => {
                 card.classList.remove('card-animate-in', 'card-out');
@@ -1972,11 +2127,12 @@ import Sortable from 'sortablejs';
             let showCount = 0;
             requestAnimationFrame(() => {
                 cards.forEach(card => {
-                    const typeMatch = activeFilter === 'all' || card.dataset.type === activeFilter;
-                    const catMatch = activeCat === 'all' || card.dataset.category === activeCat;
+                    const typeMatch   = activeFilter === 'all' || card.dataset.type === activeFilter;
+                    const catMatch    = activeCat === 'all' || card.dataset.category === activeCat;
+                    const groupMatch  = activeGroup === 'all' || card.dataset.groupId === activeGroup;
                     const searchMatch = !search || card.textContent.toLowerCase().includes(search);
-                    const tagMatch = !tag || (card.dataset.tags || '').toLowerCase().split(',').some(t => t.trim() === tag);
-                    const match = typeMatch && catMatch && searchMatch && tagMatch;
+                    const tagMatch    = !tag || (card.dataset.tags || '').toLowerCase().split(',').some(t => t.trim() === tag);
+                    const match = typeMatch && catMatch && groupMatch && searchMatch && tagMatch;
 
                     if (match) {
                         showCount++;
@@ -3709,6 +3865,7 @@ ${reflectionsHtml}
             CloudSync.load();
             AutoLogout.start();
             Onboarding.maybeShow();
+            RealtimeSync.init();
         },
 
         _updateAvatarUI(user) {
@@ -3751,6 +3908,7 @@ ${reflectionsHtml}
             if (syncBadge) syncBadge.hidden = true;
 
             Store._onWrite = null;
+            RealtimeSync.stop();
         }
     };
 
@@ -3942,6 +4100,9 @@ ${reflectionsHtml}
                 if (e.target === overlay) this.stop();
             });
 
+            // Mini ring in header — click to cancel
+            document.getElementById('focus-mini-ring')?.addEventListener('click', () => this.stop());
+
             this._loadSessionCount();
         },
 
@@ -3950,6 +4111,7 @@ ${reflectionsHtml}
             document.body.classList.add('focus-active');
             const overlay = document.getElementById('focus-overlay');
             if (overlay) overlay.classList.add('visible');
+            document.getElementById('focus-mini-ring')?.classList.remove('hidden');
             this._updateDisplay();
             this._timer = setInterval(() => this._tick(), 1000);
         },
@@ -3962,6 +4124,7 @@ ${reflectionsHtml}
             if (overlay) overlay.classList.remove('visible');
             const done = document.getElementById('focus-done');
             if (done) done.classList.remove('visible');
+            document.getElementById('focus-mini-ring')?.classList.add('hidden');
         },
 
         _tick() {
@@ -3978,8 +4141,9 @@ ${reflectionsHtml}
         _updateDisplay() {
             const min = Math.floor(this._remaining / 60);
             const sec = this._remaining % 60;
+            const timeStr = String(min).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
             const el = document.getElementById('focus-time');
-            if (el) el.textContent = String(min).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+            if (el) el.textContent = timeStr;
 
             const progress = document.getElementById('focus-ring-progress');
             if (progress) {
@@ -3987,6 +4151,16 @@ ${reflectionsHtml}
                 const circumference = 2 * Math.PI * 90;
                 progress.style.strokeDashoffset = circumference * (1 - pct);
             }
+
+            // Update header mini ring
+            const miniProgress = document.getElementById('focus-mini-progress');
+            const miniTime     = document.getElementById('focus-mini-time');
+            if (miniProgress) {
+                const miniCircumference = 2 * Math.PI * 14; // r=14 → ~87.96
+                const pct = this._remaining / this._duration;
+                miniProgress.style.strokeDashoffset = String(miniCircumference * (1 - pct));
+            }
+            if (miniTime) miniTime.textContent = timeStr;
         },
 
         _onComplete() {
@@ -4330,11 +4504,28 @@ ${reflectionsHtml}
     const CommandPalette = {
         _items: [],
         _active: -1,
+        _prevFocus: null,
 
         init() {
             const overlay = document.getElementById('cmd-overlay');
             overlay?.addEventListener('click', (e) => {
                 if (e.target === overlay) this.close();
+            });
+
+            // Focus trap: Tab wraps within the panel
+            overlay?.addEventListener('keydown', (e) => {
+                if (e.key !== 'Tab') return;
+                const focusable = Array.from(
+                    overlay.querySelectorAll('input, button:not([disabled]), [tabindex]:not([tabindex="-1"])')
+                ).filter(el => !el.closest('.hidden'));
+                if (focusable.length < 2) { e.preventDefault(); return; }
+                const first = focusable[0];
+                const last  = focusable[focusable.length - 1];
+                if (e.shiftKey) {
+                    if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+                } else {
+                    if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+                }
             });
 
             const input = document.getElementById('cmd-input');
@@ -4346,6 +4537,7 @@ ${reflectionsHtml}
             const overlay = document.getElementById('cmd-overlay');
             const input = document.getElementById('cmd-input');
             if (!overlay) return;
+            this._prevFocus = document.activeElement;
             overlay.classList.remove('hidden');
             if (input) { input.value = ''; input.focus(); }
             this._search('');
@@ -4354,6 +4546,8 @@ ${reflectionsHtml}
         close() {
             document.getElementById('cmd-overlay')?.classList.add('hidden');
             this._active = -1;
+            // Restore focus to whatever triggered the palette
+            setTimeout(() => this._prevFocus?.focus(), 50);
         },
 
         _getItems(query) {
@@ -4552,6 +4746,9 @@ ${reflectionsHtml}
         Onboarding.init();
         CommandPalette.init();
         NetworkStatus.init();
+        DeadlineNotifier.init();
+        ReflectionPrompts.init();
+        GoalDetailDrawer.init();
         ActivityChart.render();
         StreakCalendar.render();
 

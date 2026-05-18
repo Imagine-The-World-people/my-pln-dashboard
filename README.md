@@ -13,34 +13,32 @@ A personal **Professional Learning Network** dashboard for tracking goals, resou
 | Section | Highlights |
 |---------|-----------|
 | **Dashboard** | Stat cards with animated counters, progress ring, learning streak tracker, daily motivational quote, smart suggestions |
-| **Goals** | Add/complete/delete goals, **drag-and-drop reordering**, **deadline date picker** with overdue/soon/future badges, **search + status filter (All/Active/Done) + sort** (newest, deadline, A→Z, category), progress bar, inline edit, completion tracking |
-| **Resources** | Add/search/filter resources, **star ratings (1–5)**, type badges (YouTube, Blog, Podcast), category system, topic-colored tags, combined filtering |
+| **Goals** | Add/complete/delete goals, **drag-and-drop reordering**, **deadline date picker** with overdue/soon/future badges, **search + status filter** + sort, progress bar, inline edit, **milestone/step tracking** (collapsible per-goal step list with progress bar), **goal detail drawer** (open side panel with meta, milestones, linked notes) |
+| **Resources** | Add/search/filter resources, **star ratings (1–5)**, type/category filters, topic-colored tags, **Collections/Folders** (create colour-coded groups, filter by collection, assign resource to collection) |
 | **Notes** | Rich note cards with **pin to top**, **search filter**, drawing canvas, file attachments, inline edit, timestamps |
-| **Reflections** | Timeline layout with expand/collapse, color-coded question blocks, relative timestamps |
-| **Insights** | Analytics dashboard — **5 KPI cards** (goals, completed, notes, reflections, resources), **quick stats strip** (streak, best day, avg rating, overdue), goal progress bar, **goal category breakdown**, 7-day activity bar chart, GitHub-style streak calendar, top resource type, notes stats |
+| **Reflections** | Timeline layout with expand/collapse, color-coded question blocks, **weekly prompt banner** (auto-suggest a reflection prompt every Monday / 7 days) |
+| **Insights** | Analytics — 5 KPI cards, quick stats, goal progress bar, category breakdown, 7-day activity bar chart, GitHub-style streak calendar |
 
 ### General
 - 🌗 **Dark / Light theme** — sophisticated color palette; toggle with persistence
 - 🌐 **i18n** — Norwegian (default) and English
-- ☁️ **Cloud sync** — Supabase auth (email/password) with real-time data sync
+- ☁️ **Cloud sync** — Supabase auth (email/password) + **real-time cross-device sync** (Postgres CDC subscription; changes from other devices apply instantly)
 - 💾 **Offline-first** — localStorage fallback when not signed in
-- 📱 **Fully responsive** — **iOS-style mobile bottom tab bar** (fixed glass nav), **tablet icon-only sidebar** (72px with hover tooltips), fluid clamp() typography; 5 breakpoints: 1024px, 769–1023px (tablet), 768px (mobile), 600px, 360px
+- 📱 **Fully responsive** — iOS-style mobile bottom tab bar, tablet icon-only sidebar, fluid clamp() typography
 - 🔑 **Forgot password** — send reset link via Supabase email
-- 👤 **Profile management** — avatar dropdown with display name editor, avatar color picker, and change password — all saved to Supabase user metadata
-- ⌨️ **Keyboard shortcuts panel** — press `?` to show all shortcuts; `Alt+1–6` for sections, `Ctrl+K` for **command palette**
-- 🔍 **Command palette** (`Ctrl+K`) — fuzzy-search goals, notes, resources, and navigate to any section instantly
-- 🗑️ **Undo delete** — 5-second undo toast for all deletes (goals, notes, reflections, resources)
-- 📡 **Offline banner** — red status banner when network drops; dismisses and shows toast on reconnect
-- 🗂️ **Sidebar rail mode** — collapse sidebar to a 68px icon rail; tooltips on hover; state persisted; chevron toggle
-- ⏱️ **Focus session counter** — tracks completed 25-min pomodoro sessions, shown as a dashboard stat card
-- 🧭 **Onboarding tour** — 4-step welcome modal for new users (shown once)
-- 📲 **PWA** — installable as standalone app, offline caching via service worker
-- 🎨 **iOS-style Glassmorphism** — `blur(40px) saturate(200%)` glass tokens, vibrant radial-gradient body background, inner highlight (`inset 0 1px 0`) on every card, unified `--glass-*` variables across sidebar, header, cards, and modals
-- 🎯 **Focus mode** — 25-minute focus session timer
-- 📄 **PDF export** — generate a styled learning report
-- 📦 **Import / Export** — download or upload all data as JSON
-- ♿ **Accessible** — focus-visible outlines, `prefers-reduced-motion`, ARIA attributes
-- 🔔 **Toast notifications** — contextual feedback for all actions
+- 👤 **Profile management** — avatar dropdown with display name, avatar colour picker, change password
+- ⌨️ **Keyboard shortcuts** — `?` for shortcut panel, `Alt+1–6` for sections, `Ctrl+K` for command palette
+- 🔍 **Command palette** (`Ctrl+K`) — fuzzy-search goals, notes, resources, navigate sections; **full keyboard focus trap** (Tab wraps), **focus restored** on close
+- 🗑️ **Undo delete** — 5-second undo toast for all deletes
+- 📡 **Offline banner** — red status banner on network drop
+- 🗂️ **Sidebar rail mode** — collapse to 68px icon rail; state persisted
+- ⏱️ **Pomodoro focus timer** — 25-min timer with **header mini ring** (live countdown ring shown in header while session is active; click to cancel)
+- 🔔 **Smart deadline notifications** — browser `Notification` API alerts for overdue/due-soon goals (once per day, requests permission only when needed)
+- 🗃️ **Supabase Storage utility** — `StorageSync` module for uploading/deleting images in a `drawings` bucket (requires manual bucket creation)
+- 🧭 **Onboarding tour** — 4-step welcome modal for new users
+- 📲 **PWA** — installable, offline caching via service worker
+- 🎨 **iOS-style Glassmorphism** — blur/saturate glass tokens, vibrant radial-gradient background
+- 🧪 **Playwright E2E tests** — `tests/app.spec.js` covers goals CRUD + undo, milestones, notes, resources, collections, command palette, sidebar, reflection prompt
 
 ---
 
@@ -79,6 +77,9 @@ PLN/
 ├── responsive.css      # Mobile/tablet media queries
 ├── script.js           # App logic (single IIFE)
 ├── supabase-config.js  # Supabase client setup
+├── playwright.config.js# Playwright E2E test config
+├── tests/
+│   └── app.spec.js     # E2E tests (goals, notes, resources, cmd palette, …)
 └── README.md
 ```
 
@@ -105,8 +106,10 @@ PLN/
 | Markup | HTML5 |
 | Styling | CSS3 (custom properties, `backdrop-filter`, CSS Grid, keyframe animations) |
 | Logic | Vanilla JavaScript (ES6+ IIFE, no framework) |
-| Font | [Poppins](https://fonts.google.com/specimen/Poppins) via Google Fonts |
-| Backend | [Supabase](https://supabase.com) v2 (auth + database) |
+| Font | [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans) via Google Fonts |
+| Backend | [Supabase](https://supabase.com) v2 (auth + database + real-time + storage) |
+| Testing | [Playwright](https://playwright.dev) (E2E, Chromium) |
+| Build | [Vite](https://vitejs.dev) |
 
 ---
 
@@ -118,6 +121,12 @@ All JS lives inside a single **IIFE** (`PLNDashboard`) with isolated modules:
 |--------|---------------|
 | `Sidebar` | Responsive sidebar toggle + overlay |
 | `Theme` | Dark/light mode persistence |
+| `ResourceGroups` | Resource collections/folders CRUD, filter bar, colour picker dialog |
+| `GoalDetailDrawer` | Side-panel with goal meta, milestones, linked notes, quick actions |
+| `DeadlineNotifier` | Browser Notification API for overdue/due-soon goals |
+| `ReflectionPrompts` | Weekly rotating reflection prompt banner |
+| `RealtimeSync` | Supabase Postgres CDC subscription for cross-device updates |
+| `StorageSync` | Supabase Storage helpers (upload/delete images in `drawings` bucket) |
 | `Dashboard` | Stat rendering, countUp animations, learning streak, smart suggestions |
 | `Goals` | CRUD, progress ring, completion tracking |
 | `Resources` | CRUD, search, type/category/tag combined filtering, active filter chips |
