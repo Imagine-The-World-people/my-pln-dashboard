@@ -185,9 +185,9 @@ import Sortable from 'sortablejs';
             // Show skeleton loader during transition
             if (skeleton) skeleton.classList.add('visible');
 
-            // Exit current section with directional leave
+            // Exit current section
             if (currentSection) {
-                currentSection.classList.add(goingForward ? 'leave-left' : 'leave-right');
+                currentSection.classList.add('leave-left');
                 currentSection.classList.remove('active');
             }
 
@@ -206,17 +206,11 @@ import Sortable from 'sortablejs';
                 // Hide skeleton
                 if (skeleton) skeleton.classList.remove('visible');
 
-                // Enter new section with directional enter class
+                // Enter new section
                 const section = document.getElementById(sectionId);
                 if (section) {
-                    section.classList.add(goingForward ? 'enter-right' : 'enter-left');
                     section.classList.add('active');
-                    // Slight delay before staggering cards so the section slide is visible first
-                    setTimeout(() => Navigation._staggerCards(section), 80);
-                    // Remove direction class after animation ends so it doesn't interfere later
-                    section.addEventListener('animationend', () => {
-                        section.classList.remove('enter-right', 'enter-left');
-                    }, { once: true });
+                    Navigation._staggerCards(section);
                 }
 
                 // Animate page title in
@@ -235,7 +229,7 @@ import Sortable from 'sortablejs';
 
                 const container = $('.sections-container');
                 if (container) container.scrollTop = 0;
-            }, 200);
+            }, 160);
         },
 
         updateBadges() {            const goals  = document.getElementById('badge-goals');
@@ -295,9 +289,8 @@ import Sortable from 'sortablejs';
             ].join(',');
             const cards = Array.from(section.querySelectorAll(sel));
             cards.forEach((card, i) => {
-                // Ease-in stagger: early cards appear fast, later ones slow down
                 const idx = Math.min(i, 10);
-                const delay = Math.round(idx * 45 + (idx * idx * 1.5)) + 30;
+                const delay = Math.round(idx * 30 + (idx * idx * 1.2)) + 20;
                 card.style.setProperty('--card-delay', `${delay}ms`);
                 card.classList.remove('card-animate-in');
                 void card.offsetWidth; // force reflow so re-triggering works

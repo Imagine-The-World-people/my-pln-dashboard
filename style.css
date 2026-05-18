@@ -1510,116 +1510,51 @@ html[data-theme="light"] .goals-sort-select {
     display: none;
 }
 
-/* Entry: direction set by JS class */
+/* Section enter — single clean fade-up, no directional slide */
 .content-section.active {
     display: block;
-    animation: enterFromRight 0.42s var(--ease-smooth) forwards;
+    animation: sectionFadeIn 0.24s ease-out forwards;
 }
 
-.content-section.active.enter-left {
-    animation: enterFromLeft 0.42s var(--ease-smooth) forwards;
-}
-
+/* enter-left / enter-right kept for JS compat but use same animation */
+.content-section.active.enter-left,
 .content-section.active.enter-right {
-    animation: enterFromRight 0.42s var(--ease-smooth) forwards;
+    animation: sectionFadeIn 0.24s ease-out forwards;
 }
 
-/* Exit: direction set by JS class */
-.content-section.leave-left {
-    display: block;
-    animation: leaveToLeft 0.25s var(--ease-in-out) forwards;
-    pointer-events: none;
-}
-
+/* Section exit — instant opacity fade, no movement */
+.content-section.leave-left,
 .content-section.leave-right {
     display: block;
-    animation: leaveToRight 0.25s var(--ease-in-out) forwards;
+    animation: sectionFadeOut 0.16s ease-in forwards;
     pointer-events: none;
 }
 
-/* Children stagger on enter */
-.content-section.active > * {
-    animation: childSlideUp 0.5s var(--ease-smooth) both;
+@keyframes sectionFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-.content-section.active > *:nth-child(1) { animation-delay: 0.03s; }
-.content-section.active > *:nth-child(2) { animation-delay: 0.07s; }
-.content-section.active > *:nth-child(3) { animation-delay: 0.12s; }
-.content-section.active > *:nth-child(4) { animation-delay: 0.18s; }
-.content-section.active > *:nth-child(5) { animation-delay: 0.24s; }
-.content-section.active > *:nth-child(6) { animation-delay: 0.30s; }
-.content-section.active > *:nth-child(7) { animation-delay: 0.36s; }
-.content-section.active > *:nth-child(8) { animation-delay: 0.42s; }
-
-@keyframes enterFromRight {
-    from { opacity: 0; transform: translateX(32px) scale(0.98); }
-    to   { opacity: 1; transform: translateX(0) scale(1); }
-}
-
-@keyframes enterFromLeft {
-    from { opacity: 0; transform: translateX(-32px) scale(0.98); }
-    to   { opacity: 1; transform: translateX(0) scale(1); }
-}
-
-@keyframes leaveToLeft {
-    from { opacity: 1; transform: translateX(0) scale(1); }
-    to   { opacity: 0; transform: translateX(-28px) scale(0.98); }
-}
-
-@keyframes leaveToRight {
-    from { opacity: 1; transform: translateX(0) scale(1); }
-    to   { opacity: 0; transform: translateX(28px) scale(0.98); }
-}
-
-@keyframes childSlideUp {
-    from {
-        opacity: 0;
-        transform: translateY(18px) scale(0.97);
-    }
-    60% {
-        opacity: 1;
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+@keyframes sectionFadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; }
 }
 
 /* ---- Individual card reveal (JS-driven stagger on section enter) ---- */
 @keyframes cardReveal {
     from {
         opacity: 0;
-        transform: translateY(20px) scale(0.96);
-    }
-    50% {
-        opacity: 1;
+        transform: translateY(10px);
     }
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateY(0);
     }
 }
 
 .card-animate-in {
-    animation: cardReveal 0.52s var(--ease-smooth) both;
+    animation: cardReveal 0.30s ease-out both;
     animation-delay: var(--card-delay, 0ms);
-}
-
-/*
- * Grid wrapper elements are direct children of .content-section.active so they
- * normally pick up childSlideUp. Override that so only the INDIVIDUAL cards
- * inside animate (via JS .card-animate-in stagger) instead of the whole grid.
- */
-.content-section.active .dashboard-grid,
-.content-section.active .summary-grid,
-.content-section.active .dashboard-charts,
-.content-section.active .goals-list,
-.content-section.active .notes-list,
-.content-section.active .reflections-list,
-.content-section.active .resources-grid {
-    animation: none;
-    opacity: 1;
-    transform: none;
 }
 
 @keyframes fadeIn {
