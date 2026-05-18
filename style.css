@@ -3145,6 +3145,14 @@ html[data-theme="light"] .goal-item {
     box-shadow: var(--glass-highlight), var(--shadow-sm);
 }
 
+.sortable-ghost { opacity: 0.4; } 
+.sortable-drag { cursor: grabbing !important; }
+
+/* DISABLE CSS TRANSITIONS DURING SORTABLE DRAG TO PREVENT CONFLICTS AND LAG */
+.sortable-ghost, .sortable-drag, .goal-item.sortable-ghost, .goal-item.sortable-drag {
+    transition: none !important;
+}
+
 /* Only the newest item slides in */
 .goal-item.new-item {
     animation: slideInGoal 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -8343,5 +8351,6 @@ html[data-theme="light"] .resource-card {
     box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.9);
 }
 
-. s o r t a b l e - g h o s t   {   o p a c i t y :   0 . 4 ;   }   . s o r t a b l e - d r a g   {   c u r s o r :   g r a b b i n g   ! i m p o r t a n t ;   }  
+. s o r t a b l e - g h o s t   {   o p a c i t y :   0 . 4 ;   }   . s o r t a b l e - d r a g   {   c u r s o r :   g r a b b i n g   ! i m p o r t a n t ;   } 
+ 
  

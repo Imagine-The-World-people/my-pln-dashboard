@@ -1139,6 +1139,8 @@ import Sortable from 'sortablejs';
                         
                         state.goals = newGoals;
                         this._save();
+                        // Force immediate sync to Supabase so it does not get overwritten by premature reloads
+                        if (typeof CloudSync !== 'undefined') CloudSync.scheduleSave(true);
                     }
                 });
             }
@@ -3153,9 +3155,13 @@ ${reflectionsHtml}
     const CloudSync = {
         _saveTimer: null,
 
-        scheduleSave() {
+        scheduleSave(immediate = false) {
             clearTimeout(this._saveTimer);
-            this._saveTimer = setTimeout(() => this._save(), 1500);
+            if (immediate) {
+                this._save();
+            } else {
+                this._saveTimer = setTimeout(() => this._save(), 1500);
+            }
         },
 
         async _save() {
