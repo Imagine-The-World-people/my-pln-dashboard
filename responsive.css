@@ -76,8 +76,9 @@ button, a, [role="button"], label {
 @media (max-width: 520px) {
     .login-overlay {
         padding: 16px;
-        align-items: flex-start;
         padding-top: clamp(20px, 8vw, 60px);
+        padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+        align-items: flex-start;
     }
 
     .login-shell {
@@ -110,6 +111,39 @@ button, a, [role="button"], label {
 
     .btn-register {
         padding: 13px 20px;
+        font-size: 14px;
+    }
+}
+
+/* =============================================
+   LOGIN: VERY SMALL MOBILE (≤ 360px)
+   ============================================= */
+@media (max-width: 360px) {
+    .login-card {
+        padding: 28px 18px;
+    }
+
+    .login-logo-wrap {
+        width: 48px;
+        height: 48px;
+    }
+
+    .login-logo-icon { font-size: 22px; }
+
+    .login-title { font-size: 18px; }
+
+    .login-subtitle {
+        font-size: 12px;
+    }
+
+    .magic-link-input {
+        padding: 12px 14px;
+        font-size: 16px;
+    }
+
+    .btn-magic-link,
+    .btn-register {
+        padding: 12px 14px;
         font-size: 14px;
     }
 }

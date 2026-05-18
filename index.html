@@ -2,7 +2,7 @@
 <html lang="no">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Kompass</title>
     <meta name="description" content="Din personlige læringsapp — sett mål, ta notater og følg veksten din">
     <meta name="theme-color" content="#07091a">
@@ -61,38 +61,38 @@
                 <div class="login-hero-inner">
                     <div class="login-hero-logo">🧭</div>
                     <h2 class="login-hero-title">Kompass</h2>
-                    <p class="login-hero-tagline">Din personlige læringsapp — sett mål, bygg vaner og se veksten din over tid.</p>
+                    <p class="login-hero-tagline" data-i18n="loginHeroTagline">Din personlige læringsapp — sett mål, bygg vaner og se veksten din over tid.</p>
                     <ul class="login-features">
                         <li class="login-feature">
                             <span class="login-feature-icon">🎯</span>
                             <div>
-                                <strong>Sett læringsmål</strong>
-                                <span>Følg fremgangen og feir milepæler</span>
+                                <strong data-i18n="loginFeature1Title">Sett læringsmål</strong>
+                                <span data-i18n="loginFeature1Sub">Følg fremgangen og feir milepæler</span>
                             </div>
                         </li>
                         <li class="login-feature">
                             <span class="login-feature-icon">📝</span>
                             <div>
-                                <strong>Ta smarte notater</strong>
-                                <span>Med tegning, vedlegg og tidslinje</span>
+                                <strong data-i18n="loginFeature2Title">Ta smarte notater</strong>
+                                <span data-i18n="loginFeature2Sub">Med tegning, vedlegg og tidslinje</span>
                             </div>
                         </li>
                         <li class="login-feature">
                             <span class="login-feature-icon">📊</span>
                             <div>
-                                <strong>Se innsikt og statistikk</strong>
-                                <span>Visualiser læringsreisen din</span>
+                                <strong data-i18n="loginFeature3Title">Se innsikt og statistikk</strong>
+                                <span data-i18n="loginFeature3Sub">Visualiser læringsreisen din</span>
                             </div>
                         </li>
                         <li class="login-feature">
                             <span class="login-feature-icon">☁️</span>
                             <div>
-                                <strong>Synkroniser overalt</strong>
-                                <span>Tilgjengelig på alle enheter, alltid</span>
+                                <strong data-i18n="loginFeature4Title">Synkroniser overalt</strong>
+                                <span data-i18n="loginFeature4Sub">Tilgjengelig på alle enheter, alltid</span>
                             </div>
                         </li>
                     </ul>
-                    <div class="login-hero-badge">✦ Gratis å bruke</div>
+                    <div class="login-hero-badge" data-i18n="loginHeroBadge">✦ Gratis å bruke</div>
                 </div>
             </div>
 
@@ -104,45 +104,43 @@
                         <span class="login-logo-icon">🧭</span>
                     </div>
                     <h1 class="login-title">Kompass</h1>
-                    <p class="login-subtitle">Kompass hjelper deg å holde oversikt over det du lærer — og hvor du er på vei</p>
+                    <p class="login-subtitle" data-i18n="loginMobileSubtitle">Kompass hjelper deg å holde oversikt over det du lærer — og hvor du er på vei</p>
                 </div>
 
                 <div class="login-form-header">
-                    <h2 class="login-form-title">Velkommen tilbake</h2>
-                    <p class="login-form-subtitle">Velkommen tilbake — fortsett der du slapp</p>
+                    <h2 class="login-form-title" data-i18n="loginFormTitle">Velkommen tilbake</h2>
+                    <p class="login-form-subtitle" data-i18n="loginFormSubtitle">Logg inn og fortsett der du slapp</p>
                 </div>
 
                 <!-- Auth form -->
                 <form class="auth-form" id="auth-form" novalidate>
                     <div class="auth-field">
-                        <label class="auth-label" for="auth-email">E-postadresse</label>
-                        <input type="email" id="auth-email" class="magic-link-input" placeholder="deg@eksempel.no" autocomplete="email" required />
+                        <label class="auth-label" for="auth-email" data-i18n="loginEmailLabel">E-postadresse</label>
+                        <input type="email" id="auth-email" class="magic-link-input" placeholder="deg@eksempel.no" data-i18n-placeholder="loginEmailPlaceholder" autocomplete="email" required />
                     </div>
                     <div class="auth-field">
-                        <label class="auth-label" for="auth-password">Passord</label>
-                        <input type="password" id="auth-password" class="magic-link-input" placeholder="Skriv inn passordet ditt" autocomplete="current-password" aria-label="Password" required />
+                        <label class="auth-label" for="auth-password" data-i18n="loginPasswordLabel">Passord</label>
+                        <input type="password" id="auth-password" class="magic-link-input" placeholder="Skriv inn passordet ditt" data-i18n-placeholder="loginPwPlaceholder" autocomplete="current-password" aria-label="Password" required />
                     </div>
 
                     <div class="forgot-pw-row">
-                        <button type="button" class="forgot-pw-link" id="forgot-pw-link">Glemt passord?</button>
+                        <button type="button" class="forgot-pw-link" id="forgot-pw-link" data-i18n="loginForgotPw">Glemt passord?</button>
                     </div>
                     <button type="button" class="btn-magic-link" id="btn-signin">
-                        <span>Logg inn</span>
+                        <span data-i18n="loginSignInBtn">Logg inn</span>
                         <span class="btn-signin-icon">→</span>
                     </button>
                 </form>
 
                 <!-- Divider -->
                 <div class="auth-divider">
-                    <span>Ny bruker?</span>
+                    <span data-i18n="loginDividerNew">Ny bruker?</span>
                 </div>
 
                 <!-- Register section -->
                 <div class="auth-register-section">
-                    <p class="auth-register-hint">Ingen konto ennå? Det tar under ett minutt og er helt gratis.</p>
-                    <button type="button" class="btn-register" id="btn-register">
-                        ✦ Opprett gratis konto
-                    </button>
+                    <p class="auth-register-hint" data-i18n="loginRegisterHint">Ingen konto ennå? Det tar under ett minutt og er helt gratis.</p>
+                    <button type="button" class="btn-register" id="btn-register" data-i18n="loginRegisterBtn">✦ Opprett gratis konto</button>
                 </div>
 
                 <p class="login-note" id="auth-note"></p>
@@ -162,20 +160,20 @@
             <button class="reg-modal-close" id="forgot-pw-close" aria-label="Lukk">&times;</button>
             <div class="reg-modal-header">
                 <div class="reg-modal-icon">🔑</div>
-                <h2 class="reg-modal-title" id="forgot-pw-title">Glemt passord?</h2>
-                <p class="reg-modal-subtitle">Skriv inn e-posten din — vi sender deg en tilbakestillingslenke</p>
+                <h2 class="reg-modal-title" id="forgot-pw-title" data-i18n="forgotPwTitle">Glemt passord?</h2>
+                <p class="reg-modal-subtitle" data-i18n="forgotPwSubtitle">Skriv inn e-posten din — vi sender deg en tilbakestillingslenke</p>
             </div>
             <form class="reg-form" id="forgot-pw-form" novalidate>
                 <div class="auth-field">
-                    <label class="auth-label" for="forgot-pw-email">E-postadresse</label>
-                    <input type="email" id="forgot-pw-email" class="magic-link-input" placeholder="deg@eksempel.no" autocomplete="email" required />
+                    <label class="auth-label" for="forgot-pw-email" data-i18n="forgotPwEmailLabel">E-postadresse</label>
+                    <input type="email" id="forgot-pw-email" class="magic-link-input" placeholder="deg@eksempel.no" data-i18n-placeholder="forgotPwEmailPh" autocomplete="email" required />
                 </div>
                 <button type="button" class="btn-magic-link" id="btn-forgot-pw-submit">
-                    <span>Send tilbakestillingslenke</span>
+                    <span data-i18n="forgotPwSubmitBtn">Send tilbakestillingslenke</span>
                     <span class="btn-signin-icon">→</span>
                 </button>
             </form>
-            <p class="reg-modal-footer">Husket du det? <button type="button" class="reg-back-link" id="forgot-pw-back">Logg inn</button></p>
+            <p class="reg-modal-footer"><span data-i18n="forgotPwFooter">Husket du det?</span> <button type="button" class="reg-back-link" id="forgot-pw-back" data-i18n="forgotPwBack">Logg inn</button></p>
             <p class="login-note" id="forgot-pw-note"></p>
         </div>
     </div>
@@ -232,19 +230,19 @@
 
             <div class="reg-modal-header">
                 <div class="reg-modal-icon">🚀</div>
-                <h2 class="reg-modal-title" id="reg-modal-title">Opprett gratis konto</h2>
-                <p class="reg-modal-subtitle">Gratis for alltid — kom i gang på under ett minutt</p>
+                <h2 class="reg-modal-title" id="reg-modal-title" data-i18n="regTitle">Opprett gratis konto</h2>
+                <p class="reg-modal-subtitle" data-i18n="regSubtitle">Gratis for alltid — kom i gang på under ett minutt</p>
             </div>
 
             <form class="reg-form" id="reg-form" novalidate>
                 <div class="auth-field">
-                    <label class="auth-label" for="reg-email">E-postadresse</label>
-                    <input type="email" id="reg-email" class="magic-link-input" placeholder="deg@eksempel.no" autocomplete="email" required />
+                    <label class="auth-label" for="reg-email" data-i18n="regEmailLabel">E-postadresse</label>
+                    <input type="email" id="reg-email" class="magic-link-input" placeholder="deg@eksempel.no" data-i18n-placeholder="regEmailPh" autocomplete="email" required />
                 </div>
 
                 <div class="auth-field">
-                    <label class="auth-label" for="reg-password">Passord</label>
-                    <input type="password" id="reg-password" class="magic-link-input" placeholder="Minst 12 tegn" autocomplete="new-password" required />
+                    <label class="auth-label" for="reg-password" data-i18n="regPasswordLabel">Passord</label>
+                    <input type="password" id="reg-password" class="magic-link-input" placeholder="Minst 12 tegn" data-i18n-placeholder="regPwPh" autocomplete="new-password" required />
                     <!-- Strength bar -->
                     <div class="pw-strength" id="pw-strength" aria-live="polite">
                         <div class="pw-strength-bars">
@@ -256,26 +254,26 @@
                         <span class="pw-strength-label" id="pw-strength-label"></span>
                     </div>
                     <ul class="pw-hints" id="pw-hints">
-                        <li class="pw-hint" data-rule="length">Minst 12 tegn</li>
-                        <li class="pw-hint" data-rule="upper">Stor og liten bokstav</li>
-                        <li class="pw-hint" data-rule="number">Minst ett tall</li>
-                        <li class="pw-hint" data-rule="special">Minst ett spesialtegn (!@#…)</li>
+                        <li class="pw-hint" data-rule="length" data-i18n="pwHintLength">Minst 12 tegn</li>
+                        <li class="pw-hint" data-rule="upper" data-i18n="pwHintUpper">Stor og liten bokstav</li>
+                        <li class="pw-hint" data-rule="number" data-i18n="pwHintNumber">Minst ett tall</li>
+                        <li class="pw-hint" data-rule="special" data-i18n="pwHintSpecial">Minst ett spesialtegn (!@#…)</li>
                     </ul>
                 </div>
 
                 <div class="auth-field">
-                    <label class="auth-label" for="reg-password2">Bekreft passord</label>
-                    <input type="password" id="reg-password2" class="magic-link-input" placeholder="Skriv passordet på nytt" autocomplete="new-password" required />
+                    <label class="auth-label" for="reg-password2" data-i18n="regConfirmLabel">Bekreft passord</label>
+                    <input type="password" id="reg-password2" class="magic-link-input" placeholder="Skriv passordet på nytt" data-i18n-placeholder="regConfirmPh" autocomplete="new-password" required />
                     <span class="pw-match-msg" id="pw-match-msg"></span>
                 </div>
 
                 <button type="button" class="btn-magic-link" id="btn-reg-submit">
-                    <span>Opprett konto</span>
+                    <span data-i18n="regSubmitBtn">Opprett konto</span>
                     <span class="btn-signin-icon">→</span>
                 </button>
             </form>
 
-            <p class="reg-modal-footer">Har du allerede en konto? <button type="button" class="reg-back-link" id="reg-back-link">Logg inn</button></p>
+            <p class="reg-modal-footer"><span data-i18n="regFooter">Har du allerede en konto?</span> <button type="button" class="reg-back-link" id="reg-back-link" data-i18n="regBack">Logg inn</button></p>
             <p class="login-note" id="reg-note"></p>
         </div>
     </div>

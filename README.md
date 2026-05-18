@@ -21,10 +21,10 @@ A personal **Professional Learning Network** dashboard for tracking goals, resou
 
 ### General
 - 🌗 **Dark / Light theme** — sophisticated color palette; toggle with persistence
-- 🌐 **i18n** — Norwegian (default) and English
+- 🌐 **i18n** — Norwegian (default) and English; **full login/modal translation** — login hero, feature list, sign-in form, forgot-password and registration modals all translated via `data-i18n` attributes
 - ☁️ **Cloud sync** — Supabase auth (email/password) + **real-time cross-device sync** (Postgres CDC subscription; changes from other devices apply instantly)
 - 💾 **Offline-first** — localStorage fallback when not signed in
-- 📱 **Fully responsive** — iOS-style mobile bottom tab bar, tablet icon-only sidebar, fluid clamp() typography
+- 📱 **Fully responsive** — iOS-style mobile bottom tab bar, tablet icon-only sidebar, fluid clamp() typography, safe-area insets for notched phones, dedicated ≤360px micro breakpoints for login and app shell
 - 🔑 **Forgot password** — send reset link via Supabase email
 - 👤 **Profile management** — avatar dropdown with display name, avatar colour picker, change password
 - ⌨️ **Keyboard shortcuts** — `?` for shortcut panel, `Alt+1–6` for sections, `Ctrl+K` for command palette
