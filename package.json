@@ -1,0 +1,25 @@
+{
+  "name": "pln",
+  "version": "1.0.0",
+  "description": "A personal **Professional Learning Network** dashboard for tracking goals, resources, notes, reflections, and learning analytics — built with vanilla HTML, CSS, and JavaScript.",
+  "main": "script.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Imagine-The-World-people/my-pln-dashboard.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Imagine-The-World-people/my-pln-dashboard/issues"
+  },
+  "homepage": "https://github.com/Imagine-The-World-people/my-pln-dashboard#readme",
+  "devDependencies": {
+    "vite": "^8.0.13"
+  }
+}

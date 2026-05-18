@@ -2,12 +2,11 @@
 // Kompass – Main Application
 // =============================================
 
-(function PLNDashboard() {
-    'use strict';
+'use strict';
 
-    // =========================================
-    // Utilities
-    // =========================================
+// =========================================
+// Utilities
+// =========================================
 
     const $ = (sel, root = document) => root.querySelector(sel);
     const $$ = (sel, root = document) => root.querySelectorAll(sel);
@@ -4101,5 +4100,3 @@ ${reflectionsHtml}
             if (initial) Navigation._staggerCards(initial);
         }, 250);
     });
-
-})();
