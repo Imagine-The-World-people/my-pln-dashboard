@@ -1010,6 +1010,9 @@
                             </div>
                         </aside>
 
+                        <!-- Left resize handle -->
+                        <div class="notes-resize-handle" id="notes-resize-left" title="Drag to resize · Double-click to collapse"></div>
+
                         <!-- ── Note page view ── -->
                         <div class="notes-page-view" id="notes-page-view">
 
@@ -1036,6 +1039,9 @@
                                     <span class="notes-breadcrumb">My Notebook</span>
                                     <div class="notes-page-actions">
                                         <span class="notes-autosave" id="notes-autosave"></span>
+                                        <button class="page-action-btn" id="note-toggle-panel" title="Toggle outline panel">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+                                        </button>
                                         <button class="page-action-btn" id="note-pin-btn" title="Pin page">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>
                                         </button>
@@ -1200,6 +1206,35 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Right resize handle -->
+                        <div class="notes-resize-handle notes-resize-handle--right" id="notes-resize-right" title="Drag to resize · Double-click to collapse"></div>
+
+                        <!-- ── Right sidebar: Outline + Page Info ── -->
+                        <aside class="notes-right-sidebar panel-hidden" id="notes-right-sidebar">
+                            <div class="notes-right-section">
+                                <div class="notes-right-section-header">
+                                    <span class="notes-right-section-title">OUTLINE</span>
+                                </div>
+                                <div class="notes-outline-list" id="notes-outline-list">
+                                    <span class="notes-outline-empty">No headings yet</span>
+                                </div>
+                            </div>
+                            <div class="notes-right-section">
+                                <div class="notes-right-section-header">
+                                    <span class="notes-right-section-title">PAGE INFO</span>
+                                </div>
+                                <div class="notes-page-info-grid">
+                                    <span class="notes-info-label">Words</span>
+                                    <span class="notes-info-value" id="notes-info-words">0</span>
+                                    <span class="notes-info-label">Characters</span>
+                                    <span class="notes-info-value" id="notes-info-chars">0</span>
+                                    <span class="notes-info-label">Reading time</span>
+                                    <span class="notes-info-value" id="notes-info-read-time">1 min</span>
+                                </div>
+                            </div>
+                        </aside>
+
                     </div>
                 </section>
 

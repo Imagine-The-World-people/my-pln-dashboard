@@ -38,7 +38,7 @@ It is a fully offline-capable web app (PWA) that a learner installs on their pho
 | **Dashboard** | See all your stats at a glance — goals, notes, streak, activity chart |
 | **Goals** | Add, complete, reorder (drag & drop), set deadlines, track milestones |
 | **Resources** | Collect links and books, rate them, organize into colour-coded collections. Detail modal is fully responsive (mobile bottom-sheet). Add panel scrolls internally. Cards clamp descriptions to 3 lines for a uniform grid. |
-| **Notes** | OneNote-like full-page editor — ribbon toolbar (bold, italic, underline, strikethrough, font size, text colour, highlight, H1/H2/H3, alignment, indent/outdent, bullet/numbered/checklist, links, HR, code block), pin notes, search, draw with a stylus or finger. Fully themed in the ocean blue design system. |
+| **Notes** | OneNote-like full-page editor — ribbon toolbar (bold, italic, underline, strikethrough, font size, text colour, highlight, H1/H2/H3, alignment, indent/outdent, bullet/numbered/checklist, links, HR, code block), pin notes, search, draw with a stylus or finger. Resizable left/right sidebars (drag handle or double-click to collapse). Right sidebar shows live Outline (click heading to scroll) and Page Info (words, characters, reading time). Fully themed in the ocean blue design system. |
 | **Reflections** | Log reflections in a timeline, get weekly writing prompts |
 | **Insights** | Analytics — streak calendar, category breakdown, activity chart |
 

@@ -2279,6 +2279,7 @@ import Sortable from 'sortablejs';
         init() {
             state.notes = Store.get(this.STORE_KEY, []);
             this._bindEvents();
+            this._initResizeHandles();
             this._initDrawing();
             this.renderList();
             this._syncDashboard();
@@ -2364,6 +2365,19 @@ import Sortable from 'sortablejs';
             // Enter full-page mode (sidebar slides away)
             document.getElementById('notes-app')?.classList.add('page-open');
 
+            // Show right sidebar and populate panels
+            const rSidebar = document.getElementById('notes-right-sidebar');
+            if (rSidebar) {
+                rSidebar.classList.remove('panel-hidden');
+                if (!rSidebar.classList.contains('collapsed')) {
+                    document.getElementById('note-toggle-panel')?.classList.add('panel-active');
+                }
+            }
+            requestAnimationFrame(() => {
+                this._updateOutline();
+                this._updatePageInfo();
+            });
+
             // Scroll page content to top
             const content = $('#notes-page-content');
             if (content) content.scrollTop = 0;
@@ -2394,6 +2408,8 @@ import Sortable from 'sortablejs';
             const body = $('#notes-rich-body');
             body?.addEventListener('input', () => {
                 this._updateWordCount();
+                this._updateOutline();
+                this._updatePageInfo();
                 this._scheduleAutosave();
             });
             body?.addEventListener('keyup', () => this._updateFormatBar());
@@ -2507,6 +2523,15 @@ import Sortable from 'sortablejs';
             $('#note-pin-btn')?.addEventListener('click', () => this._togglePin());
             $('#note-delete-btn')?.addEventListener('click', () => this._deleteActive());
 
+            // Toggle right panel
+            $('#note-toggle-panel')?.addEventListener('click', () => {
+                const rSidebar = document.getElementById('notes-right-sidebar');
+                const btn      = document.getElementById('note-toggle-panel');
+                if (!rSidebar) return;
+                const isCollapsed = rSidebar.classList.toggle('collapsed');
+                btn?.classList.toggle('panel-active', !isCollapsed);
+            });
+
             // Search
             $('#notes-search')?.addEventListener('input', (e) => this._filterList(e.target.value.trim()));
 
@@ -2540,6 +2565,114 @@ import Sortable from 'sortablejs';
                 '<ul class="checklist"><li>Task</li></ul><p></p>');
         },
 
+        // ── Resize handles (drag-to-resize + double-click collapse) ──
+        _initResizeHandles() {
+            const leftSidebar  = document.getElementById('notes-sidebar');
+            const rightSidebar = document.getElementById('notes-right-sidebar');
+            const leftHandle   = document.getElementById('notes-resize-left');
+            const rightHandle  = document.getElementById('notes-resize-right');
+            const MIN_W = 160, MAX_W = 500;
+
+            const makeDraggable = (handle, target, side) => {
+                if (!handle || !target) return;
+                let startX, startW, active = false;
+
+                handle.addEventListener('mousedown', e => {
+                    if (e.button !== 0) return;
+                    e.preventDefault();
+                    startX = e.clientX;
+                    startW = target.getBoundingClientRect().width;
+                    active = true;
+                    handle.classList.add('dragging');
+                    document.body.style.cursor = 'col-resize';
+                    document.body.style.userSelect = 'none';
+                });
+
+                document.addEventListener('mousemove', e => {
+                    if (!active) return;
+                    const delta = e.clientX - startX;
+                    const newW = side === 'left'
+                        ? Math.max(MIN_W, Math.min(MAX_W, startW + delta))
+                        : Math.max(MIN_W, Math.min(MAX_W, startW - delta));
+                    target.style.width = newW + 'px';
+                    target.style.minWidth = newW + 'px';
+                    localStorage.setItem(`notes-${side}-w`, newW);
+                });
+
+                document.addEventListener('mouseup', () => {
+                    if (!active) return;
+                    active = false;
+                    handle.classList.remove('dragging');
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+                });
+
+                // Double-click → collapse or expand
+                handle.addEventListener('dblclick', () => {
+                    const w = target.getBoundingClientRect().width;
+                    if (w < MIN_W + 20) {
+                        const saved = parseInt(localStorage.getItem(`notes-${side}-w`) || (side === 'left' ? '260' : '220'));
+                        const expandW = Math.max(MIN_W, saved);
+                        target.style.width = expandW + 'px';
+                        target.style.minWidth = expandW + 'px';
+                        target.classList.remove('collapsed');
+                        if (side === 'right') document.getElementById('note-toggle-panel')?.classList.add('panel-active');
+                    } else {
+                        localStorage.setItem(`notes-${side}-w`, w);
+                        target.style.width = '0px';
+                        target.style.minWidth = '0px';
+                        target.classList.add('collapsed');
+                        if (side === 'right') document.getElementById('note-toggle-panel')?.classList.remove('panel-active');
+                    }
+                });
+            };
+
+            makeDraggable(leftHandle, leftSidebar, 'left');
+            makeDraggable(rightHandle, rightSidebar, 'right');
+
+            // Restore saved widths on load
+            const savedLeft = localStorage.getItem('notes-left-w');
+            if (savedLeft && leftSidebar) {
+                leftSidebar.style.width = savedLeft + 'px';
+                leftSidebar.style.minWidth = savedLeft + 'px';
+            }
+        },
+
+        // ── Update heading outline in right sidebar ──
+        _updateOutline() {
+            const body    = document.getElementById('notes-rich-body');
+            const outline = document.getElementById('notes-outline-list');
+            if (!body || !outline) return;
+            const headings = body.querySelectorAll('h1, h2, h3');
+            if (!headings.length) {
+                outline.innerHTML = '<span class="notes-outline-empty">No headings yet</span>';
+                return;
+            }
+            outline.innerHTML = '';
+            headings.forEach(h => {
+                const level = parseInt(h.tagName[1]);
+                const item  = document.createElement('div');
+                item.className = `notes-outline-item notes-outline-item--h${level}`;
+                item.textContent = h.textContent?.trim() || 'Untitled';
+                item.addEventListener('click', () => h.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+                outline.appendChild(item);
+            });
+        },
+
+        // ── Update word / char / reading-time in right sidebar ──
+        _updatePageInfo() {
+            const body = document.getElementById('notes-rich-body');
+            if (!body) return;
+            const text  = body.innerText || '';
+            const words = text.trim() ? text.trim().split(/\s+/).filter(Boolean).length : 0;
+            const chars = text.length;
+            const mins  = Math.max(1, Math.round(words / 200));
+            const set   = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+            set('notes-info-words',    words);
+            set('notes-info-chars',    chars);
+            set('notes-info-read-time', mins + ' min');
+        },
+
         _togglePin() {
             const note = state.notes.find(n => n.id === this._activeId);
             if (!note) return;
@@ -2565,6 +2698,11 @@ import Sortable from 'sortablejs';
             const welcome = $('#notes-editor-welcome');
             if (welcome) welcome.hidden = false;
             document.getElementById('notes-app')?.classList.remove('page-open');
+
+            // Hide right sidebar
+            const rSidebar = document.getElementById('notes-right-sidebar');
+            if (rSidebar) rSidebar.classList.add('panel-hidden');
+            document.getElementById('note-toggle-panel')?.classList.remove('panel-active');
 
             this.renderList();
             this._syncDashboard();
