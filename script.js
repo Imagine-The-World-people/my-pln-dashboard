@@ -4160,6 +4160,36 @@ ${reflectionsHtml}
     };
 
     // =========================================
+    // Merge function for resources (timestamp-aware)
+    // =========================================
+
+    const mergeResources = (local, remote) => {
+        const resourceMap = new Map();
+        const localArr = local || [];
+        const remoteArr = remote || [];
+
+        localArr.forEach(r => {
+            if (r.id) resourceMap.set(r.id, r);
+        });
+
+        remoteArr.forEach(r => {
+            if (!r.id) return;
+            const existing = resourceMap.get(r.id);
+            if (!existing) {
+                resourceMap.set(r.id, r);
+            } else {
+                const localTime = new Date(existing.updatedAt || existing.createdAt || 0).getTime();
+                const remoteTime = new Date(r.updatedAt || r.createdAt || 0).getTime();
+                if (remoteTime > localTime) {
+                    resourceMap.set(r.id, r);
+                }
+            }
+        });
+
+        return Array.from(resourceMap.values());
+    };
+
+    // =========================================
     // Cloud Sync (Supabase)
     // =========================================
 
@@ -4190,12 +4220,32 @@ ${reflectionsHtml}
                 if (!user) { this._isSaving = false; return; }
 
                 if (container) container.classList.add('syncing');
+
+                // Before saving, merge local resources with what's in Supabase
+                // to avoid overwriting resources from other devices
+                const localResources = Store.get(Resources.STORE_KEY, []);
+                let resourcesToSave = localResources;
+
+                // Fetch current Supabase data to merge with
+                const { data: currentData } = await supabaseClient
+                    .from('user_data')
+                    .select('resources')
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (currentData && currentData.resources) {
+                    // Merge local with Supabase, keeping newest versions by timestamp
+                    resourcesToSave = mergeResources(localResources, currentData.resources);
+                    // Update localStorage with merged result
+                    Store.set(Resources.STORE_KEY, resourcesToSave);
+                }
+
                 const { error } = await supabaseClient.from('user_data').upsert({
                     user_id: user.id,
                     goals: state.goals,
                     notes: state.notes,
                     reflections: state.reflections,
-                    resources: Store.get(Resources.STORE_KEY, []),
+                    resources: resourcesToSave,
                     updated_at: new Date().toISOString()
                 }, { onConflict: 'user_id' });
                 if (error) {
@@ -4254,10 +4304,21 @@ ${reflectionsHtml}
                 state.notes       = merge(state.notes,       data.notes);
                 state.reflections = merge(state.reflections, data.reflections);
 
-                // Merge resources (stored in their own Store key, not in state)
+                // Merge resources using timestamp-aware merge (stored in their own Store key, not in state)
                 const localResources  = Store.get(Resources.STORE_KEY, []);
-                const mergedResources = merge(localResources, data.resources);
+                const mergedResources = mergeResources(localResources, data.resources);
                 Store.set(Resources.STORE_KEY, mergedResources);
+
+                // If merge resulted in new items (from Supabase), save merged result back to Supabase
+                // to ensure all devices have consistent data
+                if (mergedResources.length > localResources.length) {
+                    const { error: saveErr } = await supabaseClient.from('user_data').upsert({
+                        user_id: user.id,
+                        resources: mergedResources,
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'user_id' });
+                    if (saveErr) console.error('Failed to save merged resources:', saveErr);
+                }
 
                 // Persist merged result to localStorage
                 localStorage.setItem('pln_goals',       JSON.stringify(state.goals));
