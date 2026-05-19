@@ -2321,9 +2321,7 @@ import Sortable from 'sortablejs';
             const note = state.notes.find(n => n.id === id);
             if (!note) return;
 
-            // Show editor, hide welcome
-            const welcome = $('#notes-editor-welcome');
-            if (welcome) welcome.hidden = true;
+            // Show editor (welcome screen removed, now handled by home view)
             const editor = $('#notes-editor');
             if (editor) editor.hidden = false;
 
@@ -2392,14 +2390,22 @@ import Sortable from 'sortablejs';
 
         // ── Bind all events ──
         _bindEvents() {
-            // New note buttons
+            // New note buttons (sidebar + home + nav sidebar)
             $('#notes-new-btn')?.addEventListener('click', () => this.newNote());
-            $('#notes-editor-new-btn')?.addEventListener('click', () => this.newNote());
+            $('#notes-home-new-btn')?.addEventListener('click', () => this.newNote());
+            $('#notes-home-empty-new')?.addEventListener('click', () => this.newNote());
+            $('#nns-new-page-btn')?.addEventListener('click', () => this.newNote());
 
-            // Back button — exit full-page mode
+            // Back buttons — exit full-page mode
             $('#notes-back-btn')?.addEventListener('click', () => {
                 document.getElementById('notes-app')?.classList.remove('page-open');
             });
+            $('#notes-nav-back')?.addEventListener('click', () => {
+                document.getElementById('notes-app')?.classList.remove('page-open');
+            });
+
+            // Home search
+            $('#notes-home-search')?.addEventListener('input', (e) => this._filterHomeList(e.target.value.trim()));
 
             // Title input → autosave
             $('#notes-title-input')?.addEventListener('input', () => this._scheduleAutosave());
@@ -2693,10 +2699,8 @@ import Sortable from 'sortablejs';
             this._save();
             this._activeId = null;
 
-            // Show welcome, exit full-page mode
+            // Exit full-page mode (returns to home view)
             if ($('#notes-editor')) document.getElementById('notes-editor').hidden = true;
-            const welcome = $('#notes-editor-welcome');
-            if (welcome) welcome.hidden = false;
             document.getElementById('notes-app')?.classList.remove('page-open');
 
             // Hide right sidebar
@@ -2778,38 +2782,137 @@ import Sortable from 'sortablejs';
             if (!list) return;
 
             const q = ($('#notes-search')?.value || '').toLowerCase().trim();
-            const sorted = [...state.notes].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+            const sorted = [...state.notes].sort((a, b) => {
+                if (b.pinned !== a.pinned) return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0);
+                return new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt);
+            });
             const filtered = q
                 ? sorted.filter(n => (n.title + ' ' + (n.content || '')).toLowerCase().includes(q))
                 : sorted;
 
+            // Update count badge
+            const countEl = document.getElementById('nns-all-count');
+            if (countEl) countEl.textContent = state.notes.length;
+
             if (filtered.length === 0) {
                 list.innerHTML = '';
                 empty?.classList.add('show');
+                this._renderHomeList(q);
                 return;
             }
             empty?.classList.remove('show');
 
-            list.innerHTML = filtered.map(n => {
-                const title = n.title || this._plainPreview(n.content, 40) || '(Untitled)';
-                const preview = n.title ? this._plainPreview(n.content, 55) : '';
-                const age = this._timeAgo(n.updatedAt || n.createdAt);
-                const isActive = n.id === this._activeId;
-                return `<div class="nli${isActive ? ' active' : ''}" data-id="${n.id}">
-                    ${n.pinned ? '<span class="nli-pin">📌</span>' : ''}
-                    <div class="nli-title">${escapeHtml(title)}</div>
-                    ${preview ? `<div class="nli-preview">${escapeHtml(preview)}</div>` : ''}
-                    <div class="nli-meta">${age}</div>
-                </div>`;
-            }).join('');
+            // Time grouping helpers
+            const now = new Date();
+            const startOfToday    = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const startOfYest     = new Date(startOfToday - 86400000);
+            const startOfWeek     = new Date(startOfToday - (now.getDay() || 7) * 86400000);
+
+            const getGroup = (n) => {
+                if (n.pinned) return 'PINNED';
+                const d = new Date(n.updatedAt || n.createdAt);
+                if (d >= startOfToday) return 'TODAY';
+                if (d >= startOfYest)  return 'YESTERDAY';
+                if (d >= startOfWeek)  return 'THIS WEEK';
+                return 'EARLIER';
+            };
+
+            const fileIcon = `<svg class="nli-file-icon" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
+            const pinIcon  = `<span class="nli-pin">📌</span>`;
+
+            let html = '';
+            let lastGroup = null;
+            const groupOrder = ['PINNED','TODAY','YESTERDAY','THIS WEEK','EARLIER'];
+            const grouped = {};
+            filtered.forEach(n => { const g = getGroup(n); (grouped[g] = grouped[g] || []).push(n); });
+
+            groupOrder.forEach(g => {
+                if (!grouped[g]) return;
+                html += `<div class="nli-group-label">${g}</div>`;
+                grouped[g].forEach(n => {
+                    const title = n.title || this._plainPreview(n.content, 40) || '(Untitled)';
+                    const preview = n.title ? this._plainPreview(n.content, 55) : '';
+                    const age = this._timeAgo(n.updatedAt || n.createdAt);
+                    const isActive = n.id === this._activeId;
+                    html += `<div class="nli${isActive ? ' active' : ''}" data-id="${n.id}">
+                        ${fileIcon}
+                        ${n.pinned && g !== 'PINNED' ? pinIcon : ''}
+                        <div class="nli-content">
+                            <div class="nli-title">${escapeHtml(title)}</div>
+                            ${preview ? `<div class="nli-preview">${escapeHtml(preview)}</div>` : ''}
+                            <div class="nli-meta">${age}</div>
+                        </div>
+                    </div>`;
+                });
+            });
+
+            list.innerHTML = html;
 
             // Click on list item
             list.querySelectorAll('.nli').forEach(el => {
                 el.addEventListener('click', () => this.openNote(parseInt(el.dataset.id)));
             });
+
+            // Render home list too
+            this._renderHomeList(q);
         },
 
-        _plainPreview(html, maxLen) {
+        _renderHomeList(q = '') {
+            const list  = document.getElementById('notes-home-list');
+            const empty = document.getElementById('notes-home-empty');
+            const label = document.getElementById('notes-home-section-label');
+            if (!list) return;
+
+            const sorted   = [...state.notes].sort((a, b) =>
+                new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
+            const filtered = q
+                ? sorted.filter(n => (n.title + ' ' + (n.content || '')).toLowerCase().includes(q.toLowerCase()))
+                : sorted;
+
+            if (!filtered.length) {
+                list.innerHTML = '';
+                if (empty)  { empty.hidden  = false; empty.classList.add('visible'); }
+                if (label)  label.hidden = true;
+                return;
+            }
+            if (empty)  { empty.hidden  = true;  empty.classList.remove('visible'); }
+            if (label)  { label.hidden = false; }
+
+            list.innerHTML = filtered.map(n => {
+                const title   = n.title || this._plainPreview(n.content, 40) || '(Untitled)';
+                const date    = this._timeAgo(n.updatedAt || n.createdAt);
+                const bodyTxt = n.content
+                    ? new DOMParser().parseFromString(n.content, 'text/html').body.innerText : '';
+                const words   = bodyTxt.trim() ? bodyTxt.trim().split(/\s+/).filter(Boolean).length : 0;
+                const readMin = Math.max(1, Math.round(words / 200));
+                return `<div class="notes-home-item" data-id="${n.id}">
+                    <div class="notes-home-item-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                    </div>
+                    <div class="notes-home-item-info">
+                        <div class="notes-home-item-title">${escapeHtml(title)}</div>
+                        <div class="notes-home-item-meta">${date} · ${readMin} min read</div>
+                    </div>
+                    <button class="notes-home-item-menu" title="More options">···</button>
+                </div>`;
+            }).join('');
+
+            list.querySelectorAll('.notes-home-item').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    if (e.target.closest('.notes-home-item-menu')) return;
+                    this.openNote(parseInt(el.dataset.id));
+                });
+            });
+        },
+
+        _filterHomeList(q) {
+            this._renderHomeList(q);
+        },
+
+
             if (!html) return '';
             const tmp = document.createElement('div');
             tmp.innerHTML = html;

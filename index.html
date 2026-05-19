@@ -986,7 +986,95 @@
                 <section id="notes" class="content-section notes-fullpage">
                     <div class="notes-app" id="notes-app">
 
-                        <!-- ── Sidebar: Notebook pages panel ── -->
+                        <!-- ── Home view (shown when no note is open) ── -->
+                        <div class="notes-home" id="notes-home">
+                            <div class="notes-home-topbar">
+                                <div class="notes-home-breadcrumb">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                                    <span>Pages</span>
+                                    <span class="notes-home-sep">|</span>
+                                    <span class="notes-home-bc-cur">My Notebook</span>
+                                </div>
+                                <div class="notes-home-topbar-right">
+                                    <button class="page-action-btn" title="Pin notebook">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>
+                                    </button>
+                                    <button class="page-action-btn" title="More options">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                                    </button>
+                                    <button class="notes-home-new-btn" id="notes-home-new-btn">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                        New Page
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="notes-home-body">
+                                <div class="notes-home-hero">
+                                    <div class="notes-home-hero-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                                    </div>
+                                    <div class="notes-home-hero-text">
+                                        <h2 class="notes-home-title">My Notebook</h2>
+                                        <p class="notes-home-subtitle">All your notes in one place</p>
+                                    </div>
+                                </div>
+                                <div class="notes-home-search-bar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                    <input type="text" id="notes-home-search" class="notes-home-search-input" placeholder="Search pages..." autocomplete="off">
+                                    <button class="notes-home-filter-btn" title="Filter">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+                                    </button>
+                                </div>
+                                <div class="notes-home-section-label" id="notes-home-section-label">Recent Pages</div>
+                                <div class="notes-home-list" id="notes-home-list"></div>
+                                <div class="notes-home-empty" id="notes-home-empty">
+                                    <div class="notes-home-empty-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                    </div>
+                                    <p class="notes-home-empty-title">No pages yet</p>
+                                    <p class="notes-home-empty-sub">Create your first page to start taking notes.</p>
+                                    <button class="notes-home-new-btn" id="notes-home-empty-new">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                        New Page
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── Left nav sidebar (shown in editor mode) ── -->
+                        <aside class="notes-nav-sidebar" id="notes-nav-sidebar">
+                            <button class="nns-back-btn" id="notes-nav-back">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                                Back
+                            </button>
+                            <div class="nns-notebook-header">
+                                <div class="nns-book-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                                </div>
+                                <div class="nns-notebook-info">
+                                    <div class="nns-notebook-title">My Notebook</div>
+                                    <div class="nns-notebook-sub">All your notes in one place</div>
+                                </div>
+                            </div>
+                            <button class="nns-new-btn" id="nns-new-page-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                New Page
+                            </button>
+                            <nav class="nns-nav">
+                                <div class="nns-nav-item nns-nav-item--active">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                    All Pages
+                                    <span class="nns-badge" id="nns-all-count">0</span>
+                                </div>
+                                <div class="nns-nav-item">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                    Trash
+                                    <span class="nns-badge">0</span>
+                                </div>
+                            </nav>
+                        </aside>
+
+                        <!-- ── Sidebar: pages list (middle panel in editor mode) ── -->
                         <aside class="notes-sidebar" id="notes-sidebar">
                             <div class="notes-nb-header">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
@@ -1016,18 +1104,7 @@
                         <!-- ── Note page view ── -->
                         <div class="notes-page-view" id="notes-page-view">
 
-                            <!-- Welcome screen (no note selected) -->
-                            <div class="notes-welcome" id="notes-editor-welcome">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity=".15"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                                <h3>My Notebook</h3>
-                                <p>Select a page from the list, or create a new one</p>
-                                <button class="notes-new-btn" id="notes-editor-new-btn">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                    New Page
-                                </button>
-                            </div>
-
-                            <!-- Note editor (hidden until note is opened) -->
+                            <!-- Note editor -->
                             <div class="notes-editor" id="notes-editor" hidden>
 
                                 <!-- Page navigation bar -->
