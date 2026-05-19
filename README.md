@@ -38,7 +38,7 @@ It is a fully offline-capable web app (PWA) that a learner installs on their pho
 | **Dashboard** | See all your stats at a glance — goals, notes, streak, activity chart |
 | **Goals** | Add, complete, reorder (drag & drop), set deadlines, track milestones |
 | **Resources** | Collect links and books, rate them, organize into colour-coded collections |
-| **Notes** | Write notes, pin important ones, search, draw with a stylus or finger |
+| **Notes** | OneNote-like full-page editor — ribbon toolbar (bold, italic, underline, strikethrough, font size, text colour, highlight, H1/H2/H3, alignment, indent/outdent, bullet/numbered/checklist, links, HR, code block), pin notes, search, draw with a stylus or finger |
 | **Reflections** | Log reflections in a timeline, get weekly writing prompts |
 | **Insights** | Analytics — streak calendar, category breakdown, activity chart |
 
