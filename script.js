@@ -461,7 +461,7 @@ import Sortable from 'sortablejs';
             const html = document.documentElement;
 
             const saved = Store.getRaw('pln_theme');
-            const initial = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            const initial = saved || 'dark';
             html.setAttribute('data-theme', initial);
             this._updateButton(initial, btn);
 
