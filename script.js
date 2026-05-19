@@ -5754,10 +5754,16 @@ ${reflectionsHtml}
             state.goals = merge(state.goals, data.goals);
             state.notes = merge(state.notes, data.notes);
             state.reflections = merge(state.reflections, data.reflections);
+
+            // Merge resources (stored outside state)
+            const localResources = Store.get(Resources.STORE_KEY, []);
+            Store.set(Resources.STORE_KEY, merge(localResources, data.resources));
+
             Goals.render(); Goals.updateProgress();
             Notes.render();
             if (typeof Notes._syncDashboard === 'function') Notes._syncDashboard();
             Reflections.render();
+            Resources.render();
             Navigation.updateBadges();
             notify('Synkronisert', 'Data updated from another device', 'info');
         },
