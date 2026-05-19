@@ -5080,6 +5080,7 @@ html[data-theme="light"] .notes-sidebar {
     justify-content: center;
     scrollbar-width: thin;
     scrollbar-color: var(--border-color) transparent;
+    position: relative; /* needed for draw overlay */
 }
 
 html[data-theme="light"] .notes-page-content {
@@ -5112,13 +5113,13 @@ html[data-theme="light"] .notes-page-card {
     border: none;
     outline: none;
     background: transparent;
-    font-size: 28px;
-    font-weight: 700;
+    font-size: 40px;
+    font-weight: 800;
     color: var(--text-primary);
-    padding: 0 0 6px;
+    padding: 0 0 8px;
     margin: 0;
-    line-height: 1.25;
-    letter-spacing: -.01em;
+    line-height: 1.2;
+    letter-spacing: -.02em;
 }
 .notes-title-input::placeholder { color: var(--text-tertiary); }
 
@@ -5193,22 +5194,27 @@ html[data-theme="light"] .notes-page-card {
 .notes-rich-body ul.checklist li.checked { text-decoration: line-through; color: var(--text-tertiary); }
 .notes-rich-body ul.checklist li.checked::before { content: '☑'; }
 
-/* Drawing canvas (inside page card) */
+/* Drawing canvas — overlays the page content area */
 .note-draw-panel {
     display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 20;
     flex-direction: column;
-    gap: 8px;
-    margin: 12px 0;
+    background: var(--bg-dark);
+    border-radius: var(--card-radius);
+    overflow: hidden;
 }
 .note-draw-panel.open { display: flex; }
 .note-draw-toolbar {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 12px;
-    background: var(--bg-secondary);
-    border-radius: 8px;
+    padding: 10px 16px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
     flex-wrap: wrap;
+    flex-shrink: 0;
 }
 .note-draw-colors, .note-draw-sizes { display: flex; gap: 4px; align-items: center; }
 .draw-color-btn {
@@ -5244,9 +5250,15 @@ html[data-theme="light"] .notes-page-card {
 .note-tool-btn:hover { background: var(--hover-bg); color: var(--text-primary); }
 .note-tool-btn.active-tool { background: rgba(91,159,212,.15); color: var(--primary-color); }
 #note-draw-canvas {
-    width: 100%; height: 280px; border-radius: 8px;
-    border: 1px solid var(--border-color); cursor: crosshair;
-    touch-action: none; background: var(--bg-secondary);
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    border-radius: 0;
+    border: none;
+    border-top: 1px solid var(--border-color);
+    cursor: crosshair;
+    touch-action: none;
+    background: var(--bg-dark);
 }
 
 /* Attachments */
@@ -5292,11 +5304,11 @@ html[data-theme="light"] .notes-page-card {
 .notes-app .notes-page-view   { display: none !important; }
 .notes-app .notes-right-sidebar { display: none !important; }
 
-/* Editor mode (page-open): hide notes-home, show all panels */
-.notes-app.page-open .notes-home    { display: none; }
-.notes-app.page-open .notes-nav-sidebar { display: flex !important; flex-direction: column; }
-.notes-app.page-open .notes-sidebar  { display: flex !important; }
-.notes-app.page-open .notes-resize-handle { display: block !important; }
+/* Editor mode (page-open): hide notes-home, show only the full-width editor */
+.notes-app.page-open .notes-home        { display: none; }
+.notes-app.page-open .notes-nav-sidebar { display: none !important; }
+.notes-app.page-open .notes-sidebar     { display: none !important; }
+.notes-app.page-open .notes-resize-handle { display: none !important; }
 .notes-app.page-open .notes-page-view   { display: flex !important; }
 
 /* ─────────────────────────────────────────
@@ -5879,7 +5891,7 @@ html[data-theme="light"] .notes-page-card {
     .notes-page-card {
         padding: 24px 20px 40px;
     }
-    .notes-title-input { font-size: 22px; }
+    .notes-title-input { font-size: 26px; }
     .notes-ribbon {
         gap: 1px;
         padding: 3px 8px;

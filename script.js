@@ -2443,6 +2443,18 @@ import Sortable from 'sortablejs';
             });
 
             // Font size select
+            // Font family select
+            $('#notes-font-family')?.addEventListener('change', (e) => {
+                const bodyEl = $('#notes-rich-body');
+                bodyEl?.focus();
+                if (e.target.value) {
+                    document.execCommand('fontName', false, e.target.value);
+                } else {
+                    document.execCommand('removeFormat', false, null);
+                }
+                this._scheduleAutosave();
+            });
+
             $('#notes-font-size')?.addEventListener('change', (e) => {
                 const bodyEl = $('#notes-rich-body');
                 bodyEl?.focus();
