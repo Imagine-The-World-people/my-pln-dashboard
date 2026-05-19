@@ -6104,10 +6104,10 @@ body.focus-active #sidebar-overlay {
     pointer-events: auto;
     display: flex;
     align-items: flex-start;
-    gap: 14px;
-    padding: 16px 20px;
-    min-width: 320px;
-    max-width: 420px;
+    gap: 12px;
+    padding: 12px 16px;
+    min-width: 260px;
+    max-width: 340px;
     border-radius: 14px;
     background: rgba(15, 23, 42, 0.95);
     -webkit-backdrop-filter: blur(24px);
@@ -6139,14 +6139,14 @@ body.focus-active #sidebar-overlay {
 }
 
 .toast-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 16px;
+    font-size: 14px;
     flex-shrink: 0;
     margin-top: 1px;
 }
@@ -6228,15 +6228,15 @@ html[data-theme="light"] .toast-close:hover { color: #374151; }
 /* Mobile Toast */
 @media (max-width: 480px) {
     #notification-container {
-        top: 16px;
-        right: 16px;
-        left: 16px;
+        top: 12px;
+        right: 12px;
+        left: auto;
     }
 
     .toast {
-        min-width: unset;
-        max-width: unset;
-        width: 100%;
+        min-width: 220px;
+        max-width: 290px;
+        padding: 10px 13px;
     }
 }
 
