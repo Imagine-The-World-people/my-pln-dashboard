@@ -6059,13 +6059,19 @@ html[data-theme="light"] .notes-page-card {
         padding: 3px 8px;
     }
     .fmt-btn { min-width: 26px; height: 26px; }
+    /* Compact page-nav on mobile — hide breadcrumb and autosave text */
+    .notes-page-nav { padding: 5px 10px; gap: 6px; overflow: hidden; }
+    .notes-breadcrumb { display: none; }
+    .notes-autosave { display: none; }
+    .notes-section-select { max-width: 96px; font-size: 12px; }
     /* Home → full width */
     .notes-home { flex: 1; }
     .notes-home-body { padding: 20px 16px 32px; align-items: stretch; }
     .notes-home-search-bar,
     .notes-home-list,
-    .notes-home-empty,
-    .notes-section-tabs { max-width: 100%; }
+    .notes-home-empty { max-width: 100%; }
+    .notes-section-strip { padding: 0 10px; }
+    .notes-section-strip .notes-section-tabs { max-width: 100%; padding: 6px 0; }
     .notes-home-hero { margin-bottom: 20px; }
     .notes-home-title { font-size: 20px; }
     .notes-home-hero-icon { width: 52px; height: 52px; }

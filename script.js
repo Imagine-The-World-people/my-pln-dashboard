@@ -1623,8 +1623,8 @@ import Sortable from 'sortablejs';
             // Initialize resource count from actual DOM
             this._updateCount();
 
-            // Initialize stat card
-            const resCount = $$('.resource-card').length;
+            // Initialize stat card from Store (accurate even before filter hides cards)
+            const resCount = Store.get(this.STORE_KEY, []).length;
             const statRes = document.getElementById('stat-resources');
             if (statRes) Dashboard.countUp('stat-resources', resCount);
 
@@ -4201,9 +4201,8 @@ ${reflectionsHtml}
                 if (error) {
                     console.error('CloudSync._save failed:', error);
                     notify('Synk feilet', error.message || 'Kunne ikke lagre til skyen', 'error');
-                } else {
-                    notify('Lagret i skyen ☁️', 'Dataene dine er synkronisert', 'success');
                 }
+                // Silent save — no toast on every autosave (the sync badge already shows cloud state)
             } catch (err) {
                 console.error('CloudSync._save critical error:', err);
                 notify('Synk feilet', err.message || 'Ukjent feil ved lagring', 'error');
@@ -4537,6 +4536,14 @@ ${reflectionsHtml}
             AutoLogout.start();
             Onboarding.maybeShow();
             RealtimeSync.init();
+
+            // Make the sync badge a manual-refresh button
+            const syncBadgeBtn = $('#sync-badge');
+            if (syncBadgeBtn) {
+                syncBadgeBtn.style.cursor = 'pointer';
+                syncBadgeBtn.title = 'Klikk for å synkronisere nå';
+                syncBadgeBtn.addEventListener('click', () => CloudSync.load(), { once: false });
+            }
         },
 
         _updateAvatarUI(user) {
@@ -5772,31 +5779,6 @@ ${reflectionsHtml}
         }
     };
 
-    // =========================================
-    // Supabase Storage Utility
-    // NOTE: Requires a public bucket named "drawings" in Supabase Storage.
-    // =========================================
-
-    const StorageSync = {
-        BUCKET: 'drawings',
-        async uploadImage(userId, dataURL, filename) {
-            if (!supabaseClient) return null;
-            try {
-                const res = await fetch(dataURL);
-                const blob = await res.blob();
-                const filePath = userId + '/' + filename;
-                const { error } = await supabaseClient.storage.from(this.BUCKET).upload(filePath, blob, { contentType: blob.type, upsert: true });
-                if (error) { console.warn('StorageSync upload:', error.message); return null; }
-                const { data } = supabaseClient.storage.from(this.BUCKET).getPublicUrl(filePath);
-                return data?.publicUrl || null;
-            } catch (e) { console.warn('StorageSync.uploadImage:', e); return null; }
-        },
-        async deleteImage(userId, filename) {
-            if (!supabaseClient) return;
-            try { await supabaseClient.storage.from(this.BUCKET).remove([userId + '/' + filename]); }
-            catch (e) { console.warn('StorageSync.deleteImage:', e); }
-        }
-    };
 
 
     // =========================================
@@ -5815,6 +5797,8 @@ ${reflectionsHtml}
             window.addEventListener('online', () => {
                 if (banner) banner.hidden = true;
                 notify('Back Online ✓', 'Your connection has been restored', 'success');
+                // Re-sync from Supabase now that we have connectivity again
+                CloudSync.load();
             });
             if (!navigator.onLine && banner) banner.hidden = false;
         }

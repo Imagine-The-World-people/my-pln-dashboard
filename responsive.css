@@ -491,9 +491,13 @@ button, a, [role="button"], label {
     }
 
     /* ---------- Notes Drawing ---------- */
+    .note-draw-panel {
+        height: 300px;
+        width: min(600px, 96%);
+    }
     .note-draw-panel canvas {
         max-width: 100%;
-        height: 260px;
+        height: 220px;
     }
 
     /* ---------- Reflection Timeline ---------- */
@@ -942,8 +946,13 @@ button, a, [role="button"], label {
     }
 
     /* ---------- Notes Drawing (mobile) ---------- */
+    .note-draw-panel {
+        height: 240px;
+        width: 98%;
+        top: 6px;
+    }
     .note-draw-panel canvas {
-        height: 200px;
+        height: 175px;
     }
     .draw-color-btn {
         width: 28px;
