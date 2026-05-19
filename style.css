@@ -5287,6 +5287,7 @@ html[data-theme="light"] .notes-page-card {
 /* Panels that are never shown in new layout */
 .notes-nav-sidebar  { display: none; }
 .notes-resize-handle { display: none; }
+/* Right sidebar: always hidden via display:none except inside page-open + not panel-hidden */
 .notes-right-sidebar { display: none; }
 
 /* Page view: hidden by default, only shown when a note is open */
@@ -5295,6 +5296,8 @@ html[data-theme="light"] .notes-page-card {
 /* Editor mode */
 .notes-app.page-open .notes-home      { display: none; }
 .notes-app.page-open .notes-page-view { display: flex; }
+/* Right sidebar revealed in editor mode when toggled open */
+.notes-app.page-open .notes-right-sidebar:not(.panel-hidden):not(.collapsed) { display: flex; }
 
 /* ─────────────────────────────────────────
    Notes: Home view
@@ -5542,6 +5545,177 @@ html[data-theme="light"] .notes-page-card {
     font-size: 13px;
     color: var(--text-secondary);
 }
+
+/* ─────────────────────────────────────────
+   Notes: Section tabs
+   ───────────────────────────────────────── */
+.notes-section-tabs {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-wrap: wrap;
+}
+.notes-section-tabs::-webkit-scrollbar { display: none; }
+
+.notes-section-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.notes-section-tab:hover {
+    background: rgba(91, 159, 212, 0.08);
+    color: var(--text-primary);
+    border-color: rgba(91, 159, 212, 0.3);
+}
+.notes-section-tab--active {
+    background: rgba(91, 159, 212, 0.15);
+    color: var(--primary-color);
+    border-color: rgba(91, 159, 212, 0.4);
+    font-weight: 600;
+}
+.notes-section-tab--trash {
+    color: var(--text-tertiary);
+}
+.notes-section-tab--trash.notes-section-tab--active {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+.nst-count {
+    font-size: 11px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0 5px;
+    min-width: 16px;
+    text-align: center;
+    color: var(--text-tertiary);
+    line-height: 1.6;
+}
+.notes-section-tab--active .nst-count {
+    background: rgba(91, 159, 212, 0.18);
+    border-color: rgba(91, 159, 212, 0.3);
+    color: var(--primary-color);
+}
+/* Colored section dots */
+.nst-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.nst-dot--gen { background: #5B9FD4; }
+.nst-dot--dri { background: #22c55e; }
+.nst-dot--bru { background: #f59e0b; }
+.nst-dot--utv { background: #a855f7; }
+
+/* ─────────────────────────────────────────
+   Notes: Section badge on home list items
+   ───────────────────────────────────────── */
+.notes-home-item-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 2px;
+}
+.notes-home-item-title-row .notes-home-item-title {
+    margin-bottom: 0;
+}
+.notes-home-item-section {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1px 7px;
+    border-radius: 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.notes-home-item-section--general     { background: rgba(91,159,212,.15); color: #5B9FD4; }
+.notes-home-item-section--driftsttte  { background: rgba(34,197,94,.12);  color: #22c55e; }
+.notes-home-item-section--brukersttte { background: rgba(245,158,11,.12); color: #f59e0b; }
+.notes-home-item-section--utvikling   { background: rgba(168,85,247,.12); color: #a855f7; }
+
+/* ─────────────────────────────────────────
+   Notes: Trash items
+   ───────────────────────────────────────── */
+.notes-home-item--trash {
+    opacity: 0.8;
+}
+.notes-home-item--trash:hover { opacity: 1; }
+.notes-home-item-icon--trash {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+.notes-home-item-trash-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.15s;
+    flex-shrink: 0;
+}
+.notes-home-item--trash:hover .notes-home-item-trash-actions { opacity: 1; }
+.notes-trash-restore-btn,
+.notes-trash-delete-btn {
+    padding: 4px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background 0.12s, color 0.12s;
+}
+.notes-trash-restore-btn {
+    color: var(--primary-color);
+    border-color: rgba(91, 159, 212, 0.3);
+}
+.notes-trash-restore-btn:hover { background: rgba(91, 159, 212, 0.1); }
+.notes-trash-delete-btn {
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+.notes-trash-delete-btn:hover { background: rgba(239, 68, 68, 0.1); }
+
+/* ─────────────────────────────────────────
+   Notes: Section selector in editor
+   ───────────────────────────────────────── */
+.notes-section-select {
+    font-size: 12px;
+    height: 28px;
+    padding: 0 6px;
+    min-width: 100px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    outline: none;
+}
+.notes-section-select:focus { border-color: var(--primary-color); color: var(--text-primary); }
+
+/* Date: created + updated ─ */
+.notes-page-date { display: flex; flex-wrap: wrap; gap: 0; align-items: baseline; }
+.npd-sep { opacity: 0.5; }
 
 /* ─────────────────────────────────────────
    Notes: Left nav sidebar (editor mode)
@@ -5872,10 +6046,11 @@ html[data-theme="light"] .notes-page-card {
     .notes-home-search-bar,
     .notes-home-list,
     .notes-home-empty,
-    .notes-home-section-label { max-width: 100%; }
+    .notes-section-tabs { max-width: 100%; }
     .notes-home-hero { margin-bottom: 20px; }
     .notes-home-title { font-size: 20px; }
     .notes-home-hero-icon { width: 52px; height: 52px; }
+    .notes-section-tab { padding: 4px 10px; font-size: 12px; }
 }
 
 /* =============================================

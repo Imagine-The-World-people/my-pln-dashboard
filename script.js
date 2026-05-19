@@ -2275,6 +2275,8 @@ import Sortable from 'sortablejs';
         _erasing: false,
         _drawDataURL: null,
         _pendingFiles: [],
+        _sections: ['General', 'Driftstøtte', 'Brukerstøtte', 'Utvikling'],
+        _activeSection: 'All',
 
         init() {
             state.notes = Store.get(this.STORE_KEY, []);
@@ -2282,22 +2284,27 @@ import Sortable from 'sortablejs';
             this._initResizeHandles();
             this._initDrawing();
             this.renderList();
+            this._renderSectionTabs();
             this._syncDashboard();
         },
 
         // ── Create a fresh note and open it ──
         newNote() {
+            const section = (this._activeSection === 'All' || this._activeSection === 'Trash')
+                ? 'General' : this._activeSection;
             const note = {
                 id: Date.now(),
                 title: '',
                 content: '',
+                section,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
                 displayDate: formatDateTime({ month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
                 wordCount: 0,
                 drawing: null,
                 files: null,
-                pinned: false
+                pinned: false,
+                deleted: false
             };
             state.notes.unshift(note);
             this._save();
@@ -2335,15 +2342,33 @@ import Sortable from 'sortablejs';
                 this._updateWordCount();
             }
 
-            // Auto date stamp (show created date)
-            const dateEl = $('#notes-page-date');
-            if (dateEl) {
+            // Date stamps (created + updated)
+            const createdEl = $('#npd-created');
+            const updatedEl = $('#npd-updated');
+            const sepEl     = $('#npd-sep');
+            if (createdEl) {
                 const d = new Date(note.createdAt || Date.now());
-                dateEl.textContent = d.toLocaleString(undefined, {
+                createdEl.textContent = d.toLocaleString(undefined, {
                     weekday: 'long', year: 'numeric', month: 'long',
                     day: 'numeric', hour: '2-digit', minute: '2-digit'
                 });
             }
+            if (updatedEl && note.updatedAt && note.updatedAt !== note.createdAt) {
+                const u = new Date(note.updatedAt);
+                updatedEl.textContent = 'Updated: ' + u.toLocaleString(undefined, {
+                    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+                if (sepEl) sepEl.textContent = ' · ';
+            } else {
+                if (updatedEl) updatedEl.textContent = '';
+                if (sepEl)     sepEl.textContent = '';
+            }
+
+            // Section selector
+            const sectionSel = $('#notes-section-select');
+            if (sectionSel) sectionSel.value = note.section || 'General';
+            const sectionLbl = $('#notes-active-section-label');
+            if (sectionLbl) sectionLbl.textContent = note.section || 'General';
 
             // Drawing
             this._drawDataURL = note.drawing || null;
@@ -2406,6 +2431,20 @@ import Sortable from 'sortablejs';
 
             // Home search
             $('#notes-home-search')?.addEventListener('input', (e) => this._filterHomeList(e.target.value.trim()));
+
+            // Section tabs
+            document.getElementById('notes-section-tabs')?.addEventListener('click', (e) => {
+                const tab = e.target.closest('.notes-section-tab');
+                if (!tab) return;
+                this._setSection(tab.dataset.section);
+            });
+
+            // Section selector inside editor
+            $('#notes-section-select')?.addEventListener('change', (e) => {
+                const sectionLbl = $('#notes-active-section-label');
+                if (sectionLbl) sectionLbl.textContent = e.target.value;
+                this._scheduleAutosave();
+            });
 
             // Title input → autosave
             $('#notes-title-input')?.addEventListener('input', () => this._scheduleAutosave());
@@ -2705,13 +2744,14 @@ import Sortable from 'sortablejs';
             if (id === null) return;
             const note = state.notes.find(n => n.id === id);
             if (!note) return;
-            const idx = state.notes.indexOf(note);
 
-            state.notes = state.notes.filter(n => n.id !== id);
+            // Soft-delete: move to Trash
+            note.deleted   = true;
+            note.deletedAt = new Date().toISOString();
             this._save();
             this._activeId = null;
 
-            // Exit full-page mode (returns to home view)
+            // Exit full-page mode
             if ($('#notes-editor')) document.getElementById('notes-editor').hidden = true;
             document.getElementById('notes-app')?.classList.remove('page-open');
 
@@ -2721,20 +2761,34 @@ import Sortable from 'sortablejs';
             document.getElementById('note-toggle-panel')?.classList.remove('panel-active');
 
             this.renderList();
+            this._renderSectionTabs();
             this._syncDashboard();
+            notify('Moved to Trash', `"${note.title || 'Untitled'}" can be restored from Trash`, 'info');
+        },
 
-            UndoQueue.push(
-                'Note deleted',
-                () => {
-                    state.notes.splice(idx, 0, note);
-                    this._save();
-                    this.renderList();
-                    this.openNote(note.id);
-                    this._syncDashboard();
-                    notify('↩ Restored', 'Note restored successfully', 'success');
-                },
-                () => { this._save(); }
-            );
+        // ── Restore a note from Trash ──
+        _restoreNote(id) {
+            const note = state.notes.find(n => n.id === id);
+            if (!note) return;
+            note.deleted = false;
+            delete note.deletedAt;
+            this._save();
+            this._renderSectionTabs();
+            this._renderHomeList();
+            this.renderList();
+            this._syncDashboard();
+            notify('Page restored', `"${note.title || 'Untitled'}" moved back to ${note.section || 'General'}`, 'success');
+        },
+
+        // ── Permanently delete a note ──
+        _deleteForever(id) {
+            if (!confirm('Permanently delete this page?\nThis cannot be undone.')) return;
+            state.notes = state.notes.filter(n => n.id !== id);
+            this._save();
+            this._renderSectionTabs();
+            this._renderHomeList();
+            this.renderList();
+            this._syncDashboard();
         },
 
         // ── Auto-save ──
@@ -2753,15 +2807,31 @@ import Sortable from 'sortablejs';
             const titleEl = $('#notes-title-input');
             const body = $('#notes-rich-body');
 
-            note.title = titleEl?.value.trim() || '';
+            note.title   = titleEl?.value.trim() || '';
             note.content = body?.innerHTML || '';
+            note.section = $('#notes-section-select')?.value || note.section || 'General';
             note.drawing = this._drawDataURL || null;
-            note.files = this._pendingFiles.length ? [...this._pendingFiles] : null;
-            note.updatedAt = new Date().toISOString();
-            note.wordCount = this._countWords(body?.innerText || '');
+            note.files   = this._pendingFiles.length ? [...this._pendingFiles] : null;
+            note.updatedAt  = new Date().toISOString();
+            note.wordCount  = this._countWords(body?.innerText || '');
+
+            // Update "Updated:" label
+            const updatedEl2 = $('#npd-updated');
+            const sepEl2     = $('#npd-sep');
+            if (updatedEl2) {
+                const u = new Date(note.updatedAt);
+                updatedEl2.textContent = 'Updated: ' + u.toLocaleString(undefined, {
+                    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+            }
+            if (sepEl2) sepEl2.textContent = ' · ';
+            // Update section breadcrumb
+            const sectionLbl2 = $('#notes-active-section-label');
+            if (sectionLbl2) sectionLbl2.textContent = note.section;
 
             this._save();
             this.renderList();
+            this._renderSectionTabs();
             this._setAutosave('saved');
             this._syncDashboard();
         },
@@ -2794,7 +2864,7 @@ import Sortable from 'sortablejs';
             if (!list) return;
 
             const q = ($('#notes-search')?.value || '').toLowerCase().trim();
-            const sorted = [...state.notes].sort((a, b) => {
+            const sorted = [...state.notes].filter(n => !n.deleted).sort((a, b) => {
                 if (b.pinned !== a.pinned) return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0);
                 return new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt);
             });
@@ -2872,56 +2942,143 @@ import Sortable from 'sortablejs';
         _renderHomeList(q = '') {
             const list  = document.getElementById('notes-home-list');
             const empty = document.getElementById('notes-home-empty');
-            const label = document.getElementById('notes-home-section-label');
             if (!list) return;
 
-            const sorted   = [...state.notes].sort((a, b) =>
-                new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
-            const filtered = q
-                ? sorted.filter(n => (n.title + ' ' + (n.content || '')).toLowerCase().includes(q.toLowerCase()))
-                : sorted;
+            const isTrash = this._activeSection === 'Trash';
 
+            // Build filtered + sorted array
+            let filtered = [...state.notes];
+            if (isTrash) {
+                filtered = filtered.filter(n => n.deleted);
+            } else {
+                filtered = filtered.filter(n => !n.deleted);
+                if (this._activeSection !== 'All') {
+                    filtered = filtered.filter(n => (n.section || 'General') === this._activeSection);
+                }
+            }
+            if (q) {
+                const ql = q.toLowerCase();
+                filtered = filtered.filter(n =>
+                    (n.title + ' ' + (n.content || '')).toLowerCase().includes(ql));
+            }
+            filtered.sort((a, b) =>
+                new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
+
+            // Empty state
             if (!filtered.length) {
                 list.innerHTML = '';
-                if (empty)  { empty.hidden  = false; empty.classList.add('visible'); }
-                if (label)  label.hidden = true;
+                if (empty) {
+                    const emptyTitle = empty.querySelector('.notes-home-empty-title');
+                    const emptySub   = empty.querySelector('.notes-home-empty-sub');
+                    const newBtn     = empty.querySelector('#notes-home-empty-new');
+                    if (isTrash) {
+                        if (emptyTitle) emptyTitle.textContent = 'Trash is empty';
+                        if (emptySub)   emptySub.textContent   = 'Deleted pages will appear here.';
+                        if (newBtn)     newBtn.style.display   = 'none';
+                    } else {
+                        if (emptyTitle) emptyTitle.textContent = 'No pages yet';
+                        if (emptySub)   emptySub.textContent   = 'Create your first page to start taking notes.';
+                        if (newBtn)     newBtn.style.display   = '';
+                    }
+                    empty.hidden = false;
+                    empty.classList.add('visible');
+                }
                 return;
             }
-            if (empty)  { empty.hidden  = true;  empty.classList.remove('visible'); }
-            if (label)  { label.hidden = false; }
+            if (empty) { empty.hidden = true; empty.classList.remove('visible'); }
 
-            list.innerHTML = filtered.map(n => {
-                const title   = n.title || this._plainPreview(n.content, 40) || '(Untitled)';
-                const date    = this._timeAgo(n.updatedAt || n.createdAt);
-                const bodyTxt = n.content
-                    ? new DOMParser().parseFromString(n.content, 'text/html').body.innerText : '';
-                const words   = bodyTxt.trim() ? bodyTxt.trim().split(/\s+/).filter(Boolean).length : 0;
-                const readMin = Math.max(1, Math.round(words / 200));
-                return `<div class="notes-home-item" data-id="${n.id}">
-                    <div class="notes-home-item-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                        </svg>
-                    </div>
-                    <div class="notes-home-item-info">
-                        <div class="notes-home-item-title">${escapeHtml(title)}</div>
-                        <div class="notes-home-item-meta">${date} · ${readMin} min read</div>
-                    </div>
-                    <button class="notes-home-item-menu" title="More options">···</button>
-                </div>`;
-            }).join('');
-
-            list.querySelectorAll('.notes-home-item').forEach(el => {
-                el.addEventListener('click', (e) => {
-                    if (e.target.closest('.notes-home-item-menu')) return;
-                    this.openNote(parseInt(el.dataset.id));
+            if (isTrash) {
+                list.innerHTML = filtered.map(n => {
+                    const title = n.title || this._plainPreview(n.content, 40) || '(Untitled)';
+                    const date  = this._timeAgo(n.deletedAt);
+                    return `<div class="notes-home-item notes-home-item--trash" data-id="${n.id}">
+                        <div class="notes-home-item-icon notes-home-item-icon--trash">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </div>
+                        <div class="notes-home-item-info">
+                            <div class="notes-home-item-title">${escapeHtml(title)}</div>
+                            <div class="notes-home-item-meta">Deleted ${date}</div>
+                        </div>
+                        <div class="notes-home-item-trash-actions">
+                            <button class="notes-trash-restore-btn" data-id="${n.id}">Restore</button>
+                            <button class="notes-trash-delete-btn" data-id="${n.id}">Delete forever</button>
+                        </div>
+                    </div>`;
+                }).join('');
+                list.querySelectorAll('.notes-trash-restore-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => { e.stopPropagation(); this._restoreNote(parseInt(btn.dataset.id)); });
                 });
-            });
+                list.querySelectorAll('.notes-trash-delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => { e.stopPropagation(); this._deleteForever(parseInt(btn.dataset.id)); });
+                });
+            } else {
+                const showSection = this._activeSection === 'All';
+                list.innerHTML = filtered.map(n => {
+                    const title   = n.title || this._plainPreview(n.content, 40) || '(Untitled)';
+                    const date    = this._timeAgo(n.updatedAt || n.createdAt);
+                    const bodyTxt = n.content
+                        ? new DOMParser().parseFromString(n.content, 'text/html').body.innerText : '';
+                    const words   = bodyTxt.trim() ? bodyTxt.trim().split(/\s+/).filter(Boolean).length : 0;
+                    const readMin = Math.max(1, Math.round(words / 200));
+                    const sec     = n.section || 'General';
+                    const slug    = this._sectionSlug(sec);
+                    const badge   = showSection
+                        ? `<span class="notes-home-item-section notes-home-item-section--${slug}">${escapeHtml(sec)}</span>`
+                        : '';
+                    return `<div class="notes-home-item" data-id="${n.id}">
+                        <div class="notes-home-item-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                            </svg>
+                        </div>
+                        <div class="notes-home-item-info">
+                            <div class="notes-home-item-title-row">
+                                <span class="notes-home-item-title">${escapeHtml(title)}</span>${badge}
+                            </div>
+                            <div class="notes-home-item-meta">${date} · ${readMin} min read</div>
+                        </div>
+                        <button class="notes-home-item-menu" title="More options">\u22ef</button>
+                    </div>`;
+                }).join('');
+                list.querySelectorAll('.notes-home-item').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        if (e.target.closest('.notes-home-item-menu')) return;
+                        this.openNote(parseInt(el.dataset.id));
+                    });
+                });
+            }
         },
 
         _filterHomeList(q) {
             this._renderHomeList(q);
+        },
+
+        // ── Section tabs: update active state + counts ──
+        _renderSectionTabs() {
+            const container = document.getElementById('notes-section-tabs');
+            if (!container) return;
+            container.querySelectorAll('.notes-section-tab').forEach(tab => {
+                tab.classList.toggle('notes-section-tab--active', tab.dataset.section === this._activeSection);
+            });
+            const live  = state.notes.filter(n => !n.deleted);
+            const trash = state.notes.filter(n => n.deleted);
+            const allBadge   = document.getElementById('nst-All');
+            const trashBadge = document.getElementById('nst-Trash');
+            if (allBadge)   allBadge.textContent   = live.length  || '';
+            if (trashBadge) trashBadge.textContent = trash.length || '';
+        },
+
+        // ── Switch active section tab ──
+        _setSection(section) {
+            this._activeSection = section;
+            this._renderSectionTabs();
+            this._renderHomeList();
+        },
+
+        // ── CSS slug for a section name ──
+        _sectionSlug(section) {
+            return (section || 'general').toLowerCase().replace(/[^a-z0-9]/g, '');
         },
 
         _plainPreview(html, maxLen) {
@@ -3126,7 +3283,7 @@ import Sortable from 'sortablejs';
         render() { this.renderList(); },
 
         _syncDashboard() {
-            state.dashboard.notesCount = state.notes.length;
+            state.dashboard.notesCount = state.notes.filter(n => !n.deleted).length;
             Dashboard.refresh();
         },
 
