@@ -2924,7 +2924,7 @@ import Sortable from 'sortablejs';
             this._renderHomeList(q);
         },
 
-
+        _plainPreview(html, maxLen) {
             if (!html) return '';
             const tmp = document.createElement('div');
             tmp.innerHTML = html;
