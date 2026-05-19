@@ -737,6 +737,7 @@ html[data-theme="light"] .page-title {
     transition: var(--transition);
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
+    cursor: pointer;
 }
 
 .search-input:focus {
@@ -781,16 +782,15 @@ html[data-theme="light"] .page-title {
     font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* Language toggle ??? pill shape with flag + code */
+/* Language toggle — round icon button matching theme-toggle */
 .lang-toggle-btn {
-    height: 36px;
-    border-radius: 18px;
-    padding: 0 12px 0 8px;
-    gap: 5px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    padding: 0;
     background: rgba(91, 159, 212, 0.10);
     border: 1.5px solid var(--border-color);
     color: var(--text-primary);
-    font-size: 15px;
     cursor: pointer;
     transition: var(--transition);
     display: flex;
@@ -799,14 +799,8 @@ html[data-theme="light"] .page-title {
     font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-.lang-flag { font-size: 17px; line-height: 1; }
-.lang-code {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-}
+.lang-flag { font-size: 20px; line-height: 1; }
+.lang-code { display: none; }
 
 .theme-toggle-btn:hover,
 .lang-toggle-btn:hover {
@@ -6019,31 +6013,25 @@ body {
 
 /* Done state */
 .focus-done {
-    display: flex;
+    display: none;
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    opacity: 0;
-    transform: scale(0.85);
-    pointer-events: none;
-    transition: opacity 0.4s var(--ease-smooth), transform 0.4s var(--ease-smooth);
 }
 
 .focus-done.visible {
-    opacity: 1;
-    transform: scale(1);
-    pointer-events: auto;
+    display: flex;
+    animation: focusDoneIn 0.5s var(--ease-smooth) both;
+}
+
+@keyframes focusDoneIn {
+    from { opacity: 0; transform: scale(0.85); }
+    to   { opacity: 1; transform: scale(1); }
 }
 
 .focus-done-icon {
     font-size: 56px;
-    animation: focusBounce 0.5s var(--ease-smooth);
-}
-
-@keyframes focusBounce {
-    0%   { transform: scale(0); }
-    60%  { transform: scale(1.2); }
-    100% { transform: scale(1); }
+    display: block;
 }
 
 .focus-done-title {

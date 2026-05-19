@@ -4624,6 +4624,9 @@ ${reflectionsHtml}
             const input = document.getElementById('cmd-input');
             input?.addEventListener('input', () => this._search(input.value));
             input?.addEventListener('keydown', (e) => this._onKeydown(e));
+
+            // Header search box — clicking it opens the command palette
+            document.querySelector('.search-input')?.addEventListener('click', () => this.open());
         },
 
         open() {
