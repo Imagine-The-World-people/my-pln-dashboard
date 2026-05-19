@@ -2311,7 +2311,7 @@ import Sortable from 'sortablejs';
             requestAnimationFrame(() => $('#notes-title-input')?.focus());
         },
 
-        // ── Open a note in the editor ──
+        // ── Open a note in the editor (full-page mode) ──
         openNote(id) {
             // Save any unsaved changes first
             if (this._activeId !== null && this._activeId !== id) this._flushSave();
@@ -2321,7 +2321,8 @@ import Sortable from 'sortablejs';
             if (!note) return;
 
             // Show editor, hide welcome
-            $('#notes-editor-welcome')?.style && (document.getElementById('notes-editor-welcome').hidden = true);
+            const welcome = $('#notes-editor-welcome');
+            if (welcome) welcome.hidden = true;
             const editor = $('#notes-editor');
             if (editor) editor.hidden = false;
 
@@ -2333,6 +2334,16 @@ import Sortable from 'sortablejs';
             if (body) {
                 body.innerHTML = note.content || '';
                 this._updateWordCount();
+            }
+
+            // Auto date stamp (show created date)
+            const dateEl = $('#notes-page-date');
+            if (dateEl) {
+                const d = new Date(note.createdAt || Date.now());
+                dateEl.textContent = d.toLocaleString(undefined, {
+                    weekday: 'long', year: 'numeric', month: 'long',
+                    day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
             }
 
             // Drawing
@@ -2350,11 +2361,19 @@ import Sortable from 'sortablejs';
                 el.classList.toggle('active', parseInt(el.dataset.id) === id);
             });
 
-            // Mobile: show editor pane
-            $('#notes-editor-pane')?.classList.add('show-mobile');
-            $('#notes-sidebar')?.classList.add('hidden-mobile');
+            // Enter full-page mode (sidebar slides away)
+            document.getElementById('notes-app')?.classList.add('page-open');
+
+            // Scroll page content to top
+            const content = $('#notes-page-content');
+            if (content) content.scrollTop = 0;
 
             this._setAutosave('');
+            // Focus title if blank
+            requestAnimationFrame(() => {
+                if (!note.title) $('#notes-title-input')?.focus();
+                else $('#notes-rich-body')?.focus();
+            });
         },
 
         // ── Bind all events ──
@@ -2363,10 +2382,9 @@ import Sortable from 'sortablejs';
             $('#notes-new-btn')?.addEventListener('click', () => this.newNote());
             $('#notes-editor-new-btn')?.addEventListener('click', () => this.newNote());
 
-            // Mobile back
+            // Back button — exit full-page mode
             $('#notes-back-btn')?.addEventListener('click', () => {
-                $('#notes-editor-pane')?.classList.remove('show-mobile');
-                $('#notes-sidebar')?.classList.remove('hidden-mobile');
+                document.getElementById('notes-app')?.classList.remove('page-open');
             });
 
             // Title input → autosave
@@ -2402,6 +2420,68 @@ import Sortable from 'sortablejs';
                 }
             });
 
+            // Font size select
+            $('#notes-font-size')?.addEventListener('change', (e) => {
+                const bodyEl = $('#notes-rich-body');
+                bodyEl?.focus();
+                document.execCommand('fontSize', false, e.target.value);
+                this._scheduleAutosave();
+            });
+
+            // Text color picker
+            $('#text-color-btn')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.getElementById('highlight-wrap')?.classList.remove('open');
+                document.getElementById('text-color-wrap')?.classList.toggle('open');
+            });
+            $('#text-color-popup')?.addEventListener('click', (e) => {
+                const btn = e.target.closest('.cswatch');
+                if (!btn) return;
+                const color = btn.dataset.color;
+                document.getElementById('text-color-wrap')?.classList.remove('open');
+                const bodyEl = $('#notes-rich-body');
+                bodyEl?.focus();
+                if (color) {
+                    document.execCommand('foreColor', false, color);
+                    const bar = $('#text-color-bar');
+                    if (bar) bar.style.background = color;
+                } else {
+                    document.execCommand('removeFormat', false, null);
+                }
+                this._scheduleAutosave();
+            });
+
+            // Highlight color picker
+            $('#highlight-btn')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.getElementById('text-color-wrap')?.classList.remove('open');
+                document.getElementById('highlight-wrap')?.classList.toggle('open');
+            });
+            $('#highlight-popup')?.addEventListener('click', (e) => {
+                const btn = e.target.closest('.cswatch');
+                if (!btn) return;
+                const color = btn.dataset.color;
+                document.getElementById('highlight-wrap')?.classList.remove('open');
+                const bodyEl = $('#notes-rich-body');
+                bodyEl?.focus();
+                if (color === 'transparent') {
+                    document.execCommand('hiliteColor', false, 'transparent');
+                    document.execCommand('backColor', false, 'transparent');
+                } else if (color) {
+                    document.execCommand('hiliteColor', false, color) ||
+                    document.execCommand('backColor', false, color);
+                    const bar = $('#highlight-bar');
+                    if (bar) bar.style.background = color;
+                }
+                this._scheduleAutosave();
+            });
+
+            // Close color popups on outside click
+            document.addEventListener('click', () => {
+                document.getElementById('text-color-wrap')?.classList.remove('open');
+                document.getElementById('highlight-wrap')?.classList.remove('open');
+            });
+
             // Format toolbar
             $('#notes-format-bar')?.addEventListener('click', (e) => {
                 const btn = e.target.closest('.fmt-btn');
@@ -2412,8 +2492,9 @@ import Sortable from 'sortablejs';
 
                 if (cmd === 'checklist') {
                     this._insertChecklist();
+                } else if (cmd === 'insertLink') {
+                    this._insertLink();
                 } else {
-                    // Ensure body is focused before execCommand
                     const bodyEl = $('#notes-rich-body');
                     bodyEl?.focus();
                     document.execCommand(cmd, false, val);
@@ -2422,7 +2503,7 @@ import Sortable from 'sortablejs';
                 this._scheduleAutosave();
             });
 
-            // Pin / delete from toolbar
+            // Pin / delete
             $('#note-pin-btn')?.addEventListener('click', () => this._togglePin());
             $('#note-delete-btn')?.addEventListener('click', () => this._deleteActive());
 
@@ -2479,11 +2560,11 @@ import Sortable from 'sortablejs';
             this._save();
             this._activeId = null;
 
-            // Show welcome
+            // Show welcome, exit full-page mode
             if ($('#notes-editor')) document.getElementById('notes-editor').hidden = true;
-            if ($('#notes-editor-welcome')) document.getElementById('notes-editor-welcome').hidden = false;
-            $('#notes-editor-pane')?.classList.remove('show-mobile');
-            $('#notes-sidebar')?.classList.remove('hidden-mobile');
+            const welcome = $('#notes-editor-welcome');
+            if (welcome) welcome.hidden = false;
+            document.getElementById('notes-app')?.classList.remove('page-open');
 
             this.renderList();
             this._syncDashboard();
@@ -2614,9 +2695,30 @@ import Sortable from 'sortablejs';
             return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
         },
 
+        // ── Insert link ──
+        _insertLink() {
+            const bodyEl = $('#notes-rich-body');
+            if (!bodyEl) return;
+            const url = prompt('Enter URL:');
+            if (!url) return;
+            const safe = url.startsWith('http://') || url.startsWith('https://') || url.startsWith('mailto:')
+                ? url : 'https://' + url;
+            bodyEl.focus();
+            const sel = window.getSelection();
+            const hasSelection = sel && sel.toString().trim();
+            if (hasSelection) {
+                document.execCommand('createLink', false, safe);
+            } else {
+                document.execCommand('insertHTML', false,
+                    `<a href="${escapeHtml(safe)}" target="_blank" rel="noopener">${escapeHtml(safe)}</a>`);
+            }
+        },
+
         // ── Format bar active state ──
         _updateFormatBar() {
-            ['bold', 'italic', 'underline'].forEach(cmd => {
+            ['bold', 'italic', 'underline', 'strikeThrough',
+             'insertUnorderedList', 'insertOrderedList',
+             'justifyLeft', 'justifyCenter', 'justifyRight'].forEach(cmd => {
                 const btn = document.querySelector(`.fmt-btn[data-cmd="${cmd}"]`);
                 if (btn) btn.classList.toggle('active', document.queryCommandState(cmd));
             });
