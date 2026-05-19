@@ -5184,11 +5184,17 @@ html[data-theme="light"] .notes-page-card {
 .note-draw-panel {
     display: none;
     position: absolute;
-    inset: 0;
-    z-index: 20;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(700px, 96%);
+    height: 360px;
+    z-index: 50;
     flex-direction: column;
-    background: var(--bg-dark);
-    border-radius: var(--card-radius);
+    background: var(--bg-card);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 32px rgba(0,0,0,.35), 0 2px 8px rgba(0,0,0,.2);
     overflow: hidden;
 }
 .note-draw-panel.open { display: flex; }
@@ -5266,7 +5272,7 @@ html[data-theme="light"] .notes-page-card {
 }
 .attach-file-icon { padding: 4px; font-size: 9px; font-weight: 700; word-break: break-all; }
 .note-file-hidden { display: none; }
-.note-drawing-inline { max-width: 100%; border-radius: 4px; margin: 8px 0; display: block; }
+.note-drawing-inline { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); margin: 12px 0; display: block; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
 
 /* Status bar */
 .notes-status-bar {
@@ -5547,18 +5553,29 @@ html[data-theme="light"] .notes-page-card {
 }
 
 /* ─────────────────────────────────────────
+   Notes: Section tabs strip (always-visible, above the scroll area)
+   ───────────────────────────────────────── */
+.notes-section-strip {
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-dark);
+    padding: 0 20px;
+}
+
+/* ─────────────────────────────────────────
    Notes: Section tabs
    ───────────────────────────────────────── */
 .notes-section-tabs {
     width: 100%;
     max-width: 680px;
+    margin: 0 auto;
     display: flex;
     align-items: center;
-    gap: 6px;
-    margin-bottom: 14px;
+    gap: 4px;
+    padding: 8px 0;
     overflow-x: auto;
     scrollbar-width: none;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 .notes-section-tabs::-webkit-scrollbar { display: none; }
 

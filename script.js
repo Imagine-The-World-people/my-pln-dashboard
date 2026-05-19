@@ -1588,6 +1588,27 @@ import Sortable from 'sortablejs';
         _activeTag: null,
         _activeCat: 'all',
 
+        /** Ensure a URL is absolute (prepend https:// if needed) */
+        _normalizeUrl(url) {
+            if (!url) return '#';
+            const t = url.trim();
+            if (!t || t === '#') return '#';
+            if (/^https?:\/\//i.test(t)) return t;
+            return 'https://' + t;
+        },
+
+        /** Re-render all user-added cards from storage (used after sync) */
+        render() {
+            const grid = $('#resources-grid');
+            if (!grid) return;
+            $$('.resource-card.user-added').forEach(c => c.remove());
+            const saved = Store.get(this.STORE_KEY, []);
+            saved.forEach(r => this._appendCard(r));
+            this._updateCount();
+            this._toggleEmpty();
+            this._applyFilters();
+        },
+
         init() {
             const filterContainer = $('.filter-section');
             if (!filterContainer) return;
@@ -1665,10 +1686,10 @@ import Sortable from 'sortablejs';
                 // Resource link
                 const link = e.target.closest('.resource-link');
                 if (link) {
-                    const card = link.closest('.resource-card');
-                    const url = card?.dataset.url;
-                    if (url) { window.open(url, '_blank', 'noopener'); return; }
                     e.preventDefault();
+                    const card = link.closest('.resource-card');
+                    const url = this._normalizeUrl(card?.dataset.url);
+                    if (url && url !== '#') { window.open(url, '_blank', 'noopener,noreferrer'); return; }
                     const title = card?.querySelector('h3')?.textContent;
                     notify('Open Resource', `Opening: ${title}`);
                     return;
@@ -1689,6 +1710,7 @@ import Sortable from 'sortablejs';
                         Store.set(this.STORE_KEY, list.filter(r => String(r.id) !== id));
                         this._updateCount();
                         this._toggleEmpty();
+                        CloudSync.scheduleSave();
                         if (resource) {
                             UndoQueue.push(
                                 `"${(resource.title || resource.url || 'Resource').slice(0, 40)}" deleted`,
@@ -1697,6 +1719,7 @@ import Sortable from 'sortablejs';
                                     cur.splice(Math.min(idx, cur.length), 0, resource);
                                     Store.set(this.STORE_KEY, cur);
                                     this.render();
+                                    CloudSync.scheduleSave();
                                     notify('↩ Restored', `Resource restored successfully`, 'success');
                                 },
                                 () => {}
@@ -1846,7 +1869,7 @@ import Sortable from 'sortablejs';
         _addResource() {
             const title = $('#res-title')?.value.trim();
             const desc = $('#res-desc')?.value.trim();
-            const url = $('#res-url')?.value.trim();
+            const url = this._normalizeUrl($('#res-url')?.value.trim());
             const type = document.querySelector('#res-type-picker .res-type-pill.active')?.dataset.type || 'blog';
             const category = document.querySelector('#res-category-picker .res-cat-pill.active')?.dataset.category || 'development';
             const tagsRaw = $('#res-tags')?.value.trim();
@@ -1863,7 +1886,7 @@ import Sortable from 'sortablejs';
                 const list = Store.get(this.STORE_KEY, []);
                 const idx = list.findIndex(r => String(r.id) === this._editingId);
                 if (idx !== -1) {
-                    list[idx] = { ...list[idx], title, desc: desc || 'No description provided.', url: url || '#', type, category, tags, rating, groupId: groupId || list[idx].groupId || '' };
+                    list[idx] = { ...list[idx], title, desc: desc || 'No description provided.', url, type, category, tags, rating, groupId: groupId || list[idx].groupId || '', updatedAt: new Date().toISOString() };
                     Store.set(this.STORE_KEY, list);
 
                     // Remove old card and re-append
@@ -1887,13 +1910,14 @@ import Sortable from 'sortablejs';
                     id: Date.now(),
                     title,
                     desc: desc || 'No description provided.',
-                    url: url || '#',
+                    url,
                     type,
                     category,
                     tags,
                     rating,
                     groupId: groupId || '',
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
                 };
 
                 const list = Store.get(this.STORE_KEY, []);
@@ -1929,6 +1953,7 @@ import Sortable from 'sortablejs';
             this._closePanel();
             this._toggleEmpty();
             this._applyFilters();
+            CloudSync.scheduleSave();
         },
 
         _openModal(id) {
@@ -1989,9 +2014,12 @@ import Sortable from 'sortablejs';
             if (desc) desc.textContent = r.desc || '';
             const link = $('#resource-modal-link');
             if (link) {
-                link.href = r.url || '#';
+                const mUrl = this._normalizeUrl(r.url);
+                link.href = mUrl;
+                link.setAttribute('target', '_blank');
+                link.setAttribute('rel', 'noopener noreferrer');
                 link.textContent = (LINK_LABELS[r.type] || 'Open') + ' →';
-                link.style.display = (r.url && r.url !== '#') ? '' : 'none';
+                link.style.display = (mUrl && mUrl !== '#') ? '' : 'none';
             }
 
             const overlay = $('#resource-modal-overlay');
@@ -2064,7 +2092,8 @@ import Sortable from 'sortablejs';
             card.dataset.tags = tagsArr.join(',').toLowerCase();
             card.dataset.id = r.id;
             card.dataset.groupId = r.groupId || '';
-            if (r.url && r.url !== '#') card.dataset.url = r.url;
+            const normalizedUrl = this._normalizeUrl(r.url);
+            if (normalizedUrl && normalizedUrl !== '#') card.dataset.url = normalizedUrl;
 
             const cat = r.category || 'development';
             const catLabel = CAT_LABELS[cat] || cat;
@@ -2096,7 +2125,7 @@ import Sortable from 'sortablejs';
                         })()}
                     </div>
                 </div>
-                <a href="${escapeHtml(r.url || '#')}" target="_blank" rel="noopener" class="resource-link">
+                <a href="${escapeHtml(normalizedUrl)}" target="_blank" rel="noopener noreferrer" class="resource-link">
                     ${TYPE_ICONS[r.type] ? `<span class="resource-link-icon">${TYPE_ICONS[r.type]}</span>` : ''}
                     ${LINK_LABELS[r.type] || 'Open →'}
                 </a>
@@ -4057,7 +4086,8 @@ ${reflectionsHtml}
                 version: 1,
                 goals: state.goals,
                 notes: state.notes,
-                reflections: state.reflections
+                reflections: state.reflections,
+                resources: Store.get(Resources.STORE_KEY, [])
             };
 
             const json = JSON.stringify(payload, null, 2);
@@ -4088,29 +4118,36 @@ ${reflectionsHtml}
                     }
 
                     // Merge imported data with existing (import adds, does not overwrite)
-                    const existingGoalIds = new Set(state.goals.map(g => g.id));
-                    const existingNoteIds = new Set(state.notes.map(n => n.id));
+                    const existingGoalIds       = new Set(state.goals.map(g => g.id));
+                    const existingNoteIds       = new Set(state.notes.map(n => n.id));
                     const existingReflectionIds = new Set(state.reflections.map(r => r.id));
+                    const existingResourceIds   = new Set(Store.get(Resources.STORE_KEY, []).map(r => r.id));
 
-                    const newGoals = (parsed.goals || []).filter(g => !existingGoalIds.has(g.id));
-                    const newNotes = (parsed.notes || []).filter(n => !existingNoteIds.has(n.id));
+                    const newGoals       = (parsed.goals       || []).filter(g => !existingGoalIds.has(g.id));
+                    const newNotes       = (parsed.notes       || []).filter(n => !existingNoteIds.has(n.id));
                     const newReflections = (parsed.reflections || []).filter(r => !existingReflectionIds.has(r.id));
+                    const newResources   = (parsed.resources   || []).filter(r => !existingResourceIds.has(r.id));
 
                     state.goals.push(...newGoals);
                     state.notes.push(...newNotes);
                     state.reflections.push(...newReflections);
 
-                    Store.set('pln_goals', state.goals);
-                    Store.set('pln_notes', state.notes);
-                    Store.set('pln_reflections', state.reflections);
+                    const curResources = Store.get(Resources.STORE_KEY, []);
+                    curResources.push(...newResources);
+
+                    Store.set('pln_goals',            state.goals);
+                    Store.set('pln_notes',            state.notes);
+                    Store.set('pln_reflections',      state.reflections);
+                    Store.set(Resources.STORE_KEY,    curResources);
 
                     Goals.render();
                     Goals.updateProgress();
                     Notes.render();
                     Notes._syncDashboard();
                     Reflections.render();
+                    Resources.render();
 
-                    const total = newGoals.length + newNotes.length + newReflections.length;
+                    const total = newGoals.length + newNotes.length + newReflections.length + newResources.length;
                     notify('Import fullført!', `${total} nye element(er) ble lagt til`, 'success');
                 } catch {
                     notify('Importfeil', 'Filen er ugyldig eller skadet', 'error');
@@ -4158,6 +4195,7 @@ ${reflectionsHtml}
                     goals: state.goals,
                     notes: state.notes,
                     reflections: state.reflections,
+                    resources: Store.get(Resources.STORE_KEY, []),
                     updated_at: new Date().toISOString()
                 }, { onConflict: 'user_id' });
                 if (error) {
@@ -4217,6 +4255,11 @@ ${reflectionsHtml}
                 state.notes       = merge(state.notes,       data.notes);
                 state.reflections = merge(state.reflections, data.reflections);
 
+                // Merge resources (stored in their own Store key, not in state)
+                const localResources  = Store.get(Resources.STORE_KEY, []);
+                const mergedResources = merge(localResources, data.resources);
+                Store.set(Resources.STORE_KEY, mergedResources);
+
                 // Persist merged result to localStorage
                 localStorage.setItem('pln_goals',       JSON.stringify(state.goals));
                 localStorage.setItem('pln_notes',       JSON.stringify(state.notes));
@@ -4227,6 +4270,7 @@ ${reflectionsHtml}
                 Notes.render();
                 Notes._syncDashboard();
                 Reflections.render();
+                Resources.render();
                 Navigation.updateBadges();
 
                 notify('Synkronisert ☁️', 'Data lastet inn fra skyen', 'success');
