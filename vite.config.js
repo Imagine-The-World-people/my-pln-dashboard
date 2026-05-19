@@ -1,8 +1,10 @@
 import { defineConfig } from 'vite';
 
+// Vercel sets VERCEL=1 automatically; GitHub Pages needs the repo subfolder
+const base = process.env.VERCEL ? '/' : '/my-pln-dashboard/';
+
 export default defineConfig({
-  // GitHub Pages serves from /my-pln-dashboard/ — must match repo name
-  base: '/my-pln-dashboard/',
+  base,
   root: '.',
 
   build: {
