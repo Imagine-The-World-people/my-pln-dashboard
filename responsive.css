@@ -725,21 +725,21 @@ button, a, [role="button"], label {
         min-height: 80px;
     }
 
-    /* Filter buttons - More touch-friendly */
+    /* Filter buttons - More touch-friendly and equal height */
     .filter-buttons {
         gap: 6px;
     }
 
     .filter-btn {
-        padding: 10px 14px;
-        min-height: 40px;
+        padding: 9px 12px;
+        min-height: 38px;
         font-size: 12px;
     }
 
     .cat-filter-btn {
-        padding: 7px 10px;
-        min-height: 36px;
-        font-size: 11px;
+        padding: 9px 12px;
+        min-height: 38px;
+        font-size: 12px;
     }
 
     .filter-group-label {
@@ -885,12 +885,60 @@ button, a, [role="button"], label {
     .resource-add-panel {
         padding: 12px;
     }
+    .resource-add-panel-header {
+        padding: 16px 16px 0;
+    }
+    .resource-add-panel-body {
+        padding: 16px 16px;
+        gap: 12px;
+    }
+    .resource-add-panel-footer {
+        padding: 0 16px 16px;
+    }
     .resource-type-pill {
         font-size: 12px;
         padding: 6px 10px;
     }
     .resource-add-panel .btn {
         width: 100%;
+    }
+
+    /* ---------- Resource modal — mobile ---------- */
+    .resource-modal-overlay {
+        padding: 12px;
+        align-items: flex-end;
+    }
+    .resource-modal {
+        max-width: 100%;
+        max-height: 88vh;
+        border-radius: 16px 16px 12px 12px;
+    }
+    .resource-modal-header {
+        padding: 12px 16px;
+    }
+    .resource-modal-body {
+        padding: 16px 16px 12px;
+    }
+    .resource-modal-title {
+        font-size: 18px;
+    }
+    .resource-modal-footer {
+        padding: 12px 16px;
+    }
+
+    /* ---------- Resource toolbar — mobile stack ---------- */
+    .resource-toolbar {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .resource-search-wrap {
+        max-width: 100%;
+        flex: 1 1 100%;
+        order: 2;
+    }
+    .add-resource-btn {
+        order: 1;
+        align-self: flex-end;
     }
 
     /* ---------- Notes Drawing (mobile) ---------- */
@@ -1075,6 +1123,26 @@ button, a, [role="button"], label {
     .goal-card .goal-actions {
         flex-wrap: wrap;
         gap: 6px;
+    }
+
+    /* ---------- Resource modal — tablet ---------- */
+    .resource-modal {
+        max-width: calc(100vw - 32px);
+        margin: 0;
+    }
+    .resource-modal-header {
+        padding: 14px 20px;
+    }
+    .resource-modal-body {
+        padding: 20px 20px 16px;
+    }
+    .resource-modal-footer {
+        padding: 14px 20px;
+    }
+
+    /* ---------- Resource toolbar — tablet ---------- */
+    .resource-search-wrap {
+        max-width: 300px;
     }
 }
 
