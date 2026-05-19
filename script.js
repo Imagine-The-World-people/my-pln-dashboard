@@ -2266,100 +2266,375 @@ import Sortable from 'sortablejs';
 
     const Notes = {
         STORE_KEY: 'pln_notes',
-        MAX_CHARS: 500,
+        _activeId: null,
+        _autoSaveTimer: null,
         _drawCtx: null,
         _drawing: false,
         _drawColor: '#6366f1',
         _drawSize: 2,
         _erasing: false,
         _drawDataURL: null,
-        _pendingFiles: [],   // { name, dataURL, type }
+        _pendingFiles: [],
 
         init() {
             state.notes = Store.get(this.STORE_KEY, []);
             this._bindEvents();
             this._initDrawing();
-            this.render();
+            this.renderList();
             this._syncDashboard();
         },
 
+        // ── Create a fresh note and open it ──
+        newNote() {
+            const note = {
+                id: Date.now(),
+                title: '',
+                content: '',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                displayDate: formatDateTime({ month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+                wordCount: 0,
+                drawing: null,
+                files: null,
+                pinned: false
+            };
+            state.notes.unshift(note);
+            this._save();
+            this.renderList();
+            this.openNote(note.id);
+            Streak.recordActivity();
+            ActivityTracker.record();
+            ActivityChart.render();
+            StreakCalendar.render();
+            this._syncDashboard();
+            // Focus title input
+            requestAnimationFrame(() => $('#notes-title-input')?.focus());
+        },
+
+        // ── Open a note in the editor ──
+        openNote(id) {
+            // Save any unsaved changes first
+            if (this._activeId !== null && this._activeId !== id) this._flushSave();
+
+            this._activeId = id;
+            const note = state.notes.find(n => n.id === id);
+            if (!note) return;
+
+            // Show editor, hide welcome
+            $('#notes-editor-welcome')?.style && (document.getElementById('notes-editor-welcome').hidden = true);
+            const editor = $('#notes-editor');
+            if (editor) editor.hidden = false;
+
+            // Populate fields
+            const titleEl = $('#notes-title-input');
+            if (titleEl) titleEl.value = note.title || '';
+
+            const body = $('#notes-rich-body');
+            if (body) {
+                body.innerHTML = note.content || '';
+                this._updateWordCount();
+            }
+
+            // Drawing
+            this._drawDataURL = note.drawing || null;
+            // Files
+            this._pendingFiles = note.files ? [...note.files] : [];
+            this._renderAttachPreview();
+
+            // Pin button state
+            const pinBtn = $('#note-pin-btn');
+            if (pinBtn) pinBtn.classList.toggle('pinned', !!note.pinned);
+
+            // Update sidebar active state
+            document.querySelectorAll('#notes-list .nli').forEach(el => {
+                el.classList.toggle('active', parseInt(el.dataset.id) === id);
+            });
+
+            // Mobile: show editor pane
+            $('#notes-editor-pane')?.classList.add('show-mobile');
+            $('#notes-sidebar')?.classList.add('hidden-mobile');
+
+            this._setAutosave('');
+        },
+
+        // ── Bind all events ──
         _bindEvents() {
-            const textarea = $('#note-textarea');
-            const saveBtn = $('#save-note-btn');
-            const list = $('#notes-list');
+            // New note buttons
+            $('#notes-new-btn')?.addEventListener('click', () => this.newNote());
+            $('#notes-editor-new-btn')?.addEventListener('click', () => this.newNote());
 
-            saveBtn?.addEventListener('click', () => this.save());
-
-            textarea?.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && e.ctrlKey) this.save();
+            // Mobile back
+            $('#notes-back-btn')?.addEventListener('click', () => {
+                $('#notes-editor-pane')?.classList.remove('show-mobile');
+                $('#notes-sidebar')?.classList.remove('hidden-mobile');
             });
 
-            textarea?.addEventListener('input', () => {
-                let len = textarea.value.length;
-                if (len > this.MAX_CHARS) {
-                    textarea.value = textarea.value.substring(0, this.MAX_CHARS);
-                    len = this.MAX_CHARS;
-                }
-                const counter = $('#char-count');
-                if (counter) counter.textContent = len;
-                const wrap = document.querySelector('.char-count');
-                if (wrap) {
-                    wrap.classList.toggle('warning', len >= 400 && len < 475);
-                    const isDanger = len >= 475;
-                    if (isDanger && !wrap.classList.contains('danger')) {
-                        wrap.classList.remove('danger');
-                        void wrap.offsetWidth;
+            // Title input → autosave
+            $('#notes-title-input')?.addEventListener('input', () => this._scheduleAutosave());
+
+            // Rich body → autosave + word count + format bar state
+            const body = $('#notes-rich-body');
+            body?.addEventListener('input', () => {
+                this._updateWordCount();
+                this._scheduleAutosave();
+            });
+            body?.addEventListener('keyup', () => this._updateFormatBar());
+            body?.addEventListener('mouseup', () => this._updateFormatBar());
+            body?.addEventListener('keydown', (e) => {
+                // Checklist: Enter inside a checklist li should create new li
+                if (e.key === 'Enter') {
+                    const sel = window.getSelection();
+                    if (sel && sel.anchorNode) {
+                        const li = sel.anchorNode.closest?.('li');
+                        if (li && li.closest('ul.checklist')) {
+                            e.preventDefault();
+                            document.execCommand('insertHTML', false, '<li>');
+                        }
                     }
-                    wrap.classList.toggle('danger', isDanger);
+                }
+                // Tab inside pre → insert spaces
+                if (e.key === 'Tab') {
+                    const sel = window.getSelection();
+                    if (sel && sel.anchorNode?.closest?.('pre')) {
+                        e.preventDefault();
+                        document.execCommand('insertText', false, '    ');
+                    }
                 }
             });
 
-            // Delegated clicks on note list
-            list?.addEventListener('click', (e) => {
-                const card = e.target.closest('.note-card');
-                if (!card) return;
-                const id = parseInt(card.id.replace('note-', ''));
+            // Format toolbar
+            $('#notes-format-bar')?.addEventListener('click', (e) => {
+                const btn = e.target.closest('.fmt-btn');
+                if (!btn) return;
+                const cmd = btn.dataset.cmd;
+                const val = btn.dataset.val || null;
+                if (!cmd) return;
 
-                if (e.target.closest('.note-delete-btn')) return this.delete(id);
-                if (e.target.closest('.note-edit-btn'))   return this.startEdit(id);
-                if (e.target.closest('.note-edit-save'))  return this.saveEdit(id);
-                if (e.target.closest('.note-edit-cancel'))return this.cancelEdit(id);
-                if (e.target.closest('.note-pin-btn'))    return this.togglePin(id);
+                if (cmd === 'checklist') {
+                    this._insertChecklist();
+                } else {
+                    // Ensure body is focused before execCommand
+                    const bodyEl = $('#notes-rich-body');
+                    bodyEl?.focus();
+                    document.execCommand(cmd, false, val);
+                }
+                this._updateFormatBar();
+                this._scheduleAutosave();
             });
 
-            // Note search
-            $('#notes-search')?.addEventListener('input', (e) => {
-                this._filterBySearch(e.target.value.trim());
-            });
+            // Pin / delete from toolbar
+            $('#note-pin-btn')?.addEventListener('click', () => this._togglePin());
+            $('#note-delete-btn')?.addEventListener('click', () => this._deleteActive());
 
-            // Draw toggle button
+            // Search
+            $('#notes-search')?.addEventListener('input', (e) => this._filterList(e.target.value.trim()));
+
+            // File input
+            $('#note-file-input')?.addEventListener('change', (e) => this._handleFiles(e.target.files));
+
+            // Draw toggle
             $('#note-draw-btn')?.addEventListener('click', () => {
                 const panel = $('#note-draw-panel');
                 const btn = $('#note-draw-btn');
                 const isOpen = panel?.classList.toggle('open');
                 btn?.classList.toggle('active-tool', isOpen);
-                // Size the canvas after the panel becomes visible (panel was display:none before)
                 if (isOpen) requestAnimationFrame(() => this._sizeCanvas());
             });
 
-            // File input
-            $('#note-file-input')?.addEventListener('change', (e) => this._handleFiles(e.target.files));
+            // Checklist click (toggle checked)
+            $('#notes-rich-body')?.addEventListener('click', (e) => {
+                const li = e.target.closest('ul.checklist li');
+                if (li) {
+                    li.classList.toggle('checked');
+                    this._scheduleAutosave();
+                }
+            });
         },
 
-        /* ---- Canvas resize (called when draw panel becomes visible) ---- */
+        _insertChecklist() {
+            const bodyEl = $('#notes-rich-body');
+            if (!bodyEl) return;
+            bodyEl.focus();
+            document.execCommand('insertHTML', false,
+                '<ul class="checklist"><li>Task</li></ul><p></p>');
+        },
+
+        _togglePin() {
+            const note = state.notes.find(n => n.id === this._activeId);
+            if (!note) return;
+            note.pinned = !note.pinned;
+            $('#note-pin-btn')?.classList.toggle('pinned', note.pinned);
+            this._save();
+            this.renderList();
+        },
+
+        _deleteActive() {
+            const id = this._activeId;
+            if (id === null) return;
+            const note = state.notes.find(n => n.id === id);
+            if (!note) return;
+            const idx = state.notes.indexOf(note);
+
+            state.notes = state.notes.filter(n => n.id !== id);
+            this._save();
+            this._activeId = null;
+
+            // Show welcome
+            if ($('#notes-editor')) document.getElementById('notes-editor').hidden = true;
+            if ($('#notes-editor-welcome')) document.getElementById('notes-editor-welcome').hidden = false;
+            $('#notes-editor-pane')?.classList.remove('show-mobile');
+            $('#notes-sidebar')?.classList.remove('hidden-mobile');
+
+            this.renderList();
+            this._syncDashboard();
+
+            UndoQueue.push(
+                'Note deleted',
+                () => {
+                    state.notes.splice(idx, 0, note);
+                    this._save();
+                    this.renderList();
+                    this.openNote(note.id);
+                    this._syncDashboard();
+                    notify('↩ Restored', 'Note restored successfully', 'success');
+                },
+                () => { this._save(); }
+            );
+        },
+
+        // ── Auto-save ──
+        _scheduleAutosave() {
+            this._setAutosave('saving');
+            clearTimeout(this._autoSaveTimer);
+            this._autoSaveTimer = setTimeout(() => this._flushSave(), 800);
+        },
+
+        _flushSave() {
+            clearTimeout(this._autoSaveTimer);
+            if (this._activeId === null) return;
+            const note = state.notes.find(n => n.id === this._activeId);
+            if (!note) return;
+
+            const titleEl = $('#notes-title-input');
+            const body = $('#notes-rich-body');
+
+            note.title = titleEl?.value.trim() || '';
+            note.content = body?.innerHTML || '';
+            note.drawing = this._drawDataURL || null;
+            note.files = this._pendingFiles.length ? [...this._pendingFiles] : null;
+            note.updatedAt = new Date().toISOString();
+            note.wordCount = this._countWords(body?.innerText || '');
+
+            this._save();
+            this.renderList();
+            this._setAutosave('saved');
+            this._syncDashboard();
+        },
+
+        _setAutosave(state) {
+            const el = $('#notes-autosave');
+            if (!el) return;
+            el.className = 'notes-autosave';
+            if (state === 'saving') { el.textContent = 'Saving…'; el.classList.add('saving'); }
+            else if (state === 'saved') { el.textContent = 'Saved'; el.classList.add('saved'); }
+            else { el.textContent = ''; }
+        },
+
+        _countWords(text) {
+            const t = text.trim();
+            return t ? t.split(/\s+/).filter(Boolean).length : 0;
+        },
+
+        _updateWordCount() {
+            const body = $('#notes-rich-body');
+            const wc = this._countWords(body?.innerText || '');
+            const el = $('#notes-word-count');
+            if (el) el.textContent = `${wc} word${wc !== 1 ? 's' : ''}`;
+        },
+
+        // ── Render sidebar list ──
+        renderList() {
+            const list = $('#notes-list');
+            const empty = $('#empty-state-notes');
+            if (!list) return;
+
+            const q = ($('#notes-search')?.value || '').toLowerCase().trim();
+            const sorted = [...state.notes].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+            const filtered = q
+                ? sorted.filter(n => (n.title + ' ' + (n.content || '')).toLowerCase().includes(q))
+                : sorted;
+
+            if (filtered.length === 0) {
+                list.innerHTML = '';
+                empty?.classList.add('show');
+                return;
+            }
+            empty?.classList.remove('show');
+
+            list.innerHTML = filtered.map(n => {
+                const title = n.title || this._plainPreview(n.content, 40) || '(Untitled)';
+                const preview = n.title ? this._plainPreview(n.content, 55) : '';
+                const age = this._timeAgo(n.updatedAt || n.createdAt);
+                const isActive = n.id === this._activeId;
+                return `<div class="nli${isActive ? ' active' : ''}" data-id="${n.id}">
+                    ${n.pinned ? '<span class="nli-pin">📌</span>' : ''}
+                    <div class="nli-title">${escapeHtml(title)}</div>
+                    ${preview ? `<div class="nli-preview">${escapeHtml(preview)}</div>` : ''}
+                    <div class="nli-meta">${age}</div>
+                </div>`;
+            }).join('');
+
+            // Click on list item
+            list.querySelectorAll('.nli').forEach(el => {
+                el.addEventListener('click', () => this.openNote(parseInt(el.dataset.id)));
+            });
+        },
+
+        _plainPreview(html, maxLen) {
+            if (!html) return '';
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html;
+            const text = (tmp.textContent || '').replace(/\s+/g, ' ').trim();
+            return text.length > maxLen ? text.slice(0, maxLen) + '…' : text;
+        },
+
+        _filterList(q) {
+            this.renderList();
+        },
+
+        _timeAgo(isoStr) {
+            if (!isoStr) return '';
+            const date = new Date(isoStr);
+            if (isNaN(date)) return isoStr;
+            const diff = Math.floor((Date.now() - date) / 1000);
+            if (diff < 60) return 'just now';
+            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+            if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+            return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        },
+
+        // ── Format bar active state ──
+        _updateFormatBar() {
+            ['bold', 'italic', 'underline'].forEach(cmd => {
+                const btn = document.querySelector(`.fmt-btn[data-cmd="${cmd}"]`);
+                if (btn) btn.classList.toggle('active', document.queryCommandState(cmd));
+            });
+        },
+
+        // ── Drawing ──
         _sizeCanvas() {
             const canvas = $('#note-draw-canvas');
             const ctx = this._drawCtx;
             if (!canvas || !ctx) return;
             const dpr = window.devicePixelRatio || 1;
             const w = canvas.offsetWidth;
-            const h = canvas.offsetHeight || 200;
+            const h = canvas.offsetHeight || 250;
             canvas.width = w * dpr;
             canvas.height = h * dpr;
             ctx.scale(dpr, dpr);
         },
 
-        /* ---- Drawing ---- */
         _initDrawing() {
             const canvas = $('#note-draw-canvas');
             if (!canvas) return;
@@ -2372,25 +2647,19 @@ import Sortable from 'sortablejs';
                 return { x: t.clientX - r.left, y: t.clientY - r.top };
             };
 
-            const startDraw = (e) => {
-                this._drawing = true;
-                ctx.beginPath();
-                const p = getPos(e);
-                ctx.moveTo(p.x, p.y);
-            };
+            const startDraw = (e) => { this._drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); };
             const draw = (e) => {
                 if (!this._drawing) return;
                 e.preventDefault();
                 const p = getPos(e);
                 ctx.lineWidth = this._erasing ? this._drawSize * 6 : this._drawSize;
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-                ctx.strokeStyle = this._erasing ? (document.documentElement.dataset.theme === 'light' ? '#ffffff' : '#1e293b') : this._drawColor;
+                ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                ctx.strokeStyle = this._erasing
+                    ? (document.documentElement.dataset.theme === 'light' ? '#ffffff' : '#1e293b')
+                    : this._drawColor;
                 ctx.globalCompositeOperation = this._erasing ? 'destination-out' : 'source-over';
-                ctx.lineTo(p.x, p.y);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(p.x, p.y); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(p.x, p.y);
             };
             const endDraw = () => { this._drawing = false; ctx.beginPath(); };
 
@@ -2402,7 +2671,6 @@ import Sortable from 'sortablejs';
             canvas.addEventListener('touchmove', draw, { passive: false });
             canvas.addEventListener('touchend', endDraw);
 
-            // Colors
             $('#note-draw-colors')?.addEventListener('click', (e) => {
                 const btn = e.target.closest('.draw-color-btn');
                 if (!btn) return;
@@ -2413,7 +2681,6 @@ import Sortable from 'sortablejs';
                 $('#note-draw-eraser')?.classList.remove('active-tool');
             });
 
-            // Sizes
             $('#note-draw-sizes')?.addEventListener('click', (e) => {
                 const btn = e.target.closest('.draw-size-btn');
                 if (!btn) return;
@@ -2422,53 +2689,62 @@ import Sortable from 'sortablejs';
                 this._drawSize = parseInt(btn.dataset.size);
             });
 
-            // Eraser
             $('#note-draw-eraser')?.addEventListener('click', () => {
                 this._erasing = !this._erasing;
                 $('#note-draw-eraser')?.classList.toggle('active-tool', this._erasing);
             });
 
-            // Clear
             $('#note-draw-clear')?.addEventListener('click', () => {
                 const dpr = window.devicePixelRatio || 1;
                 ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
             });
 
-            // Done — capture drawing
             $('#note-draw-done')?.addEventListener('click', () => {
                 this._drawDataURL = canvas.toDataURL('image/png');
-                // Check if canvas is actually empty
                 const dpr = window.devicePixelRatio || 1;
                 const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const hasContent = imgData.data.some((v, i) => i % 4 === 3 && v > 0);
                 if (!hasContent) this._drawDataURL = null;
-
                 $('#note-draw-panel')?.classList.remove('open');
                 $('#note-draw-btn')?.classList.remove('active-tool');
-                if (this._drawDataURL) notify('Drawing Ready', 'Your sketch will be attached to the note');
+
+                if (this._drawDataURL) {
+                    // Insert drawing inline into rich body
+                    const bodyEl = $('#notes-rich-body');
+                    if (bodyEl) {
+                        bodyEl.focus();
+                        document.execCommand('insertHTML', false,
+                            `<img src="${this._drawDataURL}" class="note-drawing-inline" alt="sketch"><p></p>`);
+                    }
+                    this._scheduleAutosave();
+                }
             });
         },
 
-        /* ---- File attachments ---- */
+        // ── File attachments ──
         _handleFiles(fileList) {
             if (!fileList || !fileList.length) return;
-            const preview = $('#note-attachments-preview');
-
             Array.from(fileList).forEach(file => {
-                if (file.size > 5 * 1024 * 1024) {
-                    notify('File Too Large', `"${file.name}" exceeds 5 MB limit`);
-                    return;
-                }
+                if (file.size > 5 * 1024 * 1024) { notify('File Too Large', `"${file.name}" exceeds 5 MB`); return; }
                 const reader = new FileReader();
                 reader.onload = () => {
                     const entry = { name: file.name, dataURL: reader.result, type: file.type };
-                    this._pendingFiles.push(entry);
-                    this._renderAttachPreview();
+                    if (file.type.startsWith('image/')) {
+                        // Insert image inline
+                        const bodyEl = $('#notes-rich-body');
+                        if (bodyEl) {
+                            bodyEl.focus();
+                            document.execCommand('insertHTML', false,
+                                `<img src="${entry.dataURL}" class="note-drawing-inline" alt="${escapeHtml(file.name)}"><p></p>`);
+                        }
+                    } else {
+                        this._pendingFiles.push(entry);
+                        this._renderAttachPreview();
+                    }
+                    this._scheduleAutosave();
                 };
                 reader.readAsDataURL(file);
             });
-
-            // Reset input so same file can be picked again
             const inp = $('#note-file-input');
             if (inp) inp.value = '';
         },
@@ -2477,279 +2753,22 @@ import Sortable from 'sortablejs';
             const preview = $('#note-attachments-preview');
             if (!preview) return;
             preview.innerHTML = this._pendingFiles.map((f, i) => {
-                const isImage = f.type.startsWith('image/');
                 return `<div class="note-attach-thumb" data-idx="${i}">
-                    ${isImage
-                        ? `<img src="${f.dataURL}" alt="${escapeHtml(f.name)}">`
-                        : `<span class="attach-file-icon">${escapeHtml(f.name.split('.').pop().toUpperCase())}<br>${escapeHtml(f.name.substring(0, 12))}</span>`}
+                    <span class="attach-file-icon">${escapeHtml(f.name.split('.').pop().toUpperCase())}<br>${escapeHtml(f.name.substring(0, 12))}</span>
                     <button class="note-attach-remove" data-idx="${i}">&times;</button>
                 </div>`;
             }).join('');
-
             preview.querySelectorAll('.note-attach-remove').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    const idx = parseInt(e.currentTarget.dataset.idx);
-                    this._pendingFiles.splice(idx, 1);
+                    this._pendingFiles.splice(parseInt(e.currentTarget.dataset.idx), 1);
                     this._renderAttachPreview();
+                    this._scheduleAutosave();
                 });
             });
         },
 
-        /* ---- Save ---- */
-        save() {
-            const textarea = $('#note-textarea');
-            const text = textarea?.value.trim();
-            if (!text && !this._drawDataURL && !this._pendingFiles.length) {
-                notify('Empty Note', 'Please write something, draw, or attach a file');
-                return;
-            }
-
-            const now = new Date();
-            const note = {
-                id: Date.now(),
-                content: text || '',
-                createdAt: now.toISOString(),
-                displayDate: formatDateTime({ month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
-                wordCount: text ? text.split(/\s+/).length : 0,
-                drawing: this._drawDataURL || null,
-                files: this._pendingFiles.length ? [...this._pendingFiles] : null,
-                pinned: false
-            };
-
-            state.notes.unshift(note);
-            this._save();
-            this.render();
-            Streak.recordActivity();
-            ActivityTracker.record();
-            ActivityChart.render();
-            StreakCalendar.render();
-
-            // Reset
-            if (textarea) textarea.value = '';
-            const counter = $('#char-count');
-            if (counter) counter.textContent = '0';
-            const wrap = document.querySelector('.char-count');
-            if (wrap) wrap.classList.remove('warning', 'danger');
-
-            // Clear drawing
-            this._drawDataURL = null;
-            const canvas = $('#note-draw-canvas');
-            if (canvas && this._drawCtx) {
-                const dpr = window.devicePixelRatio || 1;
-                this._drawCtx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
-            }
-
-            // Clear files
-            this._pendingFiles = [];
-            const preview = $('#note-attachments-preview');
-            if (preview) preview.innerHTML = '';
-
-            this._syncDashboard();
-            notify('Note Saved! 📝', 'Your note has been saved successfully');
-        },
-
-        /* ---- Edit ---- */
-        startEdit(id) {
-            const note = state.notes.find(n => n.id === id);
-            if (!note) return;
-            const card = document.getElementById(`note-${id}`);
-            if (!card) return;
-
-            const contentEl = card.querySelector('.note-content');
-            const footerEl = card.querySelector('.note-footer');
-            if (!contentEl) return;
-
-            // Replace content with textarea
-            const ta = document.createElement('textarea');
-            ta.className = 'note-edit-textarea';
-            ta.value = note.content;
-            ta.maxLength = this.MAX_CHARS;
-
-            const actions = document.createElement('div');
-            actions.className = 'note-edit-actions';
-            actions.innerHTML = `
-                <button class="note-edit-save">Save</button>
-                <button class="note-edit-cancel">Cancel</button>
-            `;
-
-            contentEl.replaceWith(ta);
-            ta.after(actions);
-            ta.focus();
-            ta.setSelectionRange(ta.value.length, ta.value.length);
-
-            // Hide footer during edit
-            if (footerEl) footerEl.style.display = 'none';
-        },
-
-        saveEdit(id) {
-            const note = state.notes.find(n => n.id === id);
-            if (!note) return;
-            const card = document.getElementById(`note-${id}`);
-            const ta = card?.querySelector('.note-edit-textarea');
-            if (!ta) return;
-
-            const newText = ta.value.trim();
-            if (!newText) { notify('Empty Note', 'Note cannot be empty'); return; }
-
-            note.content = newText;
-            note.wordCount = newText.split(/\s+/).length;
-            note.editedAt = new Date().toISOString();
-
-            this._save();
-            this.render();
-            notify('Note Updated! ✏️', 'Your changes have been saved');
-        },
-
-        cancelEdit(id) {
-            this.render(); // Re-render to discard changes
-        },
-
-        /* ---- Delete ---- */
-        delete(id) {
-            const note = state.notes.find(n => n.id === id);
-            if (!note) return;
-            const idx = state.notes.indexOf(note);
-            const el = document.getElementById(`note-${id}`);
-
-            const doDelete = () => {
-                state.notes = state.notes.filter(n => n.id !== id);
-                this.render();
-                this._syncDashboard();
-                const preview = (note.content || '').slice(0, 40);
-                UndoQueue.push(
-                    `Note deleted`,
-                    () => {
-                        state.notes.splice(idx, 0, note);
-                        this._save();
-                        this.render();
-                        this._syncDashboard();
-                        notify('↩ Restored', `Note restored successfully`, 'success');
-                    },
-                    () => { this._save(); }
-                );
-            };
-
-            if (el) {
-                el.classList.add('deleting');
-                setTimeout(doDelete, 300);
-            } else {
-                doDelete();
-            }
-        },
-
-        /* ---- Render ---- */
-        render() {
-            const list = $('#notes-list');
-            const empty = $('#empty-state-notes');
-            if (!list) return;
-
-            if (state.notes.length === 0) {
-                list.innerHTML = '';
-                empty?.classList.add('show');
-                return;
-            }
-            empty?.classList.remove('show');
-
-            // Sort: pinned first, then by date
-            const sorted = [...state.notes].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
-
-            list.innerHTML = sorted.map((n, i) => {
-                const timeAgo = this._timeAgo(n.createdAt);
-                const edited = n.editedAt ? ' (edited)' : '';
-
-                // Drawing preview
-                const drawingHtml = n.drawing
-                    ? `<div class="note-drawing-preview"><img src="${n.drawing}" alt="Drawing"></div>`
-                    : '';
-
-                // File chips
-                let filesHtml = '';
-                if (n.files && n.files.length) {
-                    const chips = n.files.map(f => {
-                        if (f.type && f.type.startsWith('image/')) {
-                            return `<div class="note-file-chip-img" title="${escapeHtml(f.name)}"><img src="${f.dataURL}" alt="${escapeHtml(f.name)}"></div>`;
-                        }
-                        return `<span class="note-file-chip" title="${escapeHtml(f.name)}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-                            ${escapeHtml(f.name)}
-                        </span>`;
-                    }).join('');
-                    filesHtml = `<div class="note-files">${chips}</div>`;
-                }
-
-                return `
-                <div class="note-card ${n.pinned ? 'pinned-note' : ''}" id="note-${n.id}" style="--note-delay:${i * 60}ms">
-                    <div class="note-card-inner">
-                        <div class="note-header">
-                            <div class="note-header-left">
-                                <h3>${n.content ? (escapeHtml(n.content.substring(0, 50)) + (n.content.length > 50 ? '…' : '')) : (n.drawing ? 'Sketch Note' : 'File Note')}</h3>
-                                <span class="note-timestamp">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                    ${timeAgo}${edited}
-                                </span>
-                            </div>
-                            <div class="note-header-actions">
-                                <button class="note-action-btn note-pin-btn ${n.pinned ? 'pinned' : ''}" title="${n.pinned ? 'Unpin note' : 'Pin note'}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="${n.pinned ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>
-                                </button>
-                                <button class="note-action-btn note-edit-btn" title="Edit note">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                </button>
-                                <button class="note-action-btn note-delete-btn" title="Delete note">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                </button>
-                            </div>
-                        </div>
-                        ${drawingHtml}
-                        ${n.content ? `<p class="note-content">${escapeHtml(n.content)}</p>` : ''}
-                        ${filesHtml}
-                        <div class="note-footer">
-                            <span class="note-word-count">${n.wordCount} word${n.wordCount !== 1 ? 's' : ''}</span>
-                            <span class="note-date">${n.displayDate || n.createdAt}</span>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('');
-        },
-
-        togglePin(id) {
-            const note = state.notes.find(n => n.id === id);
-            if (!note) return;
-            note.pinned = !note.pinned;
-            this._save();
-            this.render();
-        },
-
-        _filterBySearch(q) {
-            const lc = q.toLowerCase();
-            const noResults = $('#notes-no-results');
-            const allCards = Array.from(document.querySelectorAll('#notes-list .note-card'));
-            // If there are no notes at all, don't interfere with the empty state
-            if (allCards.length === 0) {
-                if (noResults) noResults.classList.add('hidden');
-                return;
-            }
-            let anyVisible = false;
-            allCards.forEach(card => {
-                const match = !lc || card.textContent.toLowerCase().includes(lc);
-                card.style.display = match ? '' : 'none';
-                if (match) anyVisible = true;
-            });
-            if (noResults) noResults.classList.toggle('hidden', anyVisible || !lc);
-        },
-
-        _timeAgo(isoStr) {
-            if (!isoStr) return '';
-            const date = new Date(isoStr);
-            if (isNaN(date)) return isoStr; // fallback for old format
-            const now = new Date();
-            const diff = Math.floor((now - date) / 1000);
-            if (diff < 60) return 'just now';
-            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-            if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
-            return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-        },
+        // ── Kept for dashboard / command palette compatibility ──
+        render() { this.renderList(); },
 
         _syncDashboard() {
             state.dashboard.notesCount = state.notes.length;
