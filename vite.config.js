@@ -1,7 +1,8 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  // Root is the project directory (index.html at root)
+  // GitHub Pages serves from /my-pln-dashboard/ — must match repo name
+  base: '/my-pln-dashboard/',
   root: '.',
 
   build: {
