@@ -5637,6 +5637,8 @@ html[data-theme="light"] .notes-page-card {
 }
 .notes-home-item-title-row .notes-home-item-title {
     margin-bottom: 0;
+    flex: 1;
+    min-width: 0;
 }
 .notes-home-item-section {
     font-size: 10px;

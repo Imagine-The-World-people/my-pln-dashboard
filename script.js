@@ -2326,7 +2326,7 @@ import Sortable from 'sortablejs';
 
             this._activeId = id;
             const note = state.notes.find(n => n.id === id);
-            if (!note) return;
+            if (!note || note.deleted) return;  // guard: never open deleted notes
 
             // Show editor (welcome screen removed, now handled by home view)
             const editor = $('#notes-editor');
@@ -2421,11 +2421,13 @@ import Sortable from 'sortablejs';
             $('#notes-home-empty-new')?.addEventListener('click', () => this.newNote());
             $('#nns-new-page-btn')?.addEventListener('click', () => this.newNote());
 
-            // Back buttons — exit full-page mode
+            // Back buttons — flush save then exit full-page mode
             $('#notes-back-btn')?.addEventListener('click', () => {
+                this._flushSave();
                 document.getElementById('notes-app')?.classList.remove('page-open');
             });
             $('#notes-nav-back')?.addEventListener('click', () => {
+                this._flushSave();
                 document.getElementById('notes-app')?.classList.remove('page-open');
             });
 
@@ -2836,12 +2838,12 @@ import Sortable from 'sortablejs';
             this._syncDashboard();
         },
 
-        _setAutosave(state) {
+        _setAutosave(status) {
             const el = $('#notes-autosave');
             if (!el) return;
             el.className = 'notes-autosave';
-            if (state === 'saving') { el.textContent = 'Saving…'; el.classList.add('saving'); }
-            else if (state === 'saved') { el.textContent = 'Saved'; el.classList.add('saved'); }
+            if (status === 'saving') { el.textContent = 'Saving…'; el.classList.add('saving'); }
+            else if (status === 'saved') { el.textContent = 'Saved'; el.classList.add('saved'); }
             else { el.textContent = ''; }
         },
 
@@ -2872,14 +2874,14 @@ import Sortable from 'sortablejs';
                 ? sorted.filter(n => (n.title + ' ' + (n.content || '')).toLowerCase().includes(q))
                 : sorted;
 
-            // Update count badge
+            // Update count badge (active notes only)
             const countEl = document.getElementById('nns-all-count');
-            if (countEl) countEl.textContent = state.notes.length;
+            if (countEl) countEl.textContent = state.notes.filter(n => !n.deleted).length;
 
             if (filtered.length === 0) {
                 list.innerHTML = '';
                 empty?.classList.add('show');
-                this._renderHomeList(q);
+                this._renderHomeList((document.getElementById('notes-home-search')?.value || '').trim());
                 return;
             }
             empty?.classList.remove('show');
@@ -2935,8 +2937,8 @@ import Sortable from 'sortablejs';
                 el.addEventListener('click', () => this.openNote(parseInt(el.dataset.id)));
             });
 
-            // Render home list too
-            this._renderHomeList(q);
+            // Render home list too (use home search input, not sidebar search)
+            this._renderHomeList((document.getElementById('notes-home-search')?.value || '').trim());
         },
 
         _renderHomeList(q = '') {
@@ -3073,7 +3075,8 @@ import Sortable from 'sortablejs';
         _setSection(section) {
             this._activeSection = section;
             this._renderSectionTabs();
-            this._renderHomeList();
+            const q = (document.getElementById('notes-home-search')?.value || '').trim();
+            this._renderHomeList(q);
         },
 
         // ── CSS slug for a section name ──
