@@ -1,20 +1,30 @@
 {
-  "name": "pln",
-  "version": "1.0.0",
-  "description": "A personal **Professional Learning Network** dashboard for tracking goals, resources, notes, reflections, and learning analytics — built with vanilla HTML, CSS, and JavaScript.",
-  "main": "script.js",
+  "name": "kompass-pln",
+  "version": "1.2.0",
+  "description": "Personal Learning Network dashboard — track goals, notes, reflections and learning analytics. Built with vanilla JS + Supabase.",
+  "private": true,
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "npx playwright test",
+    "test:ui": "npx playwright test --ui"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Imagine-The-World-people/my-pln-dashboard.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "pln",
+    "learning",
+    "goals",
+    "education",
+    "pwa",
+    "supabase",
+    "vanilla-js"
+  ],
+  "author": "Imagine The World",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/Imagine-The-World-people/my-pln-dashboard/issues"
   },

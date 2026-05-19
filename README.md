@@ -1,163 +1,207 @@
-# 🧭 Kompass
+﻿<p align="center">
+  <img src="public/icon-192.png" width="96" alt="Kompass logo" />
+</p>
 
-A personal **Professional Learning Network** dashboard for tracking goals, resources, notes, reflections, and learning analytics — built with vanilla HTML, CSS, and JavaScript.
+<h1 align="center">Kompass</h1>
 
-![Dark & Light themes](https://img.shields.io/badge/themes-dark%20%2F%20light-5B9FD4)
-![i18n](https://img.shields.io/badge/languages-NO%20%2F%20EN-10b981)
-![Responsive](https://img.shields.io/badge/responsive-mobile%20ready-f59e0b)
+<p align="center">
+  A personal <strong>Professional Learning Network</strong> dashboard.<br/>
+  Set goals, take notes, reflect, and track your learning — all in one place.
+</p>
 
----
-
-## ✨ Features
-
-| Section | Highlights |
-|---------|-----------|
-| **Dashboard** | Stat cards with animated counters, progress ring, learning streak tracker, daily motivational quote, smart suggestions |
-| **Goals** | Add/complete/delete goals, **drag-and-drop reordering**, **deadline date picker** with overdue/soon/future badges, **search + status filter** + sort, progress bar, inline edit, **milestone/step tracking** (collapsible per-goal step list with progress bar), **goal detail drawer** (open side panel with meta, milestones, linked notes) |
-| **Resources** | Add/search/filter resources, **star ratings (1–5)**, type/category filters, topic-colored tags, **Collections/Folders** (create colour-coded groups, filter by collection, assign resource to collection) |
-| **Notes** | Rich note cards with **pin to top**, **search filter**, drawing canvas, file attachments, inline edit, timestamps |
-| **Reflections** | Timeline layout with expand/collapse, color-coded question blocks, **weekly prompt banner** (auto-suggest a reflection prompt every Monday / 7 days) |
-| **Insights** | Analytics — 5 KPI cards, quick stats, goal progress bar, category breakdown, 7-day activity bar chart, GitHub-style streak calendar |
-
-### General
-- 🌗 **Dark / Light theme** — sophisticated color palette; toggle with persistence
-- 🌐 **i18n** — Norwegian (default) and English; **full login/modal translation** — login hero, feature list, sign-in form, forgot-password and registration modals all translated via `data-i18n` attributes
-- ☁️ **Cloud sync** — Supabase auth (email/password) + **real-time cross-device sync** (Postgres CDC subscription; changes from other devices apply instantly)
-- 💾 **Offline-first** — localStorage fallback when not signed in
-- 📱 **Fully responsive** — iOS-style mobile bottom tab bar, tablet icon-only sidebar, fluid clamp() typography, safe-area insets for notched phones, dedicated ≤360px micro breakpoints for login and app shell
-- 🔑 **Forgot password** — send reset link via Supabase email
-- 👤 **Profile management** — avatar dropdown with display name, avatar colour picker, change password
-- ⌨️ **Keyboard shortcuts** — `?` for shortcut panel, `Alt+1–6` for sections, `Ctrl+K` for command palette
-- 🔍 **Command palette** (`Ctrl+K`) — fuzzy-search goals, notes, resources, navigate sections; **full keyboard focus trap** (Tab wraps), **focus restored** on close
-- 🗑️ **Undo delete** — 5-second undo toast for all deletes
-- 📡 **Offline banner** — red status banner on network drop
-- 🗂️ **Sidebar rail mode** — collapse to 68px icon rail; state persisted
-- ⏱️ **Pomodoro focus timer** — 25-min timer with **header mini ring** (live countdown ring shown in header while session is active; click to cancel)
-- 🔔 **Smart deadline notifications** — browser `Notification` API alerts for overdue/due-soon goals (once per day, requests permission only when needed)
-- 🗃️ **Supabase Storage utility** — `StorageSync` module for uploading/deleting images in a `drawings` bucket (requires manual bucket creation)
-- 🧭 **Onboarding tour** — 4-step welcome modal for new users
-- 📲 **PWA** — installable, offline caching via service worker
-- 🎨 **iOS-style Glassmorphism** — blur/saturate glass tokens, vibrant radial-gradient background
-- 🧪 **Playwright E2E tests** — `tests/app.spec.js` covers goals CRUD + undo, milestones, notes, resources, collections, command palette, sidebar, reflection prompt
+<p align="center">
+  <a href="https://github.com/Imagine-The-World-people/my-pln-dashboard/actions/workflows/deploy.yml">
+    <img src="https://github.com/Imagine-The-World-people/my-pln-dashboard/actions/workflows/deploy.yml/badge.svg" alt="Deploy status"/>
+  </a>
+  <img src="https://img.shields.io/badge/version-1.2.0-6b7aff" alt="Version"/>
+  <img src="https://img.shields.io/badge/PWA-installable-10b981" alt="PWA"/>
+  <img src="https://img.shields.io/badge/languages-NO%20%2F%20EN-f59e0b" alt="i18n"/>
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="License"/>
+</p>
 
 ---
 
-## 🎨 Design System
+## What is Kompass?
 
-The dashboard features a **sophisticated, professional UI** with a focus on user delight:
+Kompass is a Norwegian word for **compass** — it helps you find your direction in learning.
 
-### Color Palette
-- **Warm & Creative**: Primary colors (`#6b7aff`, `#9d5bd2`, `#ff6b9d`) designed for inspiration
-- **High Contrast**: WCAG AA compliant text and interactive elements
-- **Adaptive**: Separate light mode with refined, professional appearance
+It is a fully offline-capable web app (PWA) that a learner installs on their phone or opens in a browser. No app store required. Data is stored locally and can be synced across devices via Supabase when the user signs in.
 
-### Interactions
-- **Micro-animations**: Smooth state transitions, bounce effects, entrance animations, and **progress ring re-animation on every Goals visit**
-- **Scroll memory**: Each section remembers scroll position when navigating away and back
-- **Scroll-aware header**: Subtle shadow appears when content is scrolled, disappears at top
-- **Delightful Hover States**: Cards lift with per-card colored glow, icons rotate, buttons respond with polish
-- **Touch-Friendly**: Tap feedback on mobile, smooth scrolling, accessible button sizes
-- **Accessibility**: Global `:focus-visible` rings, `prefers-reduced-motion` support
-- **Visual Polish**: Stat number count-up on load, progress bar animate-from-zero, scroll-faded container
-- **Drawing Canvas**: Stylus/finger drawing in notes — canvas sized on-demand to avoid 0×0 initialization bug when section is hidden at startup
-
-### Components
-- **Glass-morphism Cards**: Sophisticated backdrop blur with subtle gradient overlays
-- **Animated Buttons**: Shine effect on hover, springy press feedback, smooth transitions
-- **Icon System**: Consistent SVG icons with smooth transformations
-- **Typography**: Clear hierarchy with weighted text, improved readability
+> Built as part of a professional learning project, with transparent use of AI tools throughout development.
 
 ---
 
-## 🗂 Project Structure
+## Features
+
+| Section | What you can do |
+|---------|----------------|
+| **Dashboard** | See all your stats at a glance — goals, notes, streak, activity chart |
+| **Goals** | Add, complete, reorder (drag & drop), set deadlines, track milestones |
+| **Resources** | Collect links and books, rate them, organize into colour-coded collections |
+| **Notes** | Write notes, pin important ones, search, draw with a stylus or finger |
+| **Reflections** | Log reflections in a timeline, get weekly writing prompts |
+| **Insights** | Analytics — streak calendar, category breakdown, activity chart |
+
+### Everything else
+- 🌗 **Dark / light theme** with persistence
+- 🌐 **Norwegian and English** — full app translation including login
+- ☁️ **Cloud sync** via Supabase — real-time updates across devices
+- 💾 **Offline-first** — works without internet, syncs when back online
+- 📱 **Installable PWA** — add to home screen on Android and iOS
+- ⌨️ **Keyboard shortcuts** — `Ctrl+K` command palette, `Alt+1–6` sections, `?` for help
+- ⏱️ **Focus timer** — 25-minute Pomodoro with live ring in the header
+- 🔔 **Deadline notifications** — browser alerts for overdue goals
+- 🗑️ **Undo delete** — 5-second undo toast on every delete
+
+---
+
+## Tech Stack
+
+| Layer | Choice | Why |
+|-------|--------|-----|
+| Markup | HTML5 | Semantic, accessible structure |
+| Styling | CSS3 — custom properties, Grid, `clamp()`, `backdrop-filter` | No framework needed for this scale |
+| Logic | Vanilla JavaScript ES2020 | Fast, zero dependencies at runtime |
+| Build | [Vite 8](https://vitejs.dev) | Instant dev server, optimised production build |
+| Backend | [Supabase](https://supabase.com) v2 | Auth, Postgres, Realtime, Storage — free tier |
+| Font | [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans) | Modern, readable, professional |
+| Testing | [Playwright](https://playwright.dev) | E2E tests across real browsers |
+| CI/CD | GitHub Actions → GitHub Pages | Every push to `main` auto-deploys |
+
+---
+
+## Project Structure
 
 ```
-PLN/
-├── index.html              # Single-page app markup
-├── style.css               # Main styles + design tokens
-├── responsive.css          # Mobile/tablet media queries
-├── script.js               # App logic (ES module)
-├── supabase-config.js      # Supabase client setup
-├── package.json            # Node / Vite build config
-├── playwright.config.js    # Playwright E2E test config
+kompass-pln/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml        # CI — build + deploy to GitHub Pages on push
 ├── public/
-│   ├── sw.js               # Service worker (PWA offline support)
-│   └── manifest.json       # Web app manifest (install prompt, icons)
+│   ├── icon.svg              # Source icon (vector)
+│   ├── icon-192.png          # PWA icon — Android home screen
+│   ├── icon-512.png          # PWA icon — splash screen / install
+│   ├── manifest.json         # Web App Manifest
+│   └── sw.js                 # Service Worker — offline caching
 ├── tests/
-│   └── app.spec.js         # E2E tests (goals, notes, resources, …)
-└── README.md
+│   └── app.spec.js           # Playwright E2E tests
+├── .editorconfig             # Consistent code formatting across editors
+├── .env.example              # Required environment variables template
+├── .gitignore
+├── index.html                # App entry point (single page)
+├── LICENSE
+├── package.json
+├── playwright.config.js
+├── README.md
+├── responsive.css            # All media query overrides
+├── script.js                 # Application logic (ES module, ~5 300 lines)
+├── style.css                 # Design system — tokens, components, animations
+├── supabase-config.js        # Supabase client initialisation
+└── vite.config.js            # Build configuration
 ```
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
-1. **Clone or download** this folder.
-2. Open `index.html` with a local server (e.g. VS Code Live Server / Five Server).
-3. The app works immediately with localStorage — no backend required.
+### 1. Run locally
 
-### Optional: Enable cloud sync
+```bash
+git clone https://github.com/Imagine-The-World-people/my-pln-dashboard.git
+cd my-pln-dashboard
+npm install
+npm run dev
+```
 
-1. Create a free project at [supabase.com](https://supabase.com).
-2. Update `supabase-config.js` with your project URL and anon key.
-3. Sign in via the login overlay to sync data across devices.
+Open [http://localhost:5173](http://localhost:5173). The app works immediately with `localStorage` — no backend needed.
+
+### 2. Enable cloud sync (optional)
+
+1. Create a free project at [supabase.com](https://supabase.com)
+2. Copy `.env.example` → `.env.local` and fill in your project URL and anon key
+3. Create a `user_data` table in Supabase:
+
+```sql
+create table user_data (
+  user_id  uuid primary key references auth.users(id) on delete cascade,
+  goals       jsonb default '[]',
+  notes       jsonb default '[]',
+  reflections jsonb default '[]',
+  updated_at  timestamptz default now()
+);
+alter table user_data enable row level security;
+create policy "Users access own data"
+  on user_data for all
+  using  (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+```
+
+4. Sign in via the login screen — data syncs automatically
+
+### 3. Deploy to GitHub Pages
+
+1. Go to **Settings → Pages → Source → GitHub Actions**
+2. Push any change to `main`
+3. The workflow in `.github/workflows/deploy.yml` builds and deploys automatically
 
 ---
 
-## 🛠 Tech Stack
+## Architecture
 
-| Layer | Technology |
-|-------|-----------|
-| Markup | HTML5 |
-| Styling | CSS3 (custom properties, `backdrop-filter`, CSS Grid, keyframe animations) |
-| Logic | Vanilla JavaScript (ES6+ IIFE, no framework) |
-| Font | [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans) via Google Fonts |
-| Backend | [Supabase](https://supabase.com) v2 (auth + database + real-time + storage) |
-| Testing | [Playwright](https://playwright.dev) (E2E, Chromium) |
-| Build | [Vite](https://vitejs.dev) |
-
----
-
-## 📐 Architecture
-
-All JS lives inside a single **IIFE** (`PLNDashboard`) with isolated modules:
+All JavaScript lives in `script.js` as a single ES module. Functionality is split into self-contained object modules:
 
 | Module | Responsibility |
 |--------|---------------|
-| `Sidebar` | Responsive sidebar toggle + overlay |
-| `Theme` | Dark/light mode persistence |
-| `ResourceGroups` | Resource collections/folders CRUD, filter bar, colour picker dialog |
-| `GoalDetailDrawer` | Side-panel with goal meta, milestones, linked notes, quick actions |
-| `DeadlineNotifier` | Browser Notification API for overdue/due-soon goals |
-| `ReflectionPrompts` | Weekly rotating reflection prompt banner |
-| `RealtimeSync` | Supabase Postgres CDC subscription for cross-device updates |
-| `StorageSync` | Supabase Storage helpers (upload/delete images in `drawings` bucket) |
-| `Dashboard` | Stat rendering, countUp animations, learning streak, smart suggestions |
-| `Goals` | CRUD, progress ring, completion tracking |
-| `Resources` | CRUD, search, type/category/tag combined filtering, active filter chips |
-| `Notes` | CRUD, drawing canvas, file attachments |
-| `Reflections` | CRUD, timeline, expand/collapse |
-| `Insights` | Analytics dashboard — KPI spark bars, goal progress, deep dive stats |
-| `I18n` | Norwegian ↔ English translation with `data-i18n` attribute binding |
-| `Auth` | Supabase email/password authentication + cloud sync |
-| `Focus` | 25-minute focus session timer |
-| `PDF` | Export styled learning report as PDF |
-
-Data is stored under `localStorage` keys prefixed with `pln_` and optionally synced to Supabase when authenticated.
+| `Navigation` | Section switching with directional slide animation |
+| `I18n` | Norwegian ↔ English with `data-i18n` binding |
+| `Theme` | Dark / light mode persistence |
+| `Auth` | Supabase email/password auth + cloud sync trigger |
+| `CloudSync` | Save / load user data to Supabase `user_data` table |
+| `RealtimeSync` | Postgres CDC subscription — live updates across devices |
+| `Dashboard` | Stat cards, countUp animation, streak, suggestions |
+| `Goals` | CRUD, drag-and-drop sort, deadline badges, milestones |
+| `GoalDetailDrawer` | Side-panel detail view for a single goal |
+| `Resources` | CRUD, search, type/category/tag filtering |
+| `ResourceGroups` | Colour-coded collections with create/edit/delete |
+| `Notes` | CRUD, drawing canvas, file attachments, pin |
+| `Reflections` | Timeline CRUD, weekly prompt banner |
+| `Insights` | Analytics — KPI cards, streak calendar, bar chart |
+| `Focus` | 25-minute Pomodoro timer with header mini-ring |
+| `AutoLogout` | Idle-timeout session expiry |
+| `DeadlineNotifier` | Browser Notification API for overdue goals |
+| `ProfileModal` | Avatar, display name, password change |
 
 ---
 
-## 📱 Responsive Breakpoints
+## AI Usage
 
-| Breakpoint | Behavior |
-|-----------|----------|
-| `> 1200px` | Full desktop layout |
+This project was built with the assistance of **GitHub Copilot** (Claude Sonnet 4.6) throughout development.
+
+AI was used for:
+- Generating boilerplate (modal HTML, CSS component scaffolding)
+- Debugging logic errors (canvas sizing, cloud sync race conditions)
+- Code review (identifying 11 bugs across the codebase)
+- Writing this README
+
+All AI-generated code was reviewed, tested, and adapted before committing. Architecture decisions, feature design, and UX choices are the developer's own.
+
+> Using AI as a tool — not as a replacement for understanding — is a core part of the learning this app is designed to support.
+
+---
+
+## Responsive Breakpoints
+
+| Breakpoint | Layout |
+|-----------|--------|
+| `> 1200px` | Full desktop — sidebar + content |
 | `≤ 1200px` | Compact grids, reduced padding |
-| `≤ 768px` | Sidebar collapses to slide-out menu with overlay, single-column grids |
-| `≤ 480px` | Narrow sidebar, hidden search, full-width buttons, iOS zoom prevention |
+| `≤ 900px` | Sidebar collapses to icon rail |
+| `≤ 768px` | Mobile — bottom tab bar, full-width cards |
+| `≤ 480px` | Narrow — single column, large tap targets |
+| `≤ 360px` | Very small — micro layout adjustments |
 
 ---
 
-## 📄 License
+## License
 
-This project is for personal/educational use.
+[MIT](LICENSE) — free to use, modify, and share.
