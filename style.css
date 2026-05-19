@@ -4678,31 +4678,17 @@ html[data-theme="light"] .resource-cat--brukerstotte:hover { box-shadow: 0 3px 1
     transition: none;
 }
 
-/* ── Sidebar (pages panel) ── */
+/* ── Sidebar (pages panel) — kept in DOM for JS compat, never shown in new layout ── */
 .notes-sidebar {
-    width: 260px;
-    min-width: 260px;
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid var(--border-color);
-    background: var(--bg-secondary);
-    overflow: hidden;
-    transition: width 0.28s cubic-bezier(.4,0,.2,1),
-                min-width 0.28s cubic-bezier(.4,0,.2,1),
-                opacity 0.22s ease;
+    display: none;
 }
 
 html[data-theme="light"] .notes-sidebar {
     background: #f8f9fa;
 }
 
-/* Full-page open: sidebar becomes middle panel */
-.notes-app.page-open .notes-sidebar {
-    width: 240px;
-    min-width: 200px;
-    opacity: 1;
-    pointer-events: auto;
-}
+/* Sidebar stays hidden even in page-open mode */
+.notes-app.page-open .notes-sidebar { display: none; }
 
 .notes-nb-header {
     display: flex;
@@ -5295,21 +5281,20 @@ html[data-theme="light"] .notes-page-card {
 
 /* ─────────────────────────────────────────
    Notes: home / editor layout switching
+   Simple: home visible by default, editor visible only in page-open
    ───────────────────────────────────────── */
 
-/* Home mode (default): show notes-home, hide all editor panels */
-.notes-app .notes-nav-sidebar { display: none; }
-.notes-app .notes-sidebar     { display: none !important; }
-.notes-app .notes-resize-handle { display: none !important; }
-.notes-app .notes-page-view   { display: none !important; }
-.notes-app .notes-right-sidebar { display: none !important; }
+/* Panels that are never shown in new layout */
+.notes-nav-sidebar  { display: none; }
+.notes-resize-handle { display: none; }
+.notes-right-sidebar { display: none; }
 
-/* Editor mode (page-open): hide notes-home, show only the full-width editor */
-.notes-app.page-open .notes-home        { display: none; }
-.notes-app.page-open .notes-nav-sidebar { display: none !important; }
-.notes-app.page-open .notes-sidebar     { display: none !important; }
-.notes-app.page-open .notes-resize-handle { display: none !important; }
-.notes-app.page-open .notes-page-view   { display: flex !important; }
+/* Page view: hidden by default, only shown when a note is open */
+.notes-page-view { display: none; }
+
+/* Editor mode */
+.notes-app.page-open .notes-home      { display: none; }
+.notes-app.page-open .notes-page-view { display: flex; }
 
 /* ─────────────────────────────────────────
    Notes: Home view
@@ -5854,29 +5839,13 @@ html[data-theme="light"] .notes-page-card {
 /* ── Mobile ── */
 @media (max-width: 700px) {
     .notes-fullpage {
-        /* subtract header (~60px) + bottom nav bar (~60px) + padding (16px) */
         height: calc(100vh - var(--header-height, 60px) - 60px - 16px);
     }
     .notes-app {
         flex-direction: column;
         position: relative;
     }
-    .notes-sidebar {
-        width: 100% !important;
-        min-width: 100% !important;
-        max-height: 600px;
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
-        opacity: 1 !important;
-        pointer-events: auto !important;
-        transition: max-height 0.28s cubic-bezier(.4,0,.2,1), opacity 0.22s ease;
-    }
-    .notes-app.page-open .notes-sidebar {
-        max-height: 0;
-        opacity: 0 !important;
-        pointer-events: none !important;
-        border: none;
-    }
+    /* notes-page-view on mobile: slides in full screen */
     .notes-page-view {
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -5897,11 +5866,6 @@ html[data-theme="light"] .notes-page-card {
         padding: 3px 8px;
     }
     .fmt-btn { min-width: 26px; height: 26px; }
-    /* Hide resize handles and right sidebar on mobile */
-    .notes-resize-handle { display: none; }
-    .notes-right-sidebar { display: none !important; }
-    /* Hide nav sidebar on mobile always */
-    .notes-nav-sidebar { display: none !important; }
     /* Home → full width */
     .notes-home { flex: 1; }
     .notes-home-body { padding: 20px 16px 32px; align-items: stretch; }
@@ -5912,8 +5876,6 @@ html[data-theme="light"] .notes-page-card {
     .notes-home-hero { margin-bottom: 20px; }
     .notes-home-title { font-size: 20px; }
     .notes-home-hero-icon { width: 52px; height: 52px; }
-    /* Editor mode on mobile: page-view slides in full screen */
-    .notes-app.page-open .notes-sidebar { display: none !important; }
 }
 
 /* =============================================
