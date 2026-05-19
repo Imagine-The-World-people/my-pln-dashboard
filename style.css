@@ -5268,15 +5268,16 @@ html[data-theme="light"] .notes-page-card {
 /* ── Mobile ── */
 @media (max-width: 700px) {
     .notes-fullpage {
-        height: calc(100vh - var(--header-height, 64px) - var(--mobile-nav-height, 60px) - 16px);
+        height: calc(100vh - var(--header-height, 64px) - 16px);
     }
     .notes-app {
         flex-direction: column;
+        position: relative;
     }
     .notes-sidebar {
         width: 100% !important;
         min-width: 100% !important;
-        max-height: 100%;
+        max-height: 600px;
         border-right: none;
         border-bottom: 1px solid var(--border-color);
         opacity: 1 !important;

@@ -207,10 +207,6 @@ button, a, [role="button"], label {
         grid-template-columns: 1fr;
     }
 
-    /* Notes — 2-col on tablet */
-    .notes-list {
-        grid-template-columns: repeat(2, 1fr);
-    }
 }
 
 /* TABLET AND SMALL SCREENS (768px and below) */
@@ -414,7 +410,6 @@ button, a, [role="button"], label {
 
     /* Improve input sizes for touch */
     .goal-input,
-    .note-textarea,
     .reflection-textarea {
         min-height: 44px;
         font-size: 16px;
@@ -432,10 +427,6 @@ button, a, [role="button"], label {
     textarea,
     select {
         font-size: 16px;
-    }
-
-    .note-textarea {
-        min-height: 100px;
     }
 
     .reflection-textarea {
@@ -499,60 +490,10 @@ button, a, [role="button"], label {
         padding: 8px 14px;
     }
 
-    /* ---------- Notes Toolbar & Drawing ---------- */
-    .note-tools-bar {
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-    .note-tools-bar button,
-    .note-tools-bar label {
-        min-height: 44px;
-        min-width: 44px;
-    }
+    /* ---------- Notes Drawing ---------- */
     .note-draw-panel canvas {
         max-width: 100%;
         height: 260px;
-    }
-    .draw-controls {
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-    .draw-controls button {
-        min-height: 40px;
-        min-width: 40px;
-    }
-    .attach-preview {
-        gap: 8px;
-    }
-    .attach-thumb {
-        width: 60px;
-        height: 60px;
-    }
-
-    /* ---------- Note Cards ---------- */
-    .notes-list {
-        grid-template-columns: 1fr;
-        gap: 14px;
-    }
-    .note-card {
-        padding: 0;
-    }
-    .note-card-inner {
-        padding: 14px;
-    }
-    .note-card .note-card-actions {
-        opacity: 1;
-    }
-    .note-card .note-card-actions button {
-        min-height: 36px;
-        min-width: 36px;
-    }
-    .note-card .note-drawing-preview img {
-        max-height: 120px;
-    }
-    .note-card .note-file-chips {
-        flex-wrap: wrap;
-        gap: 6px;
     }
 
     /* ---------- Reflection Timeline ---------- */
@@ -773,16 +714,11 @@ button, a, [role="button"], label {
 
     /* Touchable input sizes */
     .goal-input,
-    .note-textarea,
     .reflection-textarea {
         min-height: 44px;
         font-size: 16px;
         padding: 12px 14px;
         width: 100%;
-    }
-
-    .note-textarea {
-        min-height: 100px;
     }
 
     .reflection-textarea {
@@ -853,7 +789,6 @@ button, a, [role="button"], label {
 
     /* Delete buttons - Smaller on mobile */
     .goal-delete-btn,
-    .note-delete-btn,
     .reflection-delete-btn {
         min-height: 36px;
         min-width: 36px;
@@ -871,21 +806,18 @@ button, a, [role="button"], label {
     }
 
     .resource-card,
-    .note-card,
     .reflection-card,
     .goal-card {
         padding: 14px;
     }
 
     .resource-card h3,
-    .note-card h3,
     .reflection-card h3,
     .goal-card h3 {
         font-size: 16px;
     }
 
     .resource-card p,
-    .note-card p,
     .reflection-card p {
         font-size: 13px;
     }
@@ -927,12 +859,6 @@ button, a, [role="button"], label {
     }
 
     .reflection-actions {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    /* Note actions */
-    .note-actions {
         flex-direction: column;
         gap: 10px;
     }
@@ -979,23 +905,6 @@ button, a, [role="button"], label {
         min-height: 36px;
         font-size: 12px;
     }
-    .attach-thumb {
-        width: 50px;
-        height: 50px;
-    }
-
-    /* ---------- Note Cards (mobile) ---------- */
-    .note-card-inner {
-        padding: 12px;
-    }
-    .note-card .note-drawing-preview img {
-        max-height: 90px;
-    }
-    .note-card .note-file-chip {
-        font-size: 11px;
-        padding: 4px 8px;
-    }
-
     /* ---------- Reflection Timeline (mobile) ---------- */
     .reflection-timeline {
         padding-left: 20px;
@@ -1034,12 +943,6 @@ button, a, [role="button"], label {
 
     /* Header — hide lang code label, save space */
     .lang-code { display: none; }
-
-    /* Notes — 2-column on tablet, 1-col only at 600px */
-    .notes-list {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 14px;
-    }
 
     /* Insights — deep-dive grid to 1-col */
     .insights-grid {
@@ -1358,7 +1261,6 @@ button, a, [role="button"], label {
     /* No hover lifts on touch devices — use active instead */
     .stat-card:hover,
     .goal-item:hover,
-    .note-card:hover,
     .resource-card:hover,
     .reflection-tl-card:hover,
     .insights-kpi:hover,
@@ -1377,7 +1279,6 @@ button, a, [role="button"], label {
     /* Reduce backdrop-filter intensity for mobile performance */
     .stat-card,
     .goal-item,
-    .note-card,
     .resource-card,
     .reflection-tl-card {
         -webkit-backdrop-filter: blur(10px) saturate(130%);
