@@ -1513,6 +1513,10 @@ html[data-theme="light"] .goals-sort-select {
     display: block;
     animation: sectionFadeIn 0.24s ease-out forwards;
 }
+/* Notes section is a flex column — override display:block for the active state */
+.content-section.active.notes-fullpage {
+    display: flex;
+}
 
 /* enter-left / enter-right kept for JS compat but use same animation */
 .content-section.active.enter-left,
@@ -4651,8 +4655,8 @@ html[data-theme="light"] .resource-cat--brukerstotte:hover { box-shadow: 0 3px 1
     overflow: hidden;
     height: calc(100vh - var(--header-height, 64px) - var(--mobile-nav-height, 0px) - 32px);
     min-height: 500px;
-    display: flex;
     flex-direction: column;
+    /* display:flex is applied only when .content-section.active — see rule above */
 }
 
 /* Main container */
@@ -5268,7 +5272,8 @@ html[data-theme="light"] .notes-page-card {
 /* ── Mobile ── */
 @media (max-width: 700px) {
     .notes-fullpage {
-        height: calc(100vh - var(--header-height, 64px) - 16px);
+        /* subtract header (~60px) + bottom nav bar (~60px) + padding (16px) */
+        height: calc(100vh - var(--header-height, 60px) - 60px - 16px);
     }
     .notes-app {
         flex-direction: column;

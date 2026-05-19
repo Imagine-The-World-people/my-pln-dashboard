@@ -1055,6 +1055,17 @@ button, a, [role="button"], label {
         flex-wrap: wrap;
     }
 
+    /* Sync badge — 30% smaller on mobile */
+    .sync-badge {
+        padding: 3px 7px;
+        font-size: 8px;
+        gap: 3px;
+    }
+    .sync-badge svg {
+        width: 10px;
+        height: 10px;
+    }
+
     /* Hide sync badge label on small header */
     .sync-badge span[data-i18n="syncActive"] {
         display: none;
