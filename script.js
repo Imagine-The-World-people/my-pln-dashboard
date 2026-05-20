@@ -68,6 +68,20 @@ import Sortable from 'sortablejs';
         dashboard: { totalGoals: 0, completedGoals: 0, notesCount: 0 }
     };
 
+    // =========================================
+    // Client ID for sync conflict detection
+    // =========================================
+    const getClientId = () => {
+        let clientId = sessionStorage.getItem('pln_client_id');
+        if (!clientId) {
+            // Generate a unique client ID for this browser session
+            clientId = 'client_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            sessionStorage.setItem('pln_client_id', clientId);
+        }
+        return clientId;
+    };
+    const CLIENT_ID = getClientId();
+
     const SECTION_ORDER = ['dashboard', 'goals', 'resources', 'notes', 'reflection', 'insights'];
 
     const SECTION_TITLES = {
@@ -4196,6 +4210,7 @@ ${reflectionsHtml}
     const CloudSync = {
         _saveTimer: null,
         _isSaving: false,
+        _isApplyingRemote: false,
 
         scheduleSave(immediate = false) {
             clearTimeout(this._saveTimer);
@@ -4246,7 +4261,8 @@ ${reflectionsHtml}
                     notes: state.notes,
                     reflections: state.reflections,
                     resources: resourcesToSave,
-                    updated_at: new Date().toISOString()
+                    updated_at: new Date().toISOString(),
+                    last_modified_by_client_id: CLIENT_ID
                 }, { onConflict: 'user_id' });
                 if (error) {
                     console.error('CloudSync._save failed:', error);
@@ -4315,7 +4331,8 @@ ${reflectionsHtml}
                     const { error: saveErr } = await supabaseClient.from('user_data').upsert({
                         user_id: user.id,
                         resources: mergedResources,
-                        updated_at: new Date().toISOString()
+                        updated_at: new Date().toISOString(),
+                        last_modified_by_client_id: CLIENT_ID
                     }, { onConflict: 'user_id' });
                     if (saveErr) console.error('Failed to save merged resources:', saveErr);
                 }
@@ -5802,6 +5819,8 @@ ${reflectionsHtml}
 
     const RealtimeSync = {
         _channel: null,
+        _lastSyncToastTime: 0,
+        _TOAST_THROTTLE_MS: 5000,
         async init() {
             if (!supabaseClient) return;
             try {
@@ -5809,31 +5828,47 @@ ${reflectionsHtml}
                 if (!user) return;
                 this._channel = supabaseClient.channel('pln_rt_' + user.id)
                     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'user_data', filter: 'user_id=eq.' + user.id },
-                        (payload) => { if (!CloudSync._isSaving) this._applyRemote(payload.new); })
+                        (payload) => { if (!CloudSync._isSaving && !CloudSync._isApplyingRemote) this._applyRemote(payload.new); })
                     .subscribe();
             } catch (e) { console.warn('RealtimeSync.init:', e); }
         },
         _applyRemote(data) {
-            const merge = (local, remote) => {
-                const arr = Array.isArray(remote) ? remote : [];
-                const ids = new Set(arr.map(i => i.id));
-                return [...arr, ...(local || []).filter(i => !ids.has(i.id))];
-            };
-            state.goals = merge(state.goals, data.goals);
-            state.notes = merge(state.notes, data.notes);
-            state.reflections = merge(state.reflections, data.reflections);
+            // Ignore updates made by this client (same browser session)
+            if (data.last_modified_by_client_id === CLIENT_ID) {
+                return;
+            }
 
-            // Merge resources (stored outside state)
-            const localResources = Store.get(Resources.STORE_KEY, []);
-            Store.set(Resources.STORE_KEY, merge(localResources, data.resources));
+            CloudSync._isApplyingRemote = true;
+            try {
+                const merge = (local, remote) => {
+                    const arr = Array.isArray(remote) ? remote : [];
+                    const ids = new Set(arr.map(i => i.id));
+                    return [...arr, ...(local || []).filter(i => !ids.has(i.id))];
+                };
+                state.goals = merge(state.goals, data.goals);
+                state.notes = merge(state.notes, data.notes);
+                state.reflections = merge(state.reflections, data.reflections);
 
-            Goals.render(); Goals.updateProgress();
-            Notes.render();
-            if (typeof Notes._syncDashboard === 'function') Notes._syncDashboard();
-            Reflections.render();
-            Resources.render();
-            Navigation.updateBadges();
-            notify('Synkronisert', 'Data updated from another device', 'info');
+                // Merge resources (stored outside state)
+                const localResources = Store.get(Resources.STORE_KEY, []);
+                Store.set(Resources.STORE_KEY, merge(localResources, data.resources));
+
+                Goals.render(); Goals.updateProgress();
+                Notes.render();
+                if (typeof Notes._syncDashboard === 'function') Notes._syncDashboard();
+                Reflections.render();
+                Resources.render();
+                Navigation.updateBadges();
+
+                // Throttle sync toast to avoid notification spam (show max once every 5 seconds)
+                const now = Date.now();
+                if (now - this._lastSyncToastTime > this._TOAST_THROTTLE_MS) {
+                    notify('☁️ Synkronisert', 'Data updated from another device', 'success');
+                    this._lastSyncToastTime = now;
+                }
+            } finally {
+                CloudSync._isApplyingRemote = false;
+            }
         },
         stop() {
             if (this._channel && supabaseClient) { supabaseClient.removeChannel(this._channel); this._channel = null; }
