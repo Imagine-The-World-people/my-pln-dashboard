@@ -1,6 +1,6 @@
 /* Kompass Service Worker — network-first with offline fallback */
 /* Cache version: bump this string on every deploy to force cache refresh on all devices */
-const CACHE = 'kompass-v20260520-18';
+const CACHE = 'kompass-v20260520-19';
 const STATIC = [
   './',
   './index.html',
